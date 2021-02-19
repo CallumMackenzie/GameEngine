@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Windows/Direct2D">
+      <UniqueIdentifier>{86066fac-d74a-48f1-8ca6-536973b5cc87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Windows/Direct2D">
+      <UniqueIdentifier>{2e40d05f-b629-47b5-827f-55dd011947f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Base Functions">
+      <UniqueIdentifier>{335f34d8-ce37-49a4-a768-75e998b5749c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Base Functions">
+      <UniqueIdentifier>{217a5f01-e05f-4d3e-a1fa-6b3251194a5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Base Logic">
+      <UniqueIdentifier>{3f27680f-a368-4d2a-9411-05e883514d78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Base Logic">
+      <UniqueIdentifier>{4c1d63a2-0bc6-4ad9-bb56-42a8406105fe}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WinMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct2DWindow.cpp">
+      <Filter>Source Files\Windows/Direct2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files\Windows/Direct2D</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowClass.cpp">
+      <Filter>Source Files\Windows/Direct2D</Filter>
+    </ClCompile>
+    <ClCompile Include="C_WICImageFactory.cpp">
+      <Filter>Source Files\Windows/Direct2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.cpp">
+      <Filter>Source Files\Base Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Source Files\Base Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>Source Files\Base Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector2.cpp">
+      <Filter>Source Files\Base Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="Rotation.cpp">
+      <Filter>Source Files\Base Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector.cpp">
+      <Filter>Source Files\Base Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>Source Files\Base Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderable.cpp">
+      <Filter>Source Files\Base Logic</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowClass.h">
+      <Filter>Header Files\Windows/Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2DWindow.h">
+      <Filter>Header Files\Windows/Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Header Files\Windows/Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D.h">
+      <Filter>Header Files\Windows/Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="C_WICImageFactory.h">
+      <Filter>Header Files\Windows/Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Header Files\Base Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Header Files\Base Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="ModWin.h">
+      <Filter>Header Files\Windows/Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Header Files\Base Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>Header Files\Base Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>Header Files\Base Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="Rotation.h">
+      <Filter>Header Files\Base Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector.h">
+      <Filter>Header Files\Base Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>Header Files\Base Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderable.h">
+      <Filter>Header Files\Base Logic</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
