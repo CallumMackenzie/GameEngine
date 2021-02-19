@@ -11,9 +11,9 @@
 class GameObject 
 {
 public:
+    GameObject(const char* name_, Vector2* pos, Rotation* rot);
     GameObject(const char* name_);
     GameObject(const char* name_, Vector2* pos);
-    GameObject(const char* name_, Vector2* pos, Rotation* rot);
     GameObject(const char* name_, Rotation* rot);
 
 public:

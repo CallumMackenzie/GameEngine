@@ -4,5 +4,5 @@
 
 class Sprite : Renderable 
 {
-	Sprite(const char* name_);
+
 };

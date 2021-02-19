@@ -4,5 +4,6 @@
 
 class Renderable : GameObject
 {
-	Renderable(const char* name_);
+public:
+	Renderable(const char* name_, Vector2* pos, Rotation* rot);
 };

@@ -4,15 +4,11 @@
 
 // Callum Mackenzie
 
-Vector2::Vector2(float x_, float y_) : Vector(new float[2]{ x_, y_ }, 2) 
-{
-
-}
+Vector2::Vector2(float x_, float y_) : Vector(new float[2]{ x_, y_ }, 2)  
+{ }
 
 Vector2::Vector2() : Vector(new float[2]{ 0.f, 0.f }, 2)
-{
-
-}
+{ }
 
 float Vector2::x() 
 {
