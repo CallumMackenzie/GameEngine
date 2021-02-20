@@ -1,4 +1,4 @@
-#include "Renderable.h"
+#include <typeinfo>
+#include <type_traits>
 
-Renderable::Renderable(const char* name_, Vector2* pos, Rotation* rot) : GameObject(name_, pos, rot)
-{ }
+#include "Renderable.h"

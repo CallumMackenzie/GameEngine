@@ -6,8 +6,7 @@
 
 #include "Log.h"
 #include "Engine.h"
-#include "Vector.h"
-#include "Vector2.h"
+#include "Renderable.h"
 
 // Callum Mackenzie
 
@@ -64,7 +63,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLin
         Debug<float>::LogLine(vct->vector[i]);
     }
 
-
+    Renderable<ID2D1Bitmap*>* rd = new Renderable<ID2D1Bitmap*>("ID");
     
 
     //Engine* e = Engine::getEngine();
