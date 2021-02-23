@@ -3,6 +3,12 @@
 #include "ModWin.h"
 #include "WindowClass.h"
 
+void* operator new (size_t size) 
+{
+    // TODO: Track memory allocation
+    return malloc(size);   
+};
+
 WindowClass::WindowClass(LPCWSTR name_, HINSTANCE hInstance)
 {
     name = name_;
