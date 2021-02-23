@@ -11,13 +11,15 @@
 class GameObject 
 {
 public:
-    GameObject(const char* name_, Vector2* pos, Rotation* rot);
+    GameObject(const char* name_, Vector2 pos, Rotation rot);
     GameObject(const char* name_);
-    GameObject(const char* name_, Vector2* pos);
-    GameObject(const char* name_, Rotation* rot);
+    GameObject(const char* name_, Vector2 pos);
+    GameObject(const char* name_, Rotation rot);
+    ~GameObject();
 
 public:
     Vector2* position = nullptr;
     Rotation* rotation = nullptr;
     const char* name;
+    // const char* group;
 };

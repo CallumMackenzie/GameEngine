@@ -56,17 +56,48 @@ Direct2DWindow::Direct2DWindow(RootWindow *window_)
     }
     // https://docs.microsoft.com/en-us/windows/win32/direct2d/getting-started-with-direct2d#step-1-include-direct2d-header
 }
+
+Direct2DWindow::~Direct2DWindow()
+{
+    if (pBlackBrush != nullptr) {
+        pBlackBrush->Release();
+        pBlackBrush = nullptr;
+    }
+    if (varColPtr != nullptr) {
+        varColPtr->Release();
+        pBlackBrush = nullptr;
+    }
+    if (m_pTextFormat != nullptr) {
+        m_pTextFormat->Release();
+        pBlackBrush = nullptr;
+    }
+    if (pD2DFactory != nullptr) {
+        pD2DFactory->Release();
+        pBlackBrush = nullptr;
+    }
+    if (m_pDWriteFactory != nullptr) {
+        m_pDWriteFactory->Release();
+        pBlackBrush = nullptr;
+    }
+    if (pRT != nullptr) {
+        pRT->Release();
+        pRT = nullptr;
+    }
+    if (window != nullptr) {
+        delete window;
+    }
+}
+
 void Direct2DWindow::releaseResources()
 {
-    pRT->Release();
-    pRT = nullptr;
-    pBlackBrush->Release();
-    pBlackBrush = nullptr;
-}
-void Direct2DWindow::closing()
-{
-    pD2DFactory->Release();
-    pD2DFactory = nullptr;
+    if (pRT != nullptr) {
+        pRT->Release();
+        pRT = nullptr;
+    }
+    if (pBlackBrush != nullptr) {
+        pBlackBrush->Release();
+        pBlackBrush = nullptr;
+    }
 }
 ID2D1HwndRenderTarget *Direct2DWindow::getRenderPane()
 {

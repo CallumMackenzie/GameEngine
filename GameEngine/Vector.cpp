@@ -4,7 +4,13 @@ Vector::Vector(float* arr, int length_)
 {
 	vector = arr;
 	length = length_;
-};
+}
+Vector::~Vector()
+{
+	if (vector != nullptr) {
+		delete vector;
+	}
+}
 
 float Vector::qInvSqrt(float value)
 {

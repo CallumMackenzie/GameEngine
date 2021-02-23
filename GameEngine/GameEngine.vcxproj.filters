@@ -131,5 +131,8 @@
     <ClInclude Include="Renderable.h">
       <Filter>Header Files\Base Logic</Filter>
     </ClInclude>
+    <ClInclude Include="LinkedList.h">
+      <Filter>Header Files\Base Logic</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -8,8 +8,8 @@ class Direct2DWindow
 {
 public:
     Direct2DWindow(RootWindow *window_);
+    ~Direct2DWindow(); // Release render resources to avoid memory leaks
     void releaseResources(); // Release default style resources to avoid memory leaks
-    void closing(); // Release render resources to avoid memory leaks
     ID2D1HwndRenderTarget *getRenderPane(); // Returns the render pane of this render window
     RootWindow *getWindow(); // Returns the RootWindow object of this Direct2DWindow
     void beginRender(); // Starts rendering

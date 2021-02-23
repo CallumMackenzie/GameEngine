@@ -13,50 +13,82 @@ Rotation::Rotation()
 	z = 0.f;
 }
 
-void Rotation::add(Rotation* r2)
+Rotation* Rotation::add(Rotation* r2)
 {
 	x += r2->x;
 	y += r2->y;
 	z += r2->z;
+	return this;
 }
-
-void Rotation::subtract(Rotation* r2)
+Rotation* Rotation::subtract(Rotation* r2)
 {
 	x -= r2->x;
 	y -= r2->y;
 	z -= r2->z;
+	return this;
 }
-
-void Rotation::multiply(Rotation* r2)
+Rotation* Rotation::multiply(Rotation* r2)
 {
 	x *= r2->x;
 	y *= r2->y;
 	z *= r2->z;
+	return this;
 }
-
-void Rotation::divide(Rotation* r2)
+Rotation* Rotation::divide(Rotation* r2)
 {
 	x /= r2->x;
 	y /= r2->y;
 	z /= r2->z;
+	return this;
 }
 
-Rotation* Rotation::add(Rotation* r1, Rotation* r2)
+Rotation* Rotation::add(Rotation r2)
 {
-	return new Rotation(r1->x + r2->x, r1->y + r2->y, r1->z + r2->z);
+	x += r2.x;
+	y += r2.y;
+	z += r2.z;
+	return this;
+}
+Rotation* Rotation::subtract(Rotation r2)
+{
+	x -= r2.x;
+	y -= r2.y;
+	z -= r2.z;
+	return this;
+}
+Rotation* Rotation::multiply(Rotation r2)
+{
+	x *= r2.x;
+	y *= r2.y;
+	z *= r2.z;
+	return this;
+}
+Rotation* Rotation::divide(Rotation r2)
+{
+	x /= r2.x;
+	y /= r2.y;
+	z /= r2.z;
+	return this;
 }
 
-Rotation* Rotation::subtract(Rotation* r1, Rotation* r2)
+Rotation Rotation::add(Rotation r1, Rotation r2)
 {
-	return new Rotation(r1->x - r2->x, r1->y - r2->y, r1->z - r2->z);
+	return Rotation(r1.x + r2.x, r1.y + r2.y, r1.z + r2.z);
+}
+Rotation Rotation::subtract(Rotation r1, Rotation r2)
+{
+	return Rotation(r1.x - r2.x, r1.y - r2.y, r1.z - r2.z);
+}
+Rotation Rotation::multiply(Rotation r1, Rotation r2)
+{
+	return Rotation(r1.x * r2.x, r1.y * r2.y, r1.z * r2.z);
+}
+Rotation Rotation::divide(Rotation r1, Rotation r2)
+{
+	return Rotation(r1.x / r2.x, r1.y / r2.y, r1.z / r2.z);
 }
 
-Rotation* Rotation::multiply(Rotation* r1, Rotation* r2)
+Rotation* Rotation::asPtr(Rotation r)
 {
-	return new Rotation(r1->x * r2->x, r1->y * r2->y, r1->z * r2->z);
-}
-
-Rotation* Rotation::divide(Rotation* r1, Rotation* r2)
-{
-	return new Rotation(r1->x / r2->x, r1->y / r2->y, r1->z / r2->z);
+	return new Rotation(r.x, r.y, r.z);
 }

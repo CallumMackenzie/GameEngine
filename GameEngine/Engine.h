@@ -1,5 +1,16 @@
 #pragma once
 
+#include "ModWin.h"
+#include "WindowClass.h"
+#include "Window.h"
+#include "LinkedList.h"
+#include "Direct2D.h"
+#include "Direct2DWindow.h"
+#include "Input.h"
+#include "Renderable.h"
+#include "Log.h"
+#include "Sprite.h"
+
 // Callum Mackenzie
 
 class Engine
@@ -21,6 +32,9 @@ public:
 private:
     static Engine* engine; // Engine singleton
 
-protected:
+    LinkedList<GameObject>* gameObjects = new LinkedList<GameObject>();
+    LinkedList<Sprite>* sprites = new LinkedList<Sprite>();
+
+private:
     Engine(); // Engine constructor
 };

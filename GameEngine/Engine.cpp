@@ -1,10 +1,3 @@
-#include "ModWin.h"
-#include "WindowClass.h"
-#include "Window.h"
-#include "Direct2D.h"
-#include "Direct2DWindow.h"
-#include "Input.h"
-
 #include "Engine.h"
 
 // Callum Mackenzie
@@ -25,10 +18,8 @@ Engine::Engine()
 }
 
 Engine::~Engine() {
-	delete Input::getInput();
 	if (drwn != nullptr) {
-		drwn->releaseResources();
-		drwn->closing();
+		delete drwn;
 	}
 	if (primeClass != nullptr) {
 		delete primeClass;
@@ -38,6 +29,15 @@ Engine::~Engine() {
 void Engine::stop() 
 {
 	running = false;
+	if (gameObjects != nullptr) {
+		delete gameObjects;
+	}
+	if (sprites != nullptr) {
+		delete sprites;
+	}
+	if (Input::getInput() != nullptr) {
+		delete Input::getInput();
+	}
 }
 
 void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
@@ -58,17 +58,11 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 
 	////HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE());
 
-	//Time::targetFramesPerSecond = 144;
-
 	drwn = new Direct2DWindow(win);
 	drwn->clearColour = D2D1::ColorF::Black;
 	drwn->beginRender();
 	drwn->drawQueue(false);
 	drwn->endRender();
-	//Group* g = new Group(drwn, "gif");
-	//global::updateMonitorSize(win->getHWND());
-	//sp = new UIButton(g, "exitBtn", MAKEINTRESOURCEA(XBUTTON), RESOURCE_PNG, global::monitorWidth * 0.017, global::monitorWidth * 0.017, global::monitorWidth * 0.983, 0, 32, 32, 1, 1000);
-	//sp->interpMode = D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR;
 }
 
 LRESULT CALLBACK Engine::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
