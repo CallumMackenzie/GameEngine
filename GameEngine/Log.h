@@ -2,37 +2,30 @@
 
 #include "ModWin.h"
 #include <sstream>
-#include <stdarg.h>
 
 // Callum Mackenzie
 
-template <typename T>
 struct Debug
 {
-	static void Log(T const& ch) {
-		try
-		{
-			std::ostringstream oss;
-			oss << ch;
-			OutputDebugStringA(oss.str().c_str());
-		}
-		catch (const std::exception&)
-		{
-			return;
-		}
-	};
-	static void LogLine(T const& ch)
+	static inline std::ostringstream oss;
+
+	static inline void write ()
 	{
 		try
 		{
-			std::ostringstream oss;
-			oss << ch;
-			oss << '\n';
 			OutputDebugStringA(oss.str().c_str());
+			oss.str("");
+			oss.clear();
 		}
 		catch (const std::exception&)
 		{
 			return;
 		}
-	};
+	}
+
+	static inline void writeLn()
+	{	
+		oss << "\n";
+		write();
+	}
 };

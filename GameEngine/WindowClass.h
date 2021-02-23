@@ -2,8 +2,6 @@
 
 // Callum Mackenzie
 
-void* operator new (size_t size); // Overriding the new operator globally to track memory allocation when debugging.
-
 class WindowClass
 {
 public:
