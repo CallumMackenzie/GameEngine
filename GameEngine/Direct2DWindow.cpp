@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "Log.h"
 #include "Direct2D.h"
+#include "C_WICImageFactory.h"
 #include "Direct2DWindow.h"
 
 // Callum Mackenzie
@@ -59,29 +60,29 @@ Direct2DWindow::Direct2DWindow(RootWindow *window_)
 
 Direct2DWindow::~Direct2DWindow()
 {
-    if (pBlackBrush != nullptr) {
+    if (pBlackBrush) {
         pBlackBrush->Release();
-        pBlackBrush = nullptr;
+        pBlackBrush = NULL;
     }
-    if (varColPtr != nullptr) {
+    if (varColPtr) {
         varColPtr->Release();
-        pBlackBrush = nullptr;
+        pBlackBrush = NULL;
     }
-    if (m_pTextFormat != nullptr) {
+    if (m_pTextFormat) {
         m_pTextFormat->Release();
-        pBlackBrush = nullptr;
+        pBlackBrush = NULL;
     }
-    if (pD2DFactory != nullptr) {
+    if (pD2DFactory) {
         pD2DFactory->Release();
-        pBlackBrush = nullptr;
+        pBlackBrush = NULL;
     }
-    if (m_pDWriteFactory != nullptr) {
+    if (m_pDWriteFactory) {
         m_pDWriteFactory->Release();
-        pBlackBrush = nullptr;
+        pBlackBrush = NULL;
     }
-    if (pRT != nullptr) {
+    if (pRT) {
         pRT->Release();
-        pRT = nullptr;
+        pRT = NULL;
     }
     if (window != nullptr) {
         delete window;
@@ -90,15 +91,16 @@ Direct2DWindow::~Direct2DWindow()
 
 void Direct2DWindow::releaseResources()
 {
-    if (pRT != nullptr) {
+    if (pRT) {
         pRT->Release();
-        pRT = nullptr;
+        pRT = NULL;
     }
-    if (pBlackBrush != nullptr) {
+    if (pBlackBrush) {
         pBlackBrush->Release();
-        pBlackBrush = nullptr;
+        pBlackBrush = NULL;
     }
 }
+
 ID2D1HwndRenderTarget *Direct2DWindow::getRenderPane()
 {
     return pRT;
@@ -161,4 +163,78 @@ int Direct2DWindow::checkRenderQueueLength()
 {
     // TODO : Get render queue length
     return 0;
+}
+
+HRESULT Direct2DWindow::LoadFileBitmap(LPCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap)
+{
+    IWICImagingFactory* pIWICFactory = C_WICImagingFactory::GetWIC();
+    IWICBitmapDecoder* pDecoder = NULL;
+    IWICBitmapFrameDecode* pSource = NULL;
+    IWICStream* pStream = NULL;
+    IWICFormatConverter* pConverter = NULL;
+    IWICBitmapScaler* pScaler = NULL;
+
+    HRESULT hr = pIWICFactory->CreateDecoderFromFilename(
+        uri,
+        NULL,
+        GENERIC_READ,
+        WICDecodeMetadataCacheOnLoad,
+        &pDecoder
+    );
+    if (SUCCEEDED(hr))
+    {
+        hr = pDecoder->GetFrame(0, &pSource);
+    }
+
+    if (SUCCEEDED(hr))
+    {
+
+        // Convert the image format to 32bppPBGRA
+        // (DXGI_FORMAT_B8G8R8A8_UNORM + D2D1_ALPHA_MODE_PREMULTIPLIED).
+        hr = pIWICFactory->CreateFormatConverter(&pConverter);
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        hr = pConverter->Initialize(
+            pSource,
+            GUID_WICPixelFormat32bppPBGRA,
+            WICBitmapDitherTypeNone,
+            NULL,
+            0.f,
+            WICBitmapPaletteTypeMedianCut
+        );
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        // Create a Direct2D bitmap from the WIC bitmap.
+        hr = pRT->CreateBitmapFromWicBitmap(
+            pConverter,
+            NULL,
+            ppBitmap
+        );
+    }
+
+    if (pDecoder) {
+        pDecoder->Release();
+        pDecoder = NULL;
+    }
+    if (pSource) {
+        pSource->Release();
+        pSource = NULL;
+    }
+    if (pStream) {
+        pStream->Release();
+        pStream = NULL;
+    }
+    if (pConverter) {
+        pConverter->Release();
+        pConverter = NULL;
+    }
+    if (pScaler) {
+        pScaler->Release();
+        pScaler = NULL;
+    }
+    return hr;
 }

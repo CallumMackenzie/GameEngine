@@ -53,7 +53,7 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 	RootWindow* win = new RootWindow(hInstance, primeClass, L"Window", 0, 0, CW_USEDEFAULT, CW_USEDEFAULT);
 	win->style = WS_SYSMENU; 
 	win->create();
-	win->setFullscreen();
+	// win->setFullscreen();
 	win->show();
 
 	////HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE());

@@ -18,6 +18,10 @@ public:
     void drawRect(float x, float y, float width, float height, ID2D1SolidColorBrush *br);
     void drawBitmap(ID2D1Bitmap *bt, int width, int height, float top, float left, float rotation, float transparency, D2D1_POINT_2F rotationCenter, RECT sourceRect, D2D1_BITMAP_INTERPOLATION_MODE interpMode); // Draws bitmap
     int checkRenderQueueLength(); // TODO : Return length of render queue
+
+public:
+    HRESULT LoadFileBitmap(LPCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap);
+
 public:
     RootWindow *window = nullptr; // RootWindow object linked to this window
     ID2D1Factory *pD2DFactory = nullptr; // Factory for creating the render surface
