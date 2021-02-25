@@ -3,6 +3,7 @@
 struct Rotation
 {
 	float x = 0.f, y = 0.f, z = 0.f; // x, y, and z rotations
+	float centre [2] = {0, 0};
 
 	Rotation(float x_, float y_, float z_); // Creates new rotation
 	Rotation(); // Creates new rotation

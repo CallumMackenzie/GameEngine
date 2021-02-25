@@ -2,7 +2,7 @@
 
 #include "Renderable.h"
 
-class Sprite : Renderable<ID2D1Bitmap*> 
+class Sprite : public Renderable<ID2D1Bitmap*> 
 {
 
 };

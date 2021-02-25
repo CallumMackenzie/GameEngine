@@ -8,7 +8,8 @@ Vector::Vector(float* arr, int length_)
 Vector::~Vector()
 {
 	if (vector != nullptr) {
-		delete vector;
+		// delete vector;
+		vector = nullptr;
 	}
 }
 

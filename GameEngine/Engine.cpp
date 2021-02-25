@@ -29,12 +29,9 @@ Engine::~Engine() {
 void Engine::stop() 
 {
 	running = false;
-	if (gameObjects != nullptr) {
-		delete gameObjects;
-	}
-	if (sprites != nullptr) {
-		delete sprites;
-	}
+	//if (gameObjects != nullptr) {
+	//	delete gameObjects;
+	//}
 	if (Input::getInput() != nullptr) {
 		delete Input::getInput();
 	}
@@ -59,6 +56,16 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 	////HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE());
 
 	drwn = new Direct2DWindow(win);
+
+	ID2D1Bitmap* bmp;
+	HRESULT success = drwn->loadFileBitmap(L"C:\\Users\\Alexx\\source\\repos\\GameEngine\\Debug\\Munkey.png", 500, 500, &bmp);
+
+	if (SUCCEEDED(success)) {
+		Renderable<ID2D1Bitmap>* bmpRnd = new Renderable<ID2D1Bitmap>("Name", bmp);
+		// drwn->renderQueue->add(static_cast<void*>(bmpRnd), Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1BITMAP);
+		drwn->addToRenderQueue<Renderable<ID2D1Bitmap>*>(bmpRnd, Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1BITMAP);
+	}
+
 	drwn->clearColour = D2D1::ColorF::Black;
 	drwn->beginRender();
 	drwn->drawQueue(false);

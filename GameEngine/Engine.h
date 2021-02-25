@@ -4,7 +4,7 @@
 #include "WindowClass.h"
 #include "Window.h"
 #include "LinkedList.h"
-#include "Direct2D.h"
+#include "Bitmap.h"
 #include "Direct2DWindow.h"
 #include "Input.h"
 #include "Renderable.h"
@@ -32,8 +32,7 @@ public:
 private:
     static Engine* engine; // Engine singleton
 
-    LinkedList<GameObject>* gameObjects = new LinkedList<GameObject>();
-    LinkedList<Sprite>* sprites = new LinkedList<Sprite>();
+    // LinkedList* gameObjects = new LinkedList();
 
 private:
     Engine(); // Engine constructor

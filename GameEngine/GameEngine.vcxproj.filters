@@ -75,8 +75,8 @@
     <ClCompile Include="Sprite.cpp">
       <Filter>Source Files\Base Logic</Filter>
     </ClCompile>
-    <ClCompile Include="Renderable.cpp">
-      <Filter>Source Files\Base Logic</Filter>
+    <ClCompile Include="LinkedList.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

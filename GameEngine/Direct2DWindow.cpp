@@ -4,6 +4,10 @@
 #include "Log.h"
 #include "Direct2D.h"
 #include "C_WICImageFactory.h"
+#include "LinkedList.h"
+#include "Bitmap.h"
+#include "Renderable.h"
+#include "Sprite.h"
 #include "Direct2DWindow.h"
 
 // Callum Mackenzie
@@ -60,6 +64,9 @@ Direct2DWindow::Direct2DWindow(RootWindow *window_)
 
 Direct2DWindow::~Direct2DWindow()
 {
+    if (renderQueue) {
+        delete renderQueue;
+    }
     if (pBlackBrush) {
         pBlackBrush->Release();
         pBlackBrush = NULL;
@@ -86,6 +93,7 @@ Direct2DWindow::~Direct2DWindow()
     }
     if (window != nullptr) {
         delete window;
+        window = nullptr;
     }
 }
 
@@ -126,7 +134,48 @@ void Direct2DWindow::drawQueue(bool preservePrev)
         {
             pRT->Clear(clearColour);
         }
-        // TODO: Render render queue
+        pRT->SetTransform(D2D1::Matrix3x2F::Scale(zoom, D2D1::Point2F(0, 0)));
+        pRT->SetTransform(D2D1::Matrix3x2F::Translation(offset.x, offset.y));
+        pRT->SetTransform(skew);
+        RenderLinkedList::Node* node = renderQueue->head;
+        while (node != nullptr) 
+        {
+            switch (node->type) 
+            {
+            case RenderLinkedList::TYPE_RENDER_ID2D1BITMAP:
+                try {
+                    Renderable<ID2D1Bitmap>* rObj = ((Renderable<ID2D1Bitmap>*)node->data);
+                    if (rObj->renderElement == nullptr) {
+                        break;
+                    }
+                    RECT rct = RECT();
+                    rct.left = 0;
+                    rct.top = 0;
+                    rct.bottom = rObj->renderElement->GetSize().height;
+                    rct.right = rObj->renderElement->GetSize().width;
+                    drawBitmap(rObj->renderElement, rObj->renderElement->GetSize().width,
+                        rObj->renderElement->GetSize().width, rObj->position->x(), rObj->position->y(), rObj->rotation->x, rObj->rotation->y, rObj->rotation->z, rObj->transparency,
+                        D2D1::Point2F(rObj->rotation->centre[0], rObj->rotation->centre[1]), rct, D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+                }
+                catch (std::exception& e) {
+                    Debug::oss << "Failed to draw type " << node->type << ".";
+                    Debug::writeLn();
+                }
+                break;
+            case RenderLinkedList::TYPE_RENDER_ID2D1LINE:
+                // TODO: Render line
+                break;
+            case RenderLinkedList::TYPE_RENDER_ID2D1TEXT:
+                // TODO: Render text
+                break;
+            default:
+                Debug::oss << "Unrecognized type: " << node->type << ", not drawing.";
+                Debug::writeLn();
+                break;
+            }
+            node = node->next;
+        }
+        renderQueue = new RenderLinkedList();
     }
 }
 void Direct2DWindow::drawRect(float x, float y, float width, float height, ID2D1SolidColorBrush *br)
@@ -139,10 +188,10 @@ void Direct2DWindow::drawRect(float x, float y, float width, float height, ID2D1
             x + height),
         br, 10.0f);
 }
-void Direct2DWindow::drawBitmap(ID2D1Bitmap *bt, int width, int height, float top, float left, float rotation, float transparency, D2D1_POINT_2F rotationCenter, RECT sourceRect, D2D1_BITMAP_INTERPOLATION_MODE interpMode)
+void Direct2DWindow::drawBitmap(ID2D1Bitmap *bt, int width, int height, float top, float left, float rotX, float rotY, float rotZ, float transparency, D2D1_POINT_2F rotationCenter, RECT sourceRect, D2D1_BITMAP_INTERPOLATION_MODE interpMode)
 {
     D2D1_POINT_2F upperLeftCorner = D2D1::Point2F(top, left);
-    pRT->SetTransform(D2D1::Matrix3x2F::Rotation(rotation, rotationCenter));
+    pRT->SetTransform(D2D1::Matrix3x2F::Rotation(rotZ, rotationCenter));
     pRT->DrawBitmap(
         bt,
         D2D1::RectF(
@@ -159,13 +208,7 @@ void Direct2DWindow::drawBitmap(ID2D1Bitmap *bt, int width, int height, float to
             (float)sourceRect.bottom));
 }
 
-int Direct2DWindow::checkRenderQueueLength()
-{
-    // TODO : Get render queue length
-    return 0;
-}
-
-HRESULT Direct2DWindow::LoadFileBitmap(LPCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap)
+HRESULT Direct2DWindow::loadFileBitmap(LPCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap)
 {
     IWICImagingFactory* pIWICFactory = C_WICImagingFactory::GetWIC();
     IWICBitmapDecoder* pDecoder = NULL;
