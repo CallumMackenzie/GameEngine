@@ -43,14 +43,14 @@ void Engine::stop()
 void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
 	// HICON hIcon = LoadIconA(hInstance, MAKEINTRESOURCE(IDI_ICON1));
-	primeClass = new WindowClass(L"Prime Window Class", hInstance);
+	primeClass = new WindowClass(L"Ingenium WC", hInstance);
 	primeClass->setWindowProc(DEFAULT_WND_PROC);
 	primeClass->wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	//primeClass->wc.hIcon = hIcon;
 	//primeClass->wc.hIconSm = hIcon;
 	primeClass->registerClass();
 
-	RootWindow* win = new RootWindow(hInstance, primeClass, L"Window", 0, 0, CW_USEDEFAULT, CW_USEDEFAULT);
+	RootWindow* win = new RootWindow(hInstance, primeClass, L"Ingenium", 0, 0, CW_USEDEFAULT, CW_USEDEFAULT);
 	win->style = WS_SYSMENU; 
 	win->create();
 	// win->setFullscreen();
