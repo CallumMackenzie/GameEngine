@@ -37,6 +37,8 @@ void Engine::stop()
 	}
 }
 
+Renderable<ID2D1Bitmap>* bmpRnd;
+
 void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
 	// HICON hIcon = LoadIconA(hInstance, MAKEINTRESOURCE(IDI_ICON1));
@@ -48,7 +50,7 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 	primeClass->registerClass();
 
 	RootWindow* win = new RootWindow(hInstance, primeClass, L"Ingenium", 0, 0, CW_USEDEFAULT, CW_USEDEFAULT);
-	win->style = WS_SYSMENU; 
+	win->style = WS_SYSMENU;
 	win->create();
 	// win->setFullscreen();
 	win->show();
@@ -61,7 +63,9 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 	HRESULT success = drwn->loadFileBitmap(L"C:\\Users\\Alexx\\source\\repos\\GameEngine\\Debug\\Munkey.png", 500, 500, &bmp);
 
 	if (SUCCEEDED(success)) {
-		Renderable<ID2D1Bitmap>* bmpRnd = new Renderable<ID2D1Bitmap>("Name", bmp);
+		bmpRnd = new Renderable<ID2D1Bitmap>("Name", bmp);
+		bmpRnd->transparency = 0.4f;
+		bmpRnd->position->x(12);
 		// drwn->renderQueue->add(static_cast<void*>(bmpRnd), Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1BITMAP);
 		drwn->addToRenderQueue<Renderable<ID2D1Bitmap>*>(bmpRnd, Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1BITMAP);
 	}
@@ -70,6 +74,17 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 	drwn->beginRender();
 	drwn->drawQueue(false);
 	drwn->endRender();
+}
+
+void Engine::onUpdate() {
+	if (Input::getInput()->getKeyState(68) || Input::getInput()->getKeyState(65) || Input::getInput()->getKeyState(87) || Input::getInput()->getKeyState(83)) {
+		bmpRnd->position->add(((Input::getInput()->getKeyState(68) ? 1 : 0) + (Input::getInput()->getKeyState(65) ? -1.f : 0)) * Time::getTime()->deltaTime,
+			((Input::getInput()->getKeyState(83) ? 1 : 0) + (Input::getInput()->getKeyState(87) ? -1 : 0)) * Time::getTime()->deltaTime);
+		drwn->addToRenderQueue<Renderable<ID2D1Bitmap>*>(bmpRnd, Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1BITMAP);
+		drwn->beginRender();
+		drwn->drawQueue(false);
+		drwn->endRender();
+	}
 }
 
 LRESULT CALLBACK Engine::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

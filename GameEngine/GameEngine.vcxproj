@@ -148,6 +148,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="LinkedList.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="Rotation.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Sprite.cpp" />

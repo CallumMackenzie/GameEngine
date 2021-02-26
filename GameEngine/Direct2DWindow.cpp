@@ -158,8 +158,7 @@ void Direct2DWindow::drawQueue(bool preservePrev)
                         D2D1::Point2F(rObj->rotation->centre[0], rObj->rotation->centre[1]), rct, D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
                 }
                 catch (std::exception& e) {
-                    Debug::oss << "Failed to draw type " << node->type << ".";
-                    Debug::writeLn();
+                    e.what();
                 }
                 break;
             case RenderLinkedList::TYPE_RENDER_ID2D1LINE:
@@ -167,6 +166,9 @@ void Direct2DWindow::drawQueue(bool preservePrev)
                 break;
             case RenderLinkedList::TYPE_RENDER_ID2D1TEXT:
                 // TODO: Render text
+                break;
+            case RenderLinkedList::TYPE_RENDER_SPRITE:
+                // TODO: Render sprite
                 break;
             default:
                 Debug::oss << "Unrecognized type: " << node->type << ", not drawing.";

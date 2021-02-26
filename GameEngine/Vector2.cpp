@@ -40,66 +40,78 @@ Vector2* Vector2::normalize()
 	return this;
 }
 
-Vector2* Vector2::multiply(Vector2 v2)
+
+void Vector2::multiply(Vector2 v2)
 {
 	vector[0] *= v2.x();
 	vector[1] *= v2.y();
-	return this;
 }
-Vector2* Vector2::divide(Vector2 v2)
+void Vector2::divide(Vector2 v2)
 {
 	vector[0] /= v2.x();
 	vector[1] /= v2.y();
-	return this;
 }
-Vector2* Vector2::add(Vector2 v2)
+void Vector2::add(Vector2 v2)
 {
 	vector[0] += v2.x();
 	vector[1] += v2.y();
-	return this;
 }
-Vector2* Vector2::subtract(Vector2 v2)
+void Vector2::subtract(Vector2 v2)
 {
 	vector[0] -= v2.x();
 	vector[1] -= v2.y();
-	return this;
 }
-Vector2* Vector2::reassign(Vector2 v2)
+void Vector2::reassign(Vector2 v2)
 {
 	vector[0] = v2.x();
 	vector[1] = v2.y();
-	return this;
 }
 
-Vector2* Vector2::multiply(Vector2* v2)
+void Vector2::add(float x, float y)
+{
+	vector[0] += x;
+	vector[1] += y;
+}
+void Vector2::multiply(float x, float y)
+{
+	vector[0] *= x;
+	vector[1] *= y;
+}
+void Vector2::divide(float x, float y) 
+{
+	vector[0] /= x;
+	vector[1] /= y;
+}
+void Vector2::subtract(float x, float y)
+{
+	vector[0] -= x;
+	vector[1] -= y;
+}
+
+void Vector2::multiply(Vector2* v2)
 {
 	vector[0] *= v2->x();
 	vector[1] *= v2->y();
-	return this;
 }
-Vector2* Vector2::divide(Vector2* v2)
+void Vector2::divide(Vector2* v2)
 {
 	vector[0] /= v2->x();
 	vector[1] /= v2->y();
-	return this;
 }
-Vector2* Vector2::add(Vector2* v2)
+void Vector2::add(Vector2* v2)
 {
 	vector[0] += v2->x();
 	vector[1] += v2->y();
-	return this;
 }
-Vector2* Vector2::subtract(Vector2* v2)
+void Vector2::subtract(Vector2* v2)
 {
 	vector[0] -= v2->x();
 	vector[1] -= v2->y();
-	return this;
 }
-Vector2* Vector2::reassign(Vector2* v2)
+void Vector2::reassign(Vector2* v2)
 {
 	vector[0] = v2->x();
 	vector[1] = v2->y();
-	return this;
 }
 
 Vector2 Vector2::multiply(Vector2 v1, Vector2 v2)

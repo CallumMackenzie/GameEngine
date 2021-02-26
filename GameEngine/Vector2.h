@@ -15,17 +15,22 @@ struct Vector2 : public Vector
 	float magnitude(); // Returns the magnitude of this vector
 	Vector2* normalize(); // Normalizes this vector
 
-	Vector2* multiply(Vector2 v2); // Multiplies the vector with the vector passed in
-	Vector2* divide(Vector2 v2); // Divides this vector by the passed vector
-	Vector2* add(Vector2 v2); // Adds this vector to the passed vector
-	Vector2* subtract(Vector2 v2); // Subtracts the passed vector from this vector
-	Vector2* reassign(Vector2 v2); // Reassigns this vector to the input one
+	void multiply(Vector2 v2); // Multiplies the vector with the vector passed in
+	void divide(Vector2 v2); // Divides this vector by the passed vector
+	void add(Vector2 v2); // Adds this vector to the passed vector
+	void subtract(Vector2 v2); // Subtracts the passed vector from this vector
+	void reassign(Vector2 v2); // Reassigns this vector to the input one
 
-	Vector2* multiply(Vector2* v2); // Multiplies the vector with the vector passed in
-	Vector2* divide(Vector2* v2); // Divides this vector by the passed vector
-	Vector2* add(Vector2* v2); // Adds this vector to the passed vector
-	Vector2* subtract(Vector2* v2); // Subtracts the passed vector from this vector
-	Vector2* reassign(Vector2* v2); // Reassigns this vector to the input one
+	void add(float x, float y);
+	void multiply(float x, float y);
+	void divide(float x, float y);
+	void subtract(float x, float y);
+
+	void multiply(Vector2* v2); // Multiplies the vector with the vector passed in
+	void divide(Vector2* v2); // Divides this vector by the passed vector
+	void add(Vector2* v2); // Adds this vector to the passed vector
+	void subtract(Vector2* v2); // Subtracts the passed vector from this vector
+	void reassign(Vector2* v2); // Reassigns this vector to the input one
 
 	static Vector2 multiply(Vector2 v1, Vector2 v2); // Multiplies 2 vector2s
 	static Vector2 divide(Vector2 v1, Vector2 v2); // Divides 2 vectors

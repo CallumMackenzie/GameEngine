@@ -37,7 +37,20 @@ public:
 	{ };
 
 public:
+	struct FrameData {
+		int frames = 1;
+		int frame = 0;
+		int frameTime = 0;
+		int frameWidth = 0;
+		int frameHeight = 0;
+
+		void calculateFrame() {
+			frame++;
+		}
+	};
+
 	T* renderElement = nullptr;
 	float transparency = 1.f;
+	FrameData frameData = FrameData();
 	// int renderIndex = 0;
 };
