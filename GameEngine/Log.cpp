@@ -1,8 +1,3 @@
-#include "ModWin.h"
-#include "WindowClass.h"
-#include "Window.h"
-#include <time.h>
-
 #include "Log.h"
 
 void Debug::write()

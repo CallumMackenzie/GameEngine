@@ -30,8 +30,6 @@ public:
 public:
     WindowClass* primeClass = nullptr;
     Direct2DWindow* drwn = nullptr;
-    bool performanceMode = true;
-    static const inline bool debug = true;
 
 private:
     static Engine* engine; // Engine singleton

@@ -7,6 +7,7 @@ void* operator new (size_t size)
 }
 #include "Engine.h"
 
+// #define INGENIUM_WND_GUI
 // Callum Mackenzie
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
@@ -14,43 +15,34 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLin
 	Engine* e = Engine::getEngine();
 	e->init(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 
-	if (Engine::debug) {
-		Debug::createDebugWindow(hInstance);
-	}
+#if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
+	Debug::createDebugWindow(hInstance);
+#endif
 
 	MSG msg;
 	while (Engine::getEngine()->running)
 	{
-		
-		if (Time::getTime()->nextFrameReady() && Engine::getEngine()->performanceMode) {
-			if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		if (Time::getTime()->nextFrameReady()) {
 			Engine::getEngine()->onUpdate();
 		}
 
-		if (!Engine::getEngine()->performanceMode) {
-			if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-			Sleep(Time::getTime()->targetDeltaTime * 1000.0);
+#if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
+		if (Debug::windowWriteReady()) {
+			Debug::oss << "FPS: " << (1000.f / Time::getTime()->deltaTime) << "\n";
+			Debug::writeToWindow();
 		}
-
-		if (Engine::debug) {
-			if (Debug::windowWriteReady()) {
-				Debug::oss << "FPS: " << (1000.f / Time::getTime()->deltaTime) << "\n";
-				Debug::writeToWindow();
-			}
-		}
+#endif
 	}
 
-	if (Engine::debug) {
-		Debug::destroyDebugWindow();
-	}
+#if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
+	Debug::destroyDebugWindow();
+#endif
 	delete Engine::getEngine();
 
 	return 0;

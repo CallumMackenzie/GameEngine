@@ -1,5 +1,10 @@
 #pragma once
 
+#include "ModWin.h"
+#include "WindowClass.h"
+#include "Window.h"
+#include <time.h>
+
 #include <sstream>
 
 // Callum Mackenzie

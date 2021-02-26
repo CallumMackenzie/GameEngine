@@ -6,8 +6,8 @@
 GameObject::GameObject(const char* name_, Vector2 pos, Rotation rot)
 {
 	name = name_;
-	position = Vector2::asPtr(pos);
-	rotation = Rotation::asPtr(rot);
+	position = pos;
+	rotation = rot;
 }
 
 GameObject::GameObject(const char* name_) : GameObject(name_, Vector2(), Rotation())
@@ -21,6 +21,5 @@ GameObject::GameObject(const char* name_, Rotation rot) : GameObject(name_, Vect
 
 GameObject::~GameObject()
 {
-	delete rotation;
-	delete position;
+
 }

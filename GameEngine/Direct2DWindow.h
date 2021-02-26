@@ -16,7 +16,9 @@ public:
     void endRender(); // Ends rendering
     void drawQueue(bool preservePrev); // TODO : Draw render queue
     void drawRect(float x, float y, float width, float height, ID2D1SolidColorBrush *br);
-    void drawBitmap(ID2D1Bitmap *bt, int width, int height, float top, float left, float rotX, float rotY, float rotZ, float transparency, D2D1_POINT_2F rotationCenter, RECT sourceRect, D2D1_BITMAP_INTERPOLATION_MODE interpMode); // Draws bitmap
+    void drawBitmap(ID2D1Bitmap *bt, int width, int height, float top, float left, float rotX, float rotY, float rotZ, float transparency, 
+        D2D1_POINT_2F rotationCenter, RECT sourceRect, D2D1_BITMAP_INTERPOLATION_MODE interpMode,
+        float scaleX, float scaleY); // Draws bitmap
     template <typename T>
     inline void addToRenderQueue(T element, int type) {
         renderQueue->add(static_cast<void*>(element), type);
@@ -26,8 +28,6 @@ public:
     HRESULT loadFileBitmap(LPCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap);
 
 public:
-
-
     RootWindow *window = nullptr; // RootWindow object linked to this window
     ID2D1Factory *pD2DFactory = nullptr; // Factory for creating the render surface
     ID2D1SolidColorBrush *pBlackBrush = nullptr; // Black colour brush

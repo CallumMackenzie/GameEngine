@@ -18,8 +18,9 @@ public:
     ~GameObject();
 
 public:
-    Vector2* position = nullptr;
-    Rotation* rotation = nullptr;
+    Vector2 position = Vector2();
+    Vector2 scale = Vector2(1, 1);
+    Rotation rotation = Rotation();
     const char* name;
     // const char* group;
 };

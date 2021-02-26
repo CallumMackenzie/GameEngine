@@ -36,9 +36,6 @@
     <ClCompile Include="Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WinMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,18 +72,18 @@
     <ClCompile Include="Sprite.cpp">
       <Filter>Source Files\Base Logic</Filter>
     </ClCompile>
-    <ClCompile Include="LinkedList.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Log.cpp">
       <Filter>Source Files\Base Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="LinkedList.cpp">
+      <Filter>Source Files\Base Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files\Base Logic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowClass.h">
@@ -135,6 +132,9 @@
       <Filter>Header Files\Base Logic</Filter>
     </ClInclude>
     <ClInclude Include="LinkedList.h">
+      <Filter>Header Files\Base Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
       <Filter>Header Files\Base Logic</Filter>
     </ClInclude>
   </ItemGroup>

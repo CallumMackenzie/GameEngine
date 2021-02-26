@@ -60,31 +60,37 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 	drwn = new Direct2DWindow(win);
 
 	ID2D1Bitmap* bmp;
-	HRESULT success = drwn->loadFileBitmap(L"C:\\Users\\Alexx\\source\\repos\\GameEngine\\Debug\\Munkey.png", 500, 500, &bmp);
+	HRESULT success = drwn->loadFileBitmap(L"C:\\Users\\Alexx\\source\\repos\\GameEngine\\Debug\\EST.png", 15, 240, &bmp);
 
 	if (SUCCEEDED(success)) {
-		bmpRnd = new Renderable<ID2D1Bitmap>("Name", bmp);
-		bmpRnd->transparency = 0.4f;
-		bmpRnd->position->x(12);
-		// drwn->renderQueue->add(static_cast<void*>(bmpRnd), Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1BITMAP);
+		bmpRnd = new Renderable<ID2D1Bitmap>("EST", bmp);
+		bmpRnd->transparency = 0.6f;
+		bmpRnd->frameData.frameHeight = 30;
+		bmpRnd->frameData.frameWidth = 15;
+		bmpRnd->frameData.frames = 8;
+		bmpRnd->scale = Vector2(2, 2);
+		bmpRnd->frameData.spriteSheetDirection = Renderable<void>::FrameData::SPRITESHEET_VERTICAL;
+		bmpRnd->frameData.frameTime = 0.1;
 		drwn->addToRenderQueue<Renderable<ID2D1Bitmap>*>(bmpRnd, Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1BITMAP);
 	}
 
-	drwn->clearColour = D2D1::ColorF::Black;
+	drwn->clearColour = D2D1::ColorF::White;
 	drwn->beginRender();
 	drwn->drawQueue(false);
 	drwn->endRender();
 }
 
 void Engine::onUpdate() {
+	bmpRnd->frameData.calculateFrame();
+	float mvspd = 0.4;
 	if (Input::getInput()->getKeyState(68) || Input::getInput()->getKeyState(65) || Input::getInput()->getKeyState(87) || Input::getInput()->getKeyState(83)) {
-		bmpRnd->position->add(((Input::getInput()->getKeyState(68) ? 1 : 0) + (Input::getInput()->getKeyState(65) ? -1.f : 0)) * Time::getTime()->deltaTime,
-			((Input::getInput()->getKeyState(83) ? 1 : 0) + (Input::getInput()->getKeyState(87) ? -1 : 0)) * Time::getTime()->deltaTime);
-		drwn->addToRenderQueue<Renderable<ID2D1Bitmap>*>(bmpRnd, Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1BITMAP);
-		drwn->beginRender();
-		drwn->drawQueue(false);
-		drwn->endRender();
+		bmpRnd->position.add(((Input::getInput()->getKeyState(68) ? mvspd : 0) + (Input::getInput()->getKeyState(65) ? -mvspd : 0)) * Time::getTime()->deltaTime,
+			((Input::getInput()->getKeyState(83) ? mvspd : 0) + (Input::getInput()->getKeyState(87) ? -mvspd : 0)) * Time::getTime()->deltaTime);
 	}
+	drwn->addToRenderQueue<Renderable<ID2D1Bitmap>*>(bmpRnd, Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1BITMAP);
+	drwn->beginRender();
+	drwn->drawQueue(false);
+	drwn->endRender();
 }
 
 LRESULT CALLBACK Engine::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
