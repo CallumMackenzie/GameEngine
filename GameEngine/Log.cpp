@@ -34,6 +34,7 @@ void Debug::createDebugWindow(HINSTANCE hInstance) {
 	int hei = 300;
 
 	guiDebugWindow = new RootWindow(hInstance, guiDebugClass, L"Debug", CW_USEDEFAULT, CW_USEDEFAULT, hei, wid);
+	guiDebugWindow->style = WS_SYSMENU;
 	guiDebugWindow->create();
 	guiDebugWindow->show();
 	lpRect = new RECT();

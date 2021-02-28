@@ -1,5 +1,7 @@
 #include "ModWin.h"
+#include "Memory.h"
 #include <stdexcept>
+#include "Vector2.h"
 #include "Input.h"
 
 // Callum Mackenzie
@@ -12,6 +14,11 @@ Input* Input::getInput()
         input = new Input();
     }
     return input;
+}
+
+Input::~Input()
+{
+    memory::safe_delete(lpt);
 }
 
 bool Input::getKeyState(int key)
@@ -28,29 +35,24 @@ bool Input::getMouseButton(int button)
     return false;
 }
 
-LPPOINT Input::getCursorPos()
+Vector2 Input::getCursorPos()
 {
-    LPPOINT lpt = new tagPOINT();
+    Vector2 ret;
     if (GetCursorPos(lpt))
     {
-        return lpt;
+        ret = Vector2(lpt->x, lpt->y);
     }
-    return nullptr;
+    return ret;
 }
 
-LPPOINT Input::getHWNDCursorPos(HWND hWnd)
+Vector2 Input::getHWNDCursorPos(HWND hWnd)
 {
-    try
-    {
-        LPPOINT p = getCursorPos();
-        if (ScreenToClient(hWnd, p))
+    Vector2 ret = Vector2();
+    if (GetCursorPos(lpt)) {
+        if (ScreenToClient(hWnd, lpt))
         {
-            return p;
+            ret = Vector2((float)lpt->x, (float)lpt->y);
         }
-        return nullptr;
     }
-    catch (const std::exception &)
-    {
-        return nullptr;
-    }
+    return ret;
 }

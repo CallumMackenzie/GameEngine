@@ -1,3 +1,4 @@
+#include "Memory.h"
 #include "Vector.h"
 
 Vector::Vector(float* arr, int length_)
@@ -7,10 +8,7 @@ Vector::Vector(float* arr, int length_)
 }
 Vector::~Vector()
 {
-	if (vector != nullptr) {
-		// delete vector;
-		vector = nullptr;
-	}
+	// memory::safe_delete<float>(vector);
 }
 
 float Vector::qInvSqrt(float value)
@@ -37,4 +35,9 @@ float Vector::qInvSqrt(float value, int passes)
 	}
 
 	return y;
+}
+
+float Vector::qSqrt(float value)
+{
+	return 1.f / qInvSqrt(value);
 }

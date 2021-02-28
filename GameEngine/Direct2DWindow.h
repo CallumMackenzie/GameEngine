@@ -9,19 +9,33 @@ class Direct2DWindow
 public:
     Direct2DWindow(RootWindow *window_);
     ~Direct2DWindow(); // Release render resources to avoid memory leaks
-    void releaseResources(); // Release default style resources to avoid memory leaks
+
     ID2D1HwndRenderTarget *getRenderPane(); // Returns the render pane of this render window
     RootWindow *getWindow(); // Returns the RootWindow object of this Direct2DWindow
+
     void beginRender(); // Starts rendering
     void endRender(); // Ends rendering
     void drawQueue(bool preservePrev); // TODO : Draw render queue
-    void drawRect(float x, float y, float width, float height, ID2D1SolidColorBrush *br);
     void drawBitmap(ID2D1Bitmap *bt, int width, int height, float top, float left, float rotX, float rotY, float rotZ, float transparency, 
         D2D1_POINT_2F rotationCenter, RECT sourceRect, D2D1_BITMAP_INTERPOLATION_MODE interpMode,
         float scaleX, float scaleY); // Draws bitmap
+    void drawRectangle(float x, float y, float width, float height, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
+    void drawEllipse(float elipseCenterX, float elipseCenterY, float elipseWidth, float elipseHeight, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
+    void drawLine(float point1X, float point1Y, float point2X, float point2Y, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
+
+    void calculateRPR();
+
+
     template <typename T>
     inline void addToRenderQueue(T element, int type) {
         renderQueue->add(static_cast<void*>(element), type);
+    };
+    template <typename T>
+    static inline void releaseID2D1Resource(T*& t) {
+        if (t != nullptr) {
+            t->Release();
+        }
+        t = NULL;
     };
 
 public:
@@ -40,12 +54,16 @@ public:
     IDWriteFactory *m_pDWriteFactory = nullptr;
     IDWriteTextFormat *m_pTextFormat = nullptr;
 
+    float renderPixelRatio[2] = { 1, 1 };
+    float aspectRatio[2] = { 16, 9 };
+
     struct RenderLinkedList : DynamicLinkedList
     {
         static const inline int TYPE_RENDER_ID2D1BITMAP = 1;
         static const inline int TYPE_RENDER_ID2D1TEXT = 2;
         static const inline int TYPE_RENDER_ID2D1LINE = 3;
         static const inline int TYPE_RENDER_SPRITE = 4;
+        static const inline int TYPE_RENDER_VECTOR2 = 5;
     };
 
     RenderLinkedList* renderQueue = new RenderLinkedList(); // List of objects to render

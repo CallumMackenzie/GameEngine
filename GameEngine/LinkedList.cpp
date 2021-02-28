@@ -1,4 +1,16 @@
+#include "Memory.h"
+
 #include "LinkedList.h"
+
+DynamicLinkedList::~DynamicLinkedList()
+{
+	Node* ptr = head;
+	while (ptr != nullptr) {
+		Node* tmpPtr = ptr->next;
+		memory::safe_delete(ptr);
+		ptr = tmpPtr;
+	}
+}
 
 void DynamicLinkedList::add(void* data, int type)
 {
@@ -14,7 +26,7 @@ void DynamicLinkedList::add(void* data, int type)
 		}
 		ptr->next = new Node();
 		ptr->next->data = data;
-		ptr->type = type;
+		ptr->next->type = type;
 	}
 }
 

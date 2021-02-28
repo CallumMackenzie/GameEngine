@@ -1,4 +1,5 @@
 #include "ModWin.h"
+#include "Memory.h"
 #include "WindowClass.h"
 #include "Window.h"
 #include "Log.h"
@@ -59,54 +60,22 @@ Direct2DWindow::Direct2DWindow(RootWindow* window_)
 		m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 		m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 	}
+	calculateRPR();
 	// https://docs.microsoft.com/en-us/windows/win32/direct2d/getting-started-with-direct2d#step-1-include-direct2d-header
 }
 
 Direct2DWindow::~Direct2DWindow()
 {
-	if (renderQueue) {
-		delete renderQueue;
-	}
-	if (pBlackBrush) {
-		pBlackBrush->Release();
-		pBlackBrush = NULL;
-	}
-	if (varColPtr) {
-		varColPtr->Release();
-		pBlackBrush = NULL;
-	}
-	if (m_pTextFormat) {
-		m_pTextFormat->Release();
-		pBlackBrush = NULL;
-	}
-	if (pD2DFactory) {
-		pD2DFactory->Release();
-		pBlackBrush = NULL;
-	}
-	if (m_pDWriteFactory) {
-		m_pDWriteFactory->Release();
-		pBlackBrush = NULL;
-	}
-	if (pRT) {
-		pRT->Release();
-		pRT = NULL;
-	}
-	if (window != nullptr) {
-		delete window;
-		window = nullptr;
-	}
-}
+	memory::safe_delete(renderQueue);
 
-void Direct2DWindow::releaseResources()
-{
-	if (pRT) {
-		pRT->Release();
-		pRT = NULL;
-	}
-	if (pBlackBrush) {
-		pBlackBrush->Release();
-		pBlackBrush = NULL;
-	}
+	releaseID2D1Resource(pBlackBrush);
+	releaseID2D1Resource(varColPtr);
+	releaseID2D1Resource(m_pTextFormat);
+	releaseID2D1Resource(pD2DFactory);
+	releaseID2D1Resource(m_pDWriteFactory);
+	releaseID2D1Resource(pRT);
+
+	memory::safe_delete(window);
 }
 
 ID2D1HwndRenderTarget* Direct2DWindow::getRenderPane()
@@ -129,22 +98,82 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 {
 	if (pRT != nullptr)
 	{
-		pRT->SetTransform(D2D1::Matrix3x2F::Rotation(0, D2D1::Point2F(0, 0)));
 		if (!preservePrev)
 		{
 			pRT->Clear(clearColour);
 		}
-		pRT->SetTransform(D2D1::Matrix3x2F::Scale(zoom, D2D1::Point2F(0, 0)));
-		pRT->SetTransform(D2D1::Matrix3x2F::Translation(offset.x, offset.y));
-		pRT->SetTransform(skew);
 		RenderLinkedList::Node* node = renderQueue->head;
 		while (node != nullptr)
 		{
+			pRT->SetTransform(D2D1::Matrix3x2F::Rotation(0, D2D1::Point2F(0, 0)));
+			pRT->SetTransform(D2D1::Matrix3x2F::Scale(zoom, D2D1::Point2F(0, 0)));
+			pRT->SetTransform(D2D1::Matrix3x2F::Translation(offset.x, offset.y));
+			pRT->SetTransform(skew);
 			switch (node->type)
 			{
 			case RenderLinkedList::TYPE_RENDER_ID2D1BITMAP:
 			{
 				Renderable<ID2D1Bitmap>* rObj = ((Renderable<ID2D1Bitmap>*)node->data);
+				if (rObj->renderElement == nullptr)
+					break;
+
+				RECT rct = RECT();
+				if (rObj->frameData.frames <= 1) {
+					rct.left = 0;
+					rct.top = 0;
+					rct.bottom = rObj->renderElement->GetSize().height;
+					rct.right = rObj->renderElement->GetSize().width;
+				}
+				else {
+					if (rObj->frameData.spriteSheetDirection) { // Vertical
+						rct.left = 0;
+						rct.top = rObj->frameData.frameHeight * rObj->frameData.frame;
+						rct.right = rObj->frameData.frameWidth;
+						rct.bottom = rObj->frameData.frameHeight * (rObj->frameData.frame + 1);
+					}
+					else { // Horizontal
+						rct.left = rObj->frameData.frameHeight * rObj->frameData.frame;
+						rct.top = 0;
+						rct.right = rObj->frameData.frameWidth * (rObj->frameData.frame + 1);
+						rct.bottom = rObj->frameData.frameHeight;
+					}
+				}
+				drawBitmap(rObj->renderElement, // Bitmap
+					rObj->frameData.frameWidth, // Width
+					rObj->frameData.frameHeight, // Height
+					rObj->position.x(), // Left
+					rObj->position.y(), // Top
+					rObj->rotation.x, rObj->rotation.y, rObj->rotation.z, // Rotation
+					rObj->transparency, // Transparency
+					D2D1::Point2F(rObj->rotation.centre[0], rObj->rotation.centre[1]), // Center of rotation
+					rct, // Bitmap source rect
+					D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, // Interpolation mode
+					rObj->scale.x(), rObj->scale.y()); // Scale
+				break;
+			}
+			case RenderLinkedList::TYPE_RENDER_ID2D1LINE:
+				// TODO: Render line
+				break;
+			case RenderLinkedList::TYPE_RENDER_ID2D1TEXT:
+				// TODO: Render text
+				break;
+			case RenderLinkedList::TYPE_RENDER_SPRITE:
+			{
+				Sprite* rObj = ((Sprite*)node->data);
+				if (rObj->renderHitbox) {
+					if (rObj->hitbox2D.type == Hitbox2D::TYPE_RECTANGLE) {
+						drawRectangle(
+							rObj->hitbox2D.rectPos().x(),
+							rObj->hitbox2D.rectPos().y(),
+							rObj->hitbox2D.rectSize().x(),
+							rObj->hitbox2D.rectSize().y(),
+							pBlackBrush
+						);
+					}
+					else if (rObj->hitbox2D.type == Hitbox2D::TYPE_CIRCLE) {
+						drawEllipse(rObj->hitbox2D.circleCentre().x(), rObj->hitbox2D.circleCentre().y(), rObj->hitbox2D.circleDiameter(), rObj->hitbox2D.circleDiameter(), pBlackBrush);
+					}
+				}
 				if (rObj->renderElement == nullptr) {
 					break;
 				}
@@ -169,42 +198,31 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 						rct.bottom = rObj->frameData.frameHeight;
 					}
 				}
-				drawBitmap(rObj->renderElement, rObj->frameData.frameWidth, rObj->frameData.frameHeight,
-					rObj->position.x(), rObj->position.y(), rObj->rotation.x, rObj->rotation.y, rObj->rotation.z, rObj->transparency,
-					D2D1::Point2F(rObj->rotation.centre[0], rObj->rotation.centre[1]), rct, D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
-					rObj->scale.x(), rObj->scale.y());
+				drawBitmap(
+					rObj->renderElement, // Bitmap
+					rObj->size.x(), // Width
+					rObj->size.y(), // Height
+					rObj->position.x(), // Top
+					rObj->position.y(), // Left
+					rObj->rotation.x, rObj->rotation.y, rObj->rotation.z, // Rotation
+					rObj->transparency, // Transparency
+					D2D1::Point2F(rObj->rotation.centre[0] + rObj->position.x(), rObj->rotation.centre[1] + rObj->position.y()), // Rotation center
+					rct, // Bitmap source rect
+					D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, // Bitmap interpolation mode
+					rObj->scale.x(), rObj->scale.y() // Scale
+				);
+				break;
 			}
-			break;
-			case RenderLinkedList::TYPE_RENDER_ID2D1LINE:
-				// TODO: Render line
-				break;
-			case RenderLinkedList::TYPE_RENDER_ID2D1TEXT:
-				// TODO: Render text
-				break;
-			case RenderLinkedList::TYPE_RENDER_SPRITE:
-				// TODO: Render sprite
-				break;
 			default:
-				Debug::oss << "Unrecognized type: " << node->type << ", not drawing.";
-				Debug::writeLn();
 				break;
 			}
 			node = node->next;
 		}
+		memory::safe_delete(renderQueue);
 		renderQueue = new RenderLinkedList();
 	}
 }
-void Direct2DWindow::drawRect(float x, float y, float width, float height, ID2D1SolidColorBrush* br)
-{
-	pRT->DrawRectangle(
-		D2D1::RectF(
-			x,
-			y,
-			x + width,
-			x + height),
-		br, 10.0f);
-}
-void Direct2DWindow::drawBitmap(ID2D1Bitmap* bt, int width, int height, float top, float left, float rotX, float rotY, float rotZ, float transparency, 
+void Direct2DWindow::drawBitmap(ID2D1Bitmap* bt, int width, int height, float top, float left, float rotX, float rotY, float rotZ, float transparency,
 	D2D1_POINT_2F rotationCenter, RECT sourceRect, D2D1_BITMAP_INTERPOLATION_MODE interpMode,
 	float scaleX, float scaleY)
 {
@@ -213,10 +231,10 @@ void Direct2DWindow::drawBitmap(ID2D1Bitmap* bt, int width, int height, float to
 	pRT->DrawBitmap(
 		bt,
 		D2D1::RectF(
-			upperLeftCorner.x,
-			upperLeftCorner.y,
-			upperLeftCorner.x + (width * scaleX),
-			upperLeftCorner.y + (height * scaleY)),
+			upperLeftCorner.x * renderPixelRatio[0],
+			upperLeftCorner.y * renderPixelRatio[1],
+			(upperLeftCorner.x + (width * scaleX)) * renderPixelRatio[0],
+			(upperLeftCorner.y + (height * scaleY)) * renderPixelRatio[1]),
 		transparency,
 		interpMode,
 		D2D1::RectF(
@@ -224,6 +242,47 @@ void Direct2DWindow::drawBitmap(ID2D1Bitmap* bt, int width, int height, float to
 			(float)sourceRect.top,
 			(float)sourceRect.right,
 			(float)sourceRect.bottom));
+}
+void Direct2DWindow::drawRectangle(float x, float y, float width, float height, ID2D1Brush* brush, float strokeWidth, ID2D1StrokeStyle* strokeStyle)
+{
+	pRT->DrawRectangle(D2D1::RectF(
+		x * renderPixelRatio[0],
+		y * renderPixelRatio[1],
+		(x + width) * renderPixelRatio[0],
+		(y + height) * renderPixelRatio[1]),
+		brush, strokeWidth * renderPixelRatio[0],
+		strokeStyle);
+}
+void Direct2DWindow::drawEllipse(float elipseCenterX, float elipseCenterY, float elipseWidth, float elipseHeight, ID2D1Brush* brush, float strokeWidth, ID2D1StrokeStyle* strokeStyle)
+{
+	pRT->DrawEllipse(D2D1::Ellipse(
+		D2D1::Point2F(elipseCenterX * renderPixelRatio[0], elipseCenterY * renderPixelRatio[1]),
+		elipseWidth * renderPixelRatio[0],
+		elipseHeight * renderPixelRatio[1]
+	), brush, strokeWidth * renderPixelRatio[0], strokeStyle);
+}
+void Direct2DWindow::drawLine(float point1X, float point1Y, float point2X, float point2Y, ID2D1Brush* brush, float strokeWidth, ID2D1StrokeStyle* strokeStyle)
+{
+	pRT->DrawLine(
+		D2D1::Point2F(point1X * renderPixelRatio[0], point1Y * renderPixelRatio[1]), 
+		D2D1::Point2F(point2X * renderPixelRatio[0], point2Y * renderPixelRatio[1]),
+		brush,
+		strokeWidth,
+		strokeStyle);
+}
+
+void Direct2DWindow::calculateRPR()
+{
+	RECT* rect = new RECT();
+	float aspect_1_x = aspectRatio[0] / aspectRatio[1];
+	GetWindowRect(getWindow()->getHWND(), rect);
+	float win_width = rect->right - rect->left;
+	float win_height = rect->bottom - rect->top;
+
+	renderPixelRatio[0] = win_width / (aspectRatio[0] * 100);
+	renderPixelRatio[1] = win_height / (aspectRatio[1] * 100);
+
+	memory::safe_delete(rect);
 }
 
 HRESULT Direct2DWindow::loadFileBitmap(LPCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap)

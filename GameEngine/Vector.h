@@ -8,6 +8,7 @@ struct Vector
 	~Vector();
 	static float qInvSqrt(float value); // Fast inverse square root with 2 passes
 	static float qInvSqrt(float value, int passes); // Fast inverse square root with 2 passes
-	float* vector;
+	static float qSqrt(float value);
+	float* vector = new float[0];
 	int length = 1;
 };

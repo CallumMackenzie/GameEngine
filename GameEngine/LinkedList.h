@@ -7,6 +7,9 @@ struct LinkedList
 	{
 		T* value = nullptr;
 		Node* next = nullptr;
+		inline ~Node() {
+			delete value;
+		};
 	};
 
 	Node* head = new Node();
@@ -15,7 +18,6 @@ struct LinkedList
 		Node* ptr = head;
 		while (ptr != nullptr) {
 			Node* next = ptr->next;
-			delete ptr->value;
 			delete ptr;
 			ptr = next;
 		}
@@ -63,6 +65,7 @@ struct DynamicLinkedList // Do not use unless inheriting, types must be kept tra
 		Node* next = nullptr;
 	};
 
+	~DynamicLinkedList();
 	Node* head = nullptr;
 
 	void add(void* data, int type);

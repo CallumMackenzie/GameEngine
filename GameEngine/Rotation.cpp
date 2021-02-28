@@ -42,6 +42,16 @@ Rotation* Rotation::divide(Rotation* r2)
 	return this;
 }
 
+float Rotation::toRadians(float x)
+{
+	return x * (3.14159265358979323846 / 180.0);
+}
+
+float Rotation::toDegrees(float x) 
+{
+	return x * (180.0 / 3.14159265358979323846);
+}
+
 Rotation* Rotation::add(Rotation r2)
 {
 	x += r2.x;

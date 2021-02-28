@@ -18,6 +18,9 @@ struct Rotation
 	Rotation* multiply(Rotation* r2); // Multiplies a different rotation with the current one
 	Rotation* divide(Rotation* r2); // Divides this rotation by the input one
 
+	static float toRadians(float x);
+	static float toDegrees(float x);
+
 	static Rotation add(Rotation r1, Rotation r2); // Adds 2 rotations
 	static Rotation subtract(Rotation r1, Rotation r2); // Subtracts 2 rotations
 	static Rotation multiply(Rotation r1, Rotation r2); // Multiplies 2 rotations
