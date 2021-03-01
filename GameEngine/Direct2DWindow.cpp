@@ -171,7 +171,7 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 						);
 					}
 					else if (rObj->hitbox2D.type == Hitbox2D::TYPE_CIRCLE) {
-						drawEllipse(rObj->hitbox2D.circleCentre().x(), rObj->hitbox2D.circleCentre().y(), rObj->hitbox2D.circleDiameter(), rObj->hitbox2D.circleDiameter(), pBlackBrush);
+						drawEllipse(rObj->hitbox2D.circleCentre().x(), rObj->hitbox2D.circleCentre().y(), rObj->hitbox2D.circleRadius(), rObj->hitbox2D.circleRadius(), pBlackBrush);
 					}
 				}
 				if (rObj->renderElement == nullptr) {

@@ -28,6 +28,7 @@ public:
 	static const int COLLISION_DOWN_RIGHT = COLLISION_DOWN + COLLISION_RIGHT; // 11
 	static const int COLLISION_ALL = COLLISION_DOWN + COLLISION_UP + COLLISION_LEFT + COLLISION_RIGHT; // 
 
+	CollisionData colliding(Hitbox2D hb1, Hitbox2D hb2, Vector2 hb1Speed, Vector2 hb2Speed);
 	CollisionData colliding(Hitbox2D hb1, Hitbox2D hb2);
 	int hitDirection(Hitbox2D hb1, Hitbox2D hb2);
 

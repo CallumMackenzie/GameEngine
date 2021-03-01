@@ -29,7 +29,7 @@ public:
 	Vector2 rectBR();
 	Vector2 rectBL();
 
-	float circleDiameter();
+	float circleRadius();
 	Vector2 circleCentre();
 
 public:

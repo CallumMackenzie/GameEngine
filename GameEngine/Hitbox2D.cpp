@@ -63,7 +63,7 @@ Vector2 Hitbox2D::rectBL()
 	return Vector2::add(rectPos(), Vector2(0, rectSize().y()));
 }
 
-float Hitbox2D::circleDiameter()
+float Hitbox2D::circleRadius()
 {
 	return points[0].x();
 }

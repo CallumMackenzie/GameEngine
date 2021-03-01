@@ -37,6 +37,10 @@ struct Vector2
 	void subtract(Vector2* v2); // Subtracts the passed vector from this vector
 	void reassign(Vector2* v2); // Reassigns this vector to the input one
 
+	void rotate(float theta);
+
+	float dotProduct(Vector2 v2);
+
 	static Vector2 multiply(Vector2 v1, Vector2 v2); // Multiplies 2 vector2s
 	static Vector2 divide(Vector2 v1, Vector2 v2); // Divides the right by the left
 	static Vector2 add(Vector2 v1, Vector2 v2); // Adds 2 vectors

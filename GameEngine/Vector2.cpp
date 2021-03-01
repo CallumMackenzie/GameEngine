@@ -120,6 +120,17 @@ void Vector2::reassign(Vector2* v2)
 	yVal = v2->y();
 }
 
+void Vector2::rotate(float thetaRadians)
+{
+	xVal = std::cos(thetaRadians) * xVal - std::sin(thetaRadians) * yVal;
+	yVal = std::sin(thetaRadians) * xVal + std::cos(thetaRadians) * yVal;
+}
+
+float Vector2::dotProduct(Vector2 v2)
+{
+	return xVal * v2.x() + yVal * v2.y();
+}
+
 Vector2 Vector2::multiply(Vector2 v1, Vector2 v2)
 {
 	return Vector2(v1.x() * v2.x(), v1.y() * v2.y());
