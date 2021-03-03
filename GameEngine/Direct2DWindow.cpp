@@ -9,6 +9,7 @@
 #include "Bitmap.h"
 #include "Renderable.h"
 #include "Sprite.h"
+#include "Input.h"
 #include "Direct2DWindow.h"
 
 // Callum Mackenzie
@@ -85,6 +86,15 @@ ID2D1HwndRenderTarget* Direct2DWindow::getRenderPane()
 RootWindow* Direct2DWindow::getWindow()
 {
 	return window;
+}
+void Direct2DWindow::resizePRT(UINT width, UINT height)
+{
+	if (pRT) {
+		D2D1_SIZE_U size;
+		size.width = width;
+		size.height = height;
+		pRT->Resize(size);
+	}
 }
 void Direct2DWindow::beginRender()
 {
@@ -226,6 +236,8 @@ void Direct2DWindow::drawBitmap(ID2D1Bitmap* bt, int width, int height, float to
 	D2D1_POINT_2F rotationCenter, RECT sourceRect, D2D1_BITMAP_INTERPOLATION_MODE interpMode,
 	float scaleX, float scaleY)
 {
+	rotationCenter.x = rotationCenter.x * renderPixelRatio[0];
+	rotationCenter.y = rotationCenter.y * renderPixelRatio[1];
 	D2D1_POINT_2F upperLeftCorner = D2D1::Point2F(top, left);
 	pRT->SetTransform(D2D1::Matrix3x2F::Rotation(rotZ, rotationCenter));
 	pRT->DrawBitmap(
@@ -285,9 +297,30 @@ void Direct2DWindow::calculateRPR()
 	memory::safe_delete(rect);
 }
 
+float Direct2DWindow::getMouseX()
+{
+	return Input::getInput()->getHWNDCursorPos(window->getHWND()).x() / renderPixelRatio[0];
+}
+
+float Direct2DWindow::getMouseY()
+{
+	return Input::getInput()->getHWNDCursorPos(window->getHWND()).y() / renderPixelRatio[1];
+}
+
+Vector2 Direct2DWindow::getMousePos() 
+{
+	Vector2 v2 = Input::getInput()->getHWNDCursorPos(window->getHWND());
+	v2.divide(renderPixelRatio[0], renderPixelRatio[1]);
+	return v2;
+}
+
+
 HRESULT Direct2DWindow::loadFileBitmap(LPCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap)
 {
 	IWICImagingFactory* pIWICFactory = C_WICImagingFactory::GetWIC();
+	if (!pIWICFactory) {
+		return E_FAIL;
+	}
 	IWICBitmapDecoder* pDecoder = NULL;
 	IWICBitmapFrameDecode* pSource = NULL;
 	IWICStream* pStream = NULL;

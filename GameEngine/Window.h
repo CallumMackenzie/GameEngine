@@ -12,6 +12,15 @@ public:
 	HWND getHWND(); // Returns the window handle of the window
 	HINSTANCE getHInstance(); // Reutrns the hInstance of the window
 
+	void assignHWND(HWND hwnd);
+	bool embedWallpaper(); // Embeds this window in the wallpaper
+	bool embedWallpaper(int x_, int y_, int wid, int hei);
+	bool isWallpaper(); // Returns whether this window is a wallpaper or not
+
+	static BOOL CALLBACK EnumWindowsProc(HWND wnd, LPARAM lp); // Do not use externally
+	static HWND getWallpaperWindow(); // Returns the wallpaper window handle
+	void setSize(int width_, int height_); // Sets the size of the window
+
 public:
 	int style = 0;           // Prime window style
 	int fullscreenStyle = 0; // Style of the full screen window mode
@@ -22,6 +31,7 @@ public:
 	bool verbose = false;    // For debugging purposes
 
 protected:
+	bool isProgman = false;
 	WindowClass* cls = nullptr;    // Window class
 	LPCWSTR name = nullptr;        // Window name
 	HWND parentWindow = nullptr;   // Parent window
@@ -41,7 +51,6 @@ public:
 	RootWindow(HINSTANCE hInstance_, WindowClass* wndcl, LPCWSTR name_, int x_, int y_, int height_, int width_);
 	~RootWindow();
 	void setFullscreen(); // Sets window to fullscreen
-	void setSize(int width_, int height_); // Sets the size of the window
 };
 
 class Button : public Window

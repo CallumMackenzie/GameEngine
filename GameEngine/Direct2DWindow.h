@@ -13,6 +13,8 @@ public:
     ID2D1HwndRenderTarget *getRenderPane(); // Returns the render pane of this render window
     RootWindow *getWindow(); // Returns the RootWindow object of this Direct2DWindow
 
+    void resizePRT(UINT width, UINT height);
+
     void beginRender(); // Starts rendering
     void endRender(); // Ends rendering
     void drawQueue(bool preservePrev); // TODO : Draw render queue
@@ -24,6 +26,10 @@ public:
     void drawLine(float point1X, float point1Y, float point2X, float point2Y, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
 
     void calculateRPR();
+    
+    float getMouseX();
+    float getMouseY();
+    Vector2 getMousePos();
 
 
     template <typename T>

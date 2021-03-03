@@ -20,7 +20,7 @@ void operator delete(void* p)
 #include "ModWin.h"
 #include "Engine.h"
 
-#define INGENIUM_WND_GUI 1
+// #define INGENIUM_WND_GUI 1
 // Callum Mackenzie
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
