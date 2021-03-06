@@ -150,6 +150,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="LinkedList.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="Lua.cpp" />
     <ClCompile Include="Physics2D.cpp" />
     <ClCompile Include="Rotation.cpp" />
     <ClCompile Include="Sound.cpp" />
@@ -171,6 +172,12 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="LinkedList.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="Lua.h" />
+    <ClInclude Include="lualib\lauxlib.h" />
+    <ClInclude Include="lualib\lua.h" />
+    <ClInclude Include="lualib\lua.hpp" />
+    <ClInclude Include="lualib\luaconf.h" />
+    <ClInclude Include="lualib\lualib.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="ModWin.h" />
     <ClInclude Include="Physics2D.h" />
@@ -183,6 +190,15 @@
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowClass.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua5.1.lib" />
+    <Library Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua51.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua5.1.dll" />
+    <None Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua51.dll" />
+    <None Include="Entry.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

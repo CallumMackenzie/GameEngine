@@ -49,6 +49,9 @@
     <Filter Include="Source Files\Base Logic\Physics">
       <UniqueIdentifier>{7f1225e1-0817-4adc-858c-bf4ef1dea05d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Lua">
+      <UniqueIdentifier>{4f3057d2-70e5-4603-82a2-460e4e4f73ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -104,6 +107,9 @@
     </ClCompile>
     <ClCompile Include="Hitbox2D.cpp">
       <Filter>Source Files\Base Logic\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -170,5 +176,40 @@
     <ClInclude Include="Memory.h">
       <Filter>Header Files\Base Functions</Filter>
     </ClInclude>
+    <ClInclude Include="lualib\lua.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lualib\lua.hpp">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lualib\luaconf.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lualib\lualib.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lualib\lauxlib.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua51.lib">
+      <Filter>Header Files\Lua</Filter>
+    </Library>
+    <Library Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua5.1.lib">
+      <Filter>Header Files\Lua</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua5.1.dll">
+      <Filter>Header Files\Lua</Filter>
+    </None>
+    <None Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua51.dll">
+      <Filter>Header Files\Lua</Filter>
+    </None>
+    <None Include="Entry.lua" />
   </ItemGroup>
 </Project>

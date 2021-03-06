@@ -2,9 +2,7 @@
 
 #ifdef _DEBUG
 int memManagementTracker = 0;
-#endif
 
-#ifdef _DEBUG
 void* operator new (size_t size)
 {
 	memManagementTracker++;
@@ -25,6 +23,10 @@ void operator delete(void* p)
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
+#if defined(SCRIPT_LUA)
+	ingenium_lua::initLua();
+#endif
+
 	Engine* e = Engine::getEngine();
 	e->init(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 

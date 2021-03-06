@@ -17,6 +17,10 @@ public:
 	static Hitbox2D createCircleHitbox(float diameter, Vector2 pos);
 	static Hitbox2D createRectHitbox(Vector2 pos, Vector2 size_);
 
+	static Hitbox2D* createUndefinedHitboxPtr();
+	static Hitbox2D* createCircleHitboxPtr(float diameter, Vector2 pos);
+	static Hitbox2D* createRectHitboxPtr(Vector2 pos, Vector2 size_);
+
 private:
 	Hitbox2D(int type_);
 	Hitbox2D();

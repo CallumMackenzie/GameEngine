@@ -11,211 +11,66 @@ Engine* Engine::getEngine()
 	}
 	return engine;
 }
-
-Engine::Engine() 
+Engine::Engine()
 {
 	running = true;
 }
-
 Engine::~Engine() {
-	stop();
+	if (running) {
+		stop();
+	}
 	memory::safe_delete<Direct2DWindow>(drwn);
 	memory::safe_delete<WindowClass>(primeClass);
 }
-
-void Engine::stop() 
+const char* Engine::fileAbsolutePath(const char* relativePath)
 {
-	onClose();
+	char str[512];
+	GetFullPathNameA(relativePath, 512, str, NULL);
+	return str;
+}
+void Engine::stop()
+{
 	running = false;
+	onClose();
 	memory::safe_delete(Input::input);
 	memory::safe_delete(Physics2D::physics2D);
 }
 
-Sprite* control1;
-Sprite* box1;
-Sprite* boxControl1;
-
-Sprite* circles[40];
-int numCircles = 40;
-
 void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
-	// HICON hIcon = LoadIconA(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	primeClass = new WindowClass(L"Ingenium WC", hInstance);
 	primeClass->setWindowProc(DEFAULT_WND_PROC);
 	primeClass->wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	//primeClass->wc.hIcon = hIcon;
-	//primeClass->wc.hIconSm = hIcon;
 	primeClass->registerClass();
 
 	RootWindow* win = new RootWindow(hInstance, primeClass, L"Ingenium", CW_USEDEFAULT, CW_USEDEFAULT, 900, 1600);
 	win->style = WS_SYSMENU | WS_SIZEBOX;
 	win->create();
-	////HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE());
 	win->show();
 
 	drwn = new Direct2DWindow(win);
 
-	win->embedWallpaper();
-	win->setFullscreen();
-
-	ID2D1Bitmap* bmp;
-	ID2D1Bitmap* munkey;
-	ID2D1Bitmap* planets[4];
-	HRESULT success = drwn->loadFileBitmap(L"C:\\Users\\Alexx\\source\\repos\\GameEngine\\Debug\\EST.png", 15, 240, &bmp);
-	success = drwn->loadFileBitmap(L"C:\\Users\\Alexx\\source\\repos\\GameEngine\\Debug\\Munkey.png", 500, 500, &munkey);
-	success = drwn->loadFileBitmap(L"C:\\Users\\Alexx\\source\\repos\\GameEngine\\Debug\\Planet1.png", 1024, 1024, &planets[0]);
-	success = drwn->loadFileBitmap(L"C:\\Users\\Alexx\\source\\repos\\GameEngine\\Debug\\Planet2.png", 512, 512, &planets[1]);
-	success = drwn->loadFileBitmap(L"C:\\Users\\Alexx\\source\\repos\\GameEngine\\Debug\\Planet3.png", 2048, 2048, &planets[2]);
-	success = drwn->loadFileBitmap(L"C:\\Users\\Alexx\\source\\repos\\GameEngine\\Debug\\Planet4.png", 894, 894, &planets[3]);
-
-
-	if (SUCCEEDED(success)) {
-		control1 = new Sprite("ElectrostaticTube", Vector2(-50, -50), Rotation(10, 10, 10), bmp, Hitbox2D::createRectHitbox(Vector2(), Vector2(30, 60)));
-		control1->rotation.centre[0] = 15;
-		control1->rotation.centre[1] = 30;
-		control1->size = Vector2(30, 60);
-		control1->transparency = 0.6f;
-		control1->frameData.frameHeight = 30;
-		control1->frameData.frameWidth = 15;
-		control1->frameData.frames = 8;
-		control1->scale = Vector2(1, 1);
-		control1->frameData.spriteSheetDirection = Renderable<void>::FrameData::SPRITESHEET_VERTICAL;
-		control1->frameData.frameTime = 0.1;
-		
-		box1 = new Sprite("MunkeyBox", Vector2(-200, -300), Rotation(), munkey, Hitbox2D::createRectHitbox(Vector2(), Vector2(100, 100)));
-		box1->size = Vector2(100, 100);
-		box1->transparency = 0.4;
-
-		boxControl1 = new Sprite("MunkeyCircle", Vector2(30, 30), Rotation(), planets[0], Hitbox2D::createCircleHitbox(70, Vector2(72.5, 72.5)));
-		boxControl1->size = Vector2(145, 145);
-
-		for (int i = 0; i < (numCircles / 2); i++) {
-			int size = 15 * ((i % 3) + 1);
-			circles[i] = new Sprite("MunkeyCircle" + i, Vector2(1 + (80 * i), 200), Rotation(), planets[(i % 4)], Hitbox2D::createCircleHitbox(size, Vector2(size, size)));
-			circles[i]->size = Vector2(size * 2, size * 2);
-		}
-		for (int j = (numCircles / 2); j < numCircles; j++) {
-			int i = j - (numCircles / 2);
-			int size = 15 * ((i % 3) + 1);
-			circles[j] = new Sprite("MunkeyCircle" + j, Vector2(1 + (80 * i), 500), Rotation(), planets[(i % 4)], Hitbox2D::createCircleHitbox(size, Vector2(size, size)));
-			circles[j]->size = Vector2(size * 2, size * 2);
-		}
-	}
-
-	drwn->clearColour = D2D1::ColorF::Black;
 	drwn->drawQueue(false);
+
+#if defined(SCRIPT_LUA)
+	loadToLua();
+	ingenium_lua::loadFile(fileAbsolutePath(LUA_ENGINE_ENTRY));
+	ingenium_lua::executeChunk();
+	ingenium_lua::executeFunc(LUA_ENGINE_INIT);
+#endif
 }
 
 void Engine::onUpdate() {
-	control1->frameData.calculateFrame();
-	Vector2 mousePos = drwn->getMousePos();
-	Vector2 add = Vector2(
-		mousePos.x() - (boxControl1->position.x() + boxControl1->size.x() / 2),
-		mousePos.y() - (boxControl1->position.y() + boxControl1->size.y() / 2));
-	float mvspd = 0.05;
-	if (Input::getInput()->getKeyState(68) || Input::getInput()->getKeyState(65) || Input::getInput()->getKeyState(87) || Input::getInput()->getKeyState(83)) {
-		control1->velocity.add(((Input::getInput()->getKeyState(68) ? mvspd : 0) + (Input::getInput()->getKeyState(65) ? -mvspd : 0)) * Time::getTime()->deltaTime,
-			((Input::getInput()->getKeyState(83) ? mvspd : 0) + (Input::getInput()->getKeyState(87) ? -mvspd : 0)) * Time::getTime()->deltaTime);
-	}
-	if (Vector::qSqrt(add.x() * add.x() + add.y() * add.y()) >= 1) { // Input::getInput()->getMouseButton(0) && 
-		add.divide(100, 100);
-		boxControl1->velocity.add(add);
-	}
-	if (Input::getInput()->getKeyState(49)) {
-		control1->setXY(0, 0);
-		boxControl1->setXY(400, 10);
-	}
-
-	boxControl1->addXY(boxControl1->velocity);
-
-	control1->velocity.multiply(0.9, 0.9);
-	boxControl1->velocity.multiply(0.92, 0.92);
-	control1->rotation.z += 0.1 * Time::getTime()->deltaTime;
-
-	control1->addXY(control1->velocity);
-
-	Physics2D::CollisionData collisionResult = Physics2D::getPhysics2D()->colliding(box1->hitbox2D, control1->hitbox2D, Vector2(), control1->velocity);
-	if (collisionResult.direction != Physics2D::COLLISION_NONE) {
-		if (Physics2D::isCollisionDown(collisionResult.direction)) {
-			control1->setY(box1->position.y() - control1->size.y());
-		}
-		else if (Physics2D::isCollisionUp(collisionResult.direction)) {
-			control1->setY(box1->position.y() + box1->size.y());
-		}
-		if (Physics2D::isCollisionRight(collisionResult.direction)) {
-			control1->setX(box1->position.x() + box1->size.x());
-		}
-		else if (Physics2D::isCollisionLeft(collisionResult.direction)) {
-			control1->setX(box1->position.x() - control1->size.x());
-		}
-	}
-	collisionResult = Physics2D::getPhysics2D()->colliding(control1->hitbox2D, boxControl1->hitbox2D);
-	if (collisionResult.direction != Physics2D::COLLISION_NONE) {
-		boxControl1->subtractXY(collisionResult.hitVector);
-	}
-	for (int i = 0; i < numCircles; i++) {
-		int wid = 1500;
-		int hei = 800;
-		if (circles[i]->position.x() + circles[i]->hitbox2D.circleRadius() >= wid) {
-			circles[i]->setX(wid - 1 - circles[i]->hitbox2D.circleRadius());
-			circles[i]->velocity.x(-circles[i]->velocity.x() * 0.6);
-		}
-		if (circles[i]->position.x() - circles[i]->hitbox2D.circleRadius() <= 0) {
-			circles[i]->setX(circles[i]->hitbox2D.circleRadius());
-			circles[i]->velocity.x(-circles[i]->velocity.x() * 0.6);
-		}
-		if (circles[i]->position.y() + circles[i]->hitbox2D.circleRadius() >= hei) {
-			circles[i]->setY(hei - 1 - circles[i]->hitbox2D.circleRadius());
-			circles[i]->velocity.y(-circles[i]->velocity.y() * 0.6);
-		}
-		if (circles[i]->position.y() - circles[i]->hitbox2D.circleRadius() <= 0) {
-			circles[i]->setY(circles[i]->hitbox2D.circleRadius());
-			circles[i]->velocity.y(-circles[i]->velocity.y() * 0.6);
-		}
-		circles[i]->addXY(circles[i]->velocity);
-		//collisionResult = Physics2D::getPhysics2D()->colliding(control1->hitbox2D, circles[i]->hitbox2D);
-		//if (collisionResult.direction != Physics2D::COLLISION_NONE) {
-		//	collisionResult.hitVector.divide(2, 2);
-		//	circles[i]->subtractXY(collisionResult.hitVector);
-		//	control1->addXY(collisionResult.hitVector);
-		//}
-		collisionResult = Physics2D::getPhysics2D()->colliding(circles[i]->hitbox2D, boxControl1->hitbox2D);
-		if (collisionResult.direction != Physics2D::COLLISION_NONE) {
-			collisionResult.hitVector.divide(2, 2);
-			boxControl1->subtractXY(collisionResult.hitVector);
-			boxControl1->velocity.subtract(collisionResult.hitVector);
-			circles[i]->addXY(collisionResult.hitVector);
-			circles[i]->velocity.add(collisionResult.hitVector);
-		}
-		for (int j = 0; j < numCircles; j++) {
-			if (circles[j]->name != circles[i]->name) {
-				collisionResult = Physics2D::getPhysics2D()->colliding(circles[i]->hitbox2D, circles[j]->hitbox2D);
-				if (collisionResult.direction != Physics2D::COLLISION_NONE) {
-					collisionResult.hitVector.divide(3, 3);
-					circles[j]->subtractXY(collisionResult.hitVector);
-					circles[i]->addXY(collisionResult.hitVector);
-					circles[j]->velocity.subtract(collisionResult.hitVector);
-					circles[i]->velocity.add(collisionResult.hitVector);
-				}
-			}
-		}
-		drwn->addToRenderQueue(circles[i], Direct2DWindow::RenderLinkedList::TYPE_RENDER_SPRITE);
-	}
-
-	drwn->addToRenderQueue(boxControl1, Direct2DWindow::RenderLinkedList::TYPE_RENDER_SPRITE);
-	drwn->addToRenderQueue(control1, Direct2DWindow::RenderLinkedList::TYPE_RENDER_SPRITE);
-	drwn->addToRenderQueue(box1, Direct2DWindow::RenderLinkedList::TYPE_RENDER_SPRITE);
-
-	drwn->beginRender();
-	drwn->drawQueue(false);
-	drwn->endRender();
+#if defined(SCRIPT_LUA)
+	ingenium_lua::executeFunc(LUA_ENGINE_UPDATE);
+#endif
 }
 
 void Engine::onClose() {
-	memory::safe_delete(box1);
-	memory::safe_delete(control1);
-	memory::safe_delete(boxControl1);
+#if defined(SCRIPT_LUA)
+	ingenium_lua::executeFunc(LUA_ENGINE_CLOSE);
+	ingenium_lua::stopLua();
+#endif
 }
 
 LRESULT CALLBACK Engine::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -260,3 +115,411 @@ LRESULT CALLBACK Engine::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, L
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 };
+
+#if defined(SCRIPT_LUA)
+namespace lua_funcs
+{
+	void printStackTrace() {
+		Debug::oss << ingenium_lua::getStackTrace();
+		Debug::writeLn();
+	}
+	template <typename T> T* uDataToPtr(void* data) {
+		return *(T**)data;
+	}
+
+	namespace d2d
+	{
+#define LUA_D2DWIN_NAME "D2D"
+#define LUA_D2DWIN_SETSIZE "setSize"
+#define LUA_D2DWIN_GETMOUSEX "getMouseX"
+#define LUA_D2DWIN_GETMOUSEY "getMouseY"
+#define LUA_D2DWIN_PRINT "write"
+#define LUA_D2DWIN_RENDER "render"
+
+		int setDRWNSize(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2.", nargs);
+			UINT width = luaL_checkint(lua, 1);
+			UINT height = luaL_checkint(lua, 2);
+
+			lua_pop(lua, 2);
+
+			Engine::getEngine()->drwn->setSize(width, height);
+			return 0;
+		}
+		int getMouseXDRWN(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 0)
+				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
+			lua_pushnumber(lua, Engine::getEngine()->drwn->getMouseX());
+			return 1;
+		}
+		int getMouseYDRWN(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 0)
+				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
+			lua_pushnumber(lua, Engine::getEngine()->drwn->getMouseY());
+			return 1;
+		}
+		int printDRWN(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			for (int i = 0; i < nargs; i++) {
+				Debug::oss << luaL_checkstring(lua, i + 1);
+				Debug::write();
+			}
+			lua_pop(lua, nargs);
+			return 0;
+		}
+		int renderDRWN(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1.", nargs);
+			bool clear = lua_toboolean(lua, 1);
+			Engine::getEngine()->drwn->beginRender();
+			Engine::getEngine()->drwn->drawQueue(clear);
+			Engine::getEngine()->drwn->endRender();
+			lua_pop(lua, 1);
+			return 0;
+		}
+		void registerDRWN(lua_State* lua)
+		{
+			Direct2DWindow** pmPtr = (Direct2DWindow**)lua_newuserdata(lua, sizeof(Direct2DWindow*));
+			*pmPtr = Engine::getEngine()->drwn;
+
+			luaL_newmetatable(lua, "D2DMetaTable");
+
+			lua_pushvalue(lua, -1);
+			lua_setfield(lua, -2, "__index");
+
+			luaL_Reg functions[] = {
+				 LUA_D2DWIN_SETSIZE, setDRWNSize,
+				 LUA_D2DWIN_RENDER, renderDRWN,
+				 LUA_D2DWIN_GETMOUSEX, getMouseXDRWN,
+				 LUA_D2DWIN_GETMOUSEY, getMouseYDRWN,
+				 LUA_D2DWIN_PRINT, printDRWN,
+				 nullptr, nullptr
+			};
+
+			luaL_register(lua, 0, functions);
+			lua_setmetatable(lua, -2);
+			lua_setglobal(lua, LUA_D2DWIN_NAME);
+		}
+	}
+
+	namespace vec2
+	{
+#define LUA_VECTOR2_NAME "Vector2"
+#define LUA_VECTOR2_NAME_INHERITABLE "Ingenium.Vector2"
+#define LUA_VECTOR2_GETX "getX"
+#define LUA_VECTOR2_SETX "setX"
+#define LUA_VECTOR2_GETY "getY"
+#define LUA_VECTOR2_SETY "setY"
+#define LUA_VECTOR2_NORMALIZE "normalize"
+#define LUA_VECTOR2_HYPOTENUSE "hypotenuse"
+#define LUA_VECTOR2_MAGNITUDE "magnitude"
+
+		int newVector2(lua_State* lua);
+
+		int magnitude(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			lua_pushnumber(lua, Vector2::hypotenuse(*v2));
+			return 1;
+		}
+
+		int normalize(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			v2->normalize();
+			return 0;
+		}
+
+		int getX(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			lua_pushnumber(lua, v2->x());
+			return 1;
+		}
+
+		int getY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			lua_pushnumber(lua, v2->y());
+			return 1;
+		}
+
+		int setX(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (self, number).", nargs);
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			float nv = luaL_checknumber(lua, 1);
+			v2->x(nv);
+			return 0;
+		}
+
+		int setY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (self, number).", nargs);
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			float nv = luaL_checknumber(lua, 1);
+			v2->y(nv);
+			return 0;
+		}
+
+		int add(lua_State* lua) {
+			Vector2* v1 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 2));
+			lua_pop(lua, 2);
+			lua_pushnumber(lua, v1->xVal + v2->xVal);
+			lua_pushnumber(lua, v1->yVal + v2->yVal);
+			return newVector2(lua);
+		}
+
+		int subtract(lua_State* lua) {
+			Vector2* v1 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 2));
+			lua_pop(lua, 2);
+			lua_pushnumber(lua, v1->xVal - v2->xVal);
+			lua_pushnumber(lua, v1->yVal - v2->yVal);
+			return newVector2(lua);
+		}
+
+		int multiply(lua_State* lua) {
+			Vector2* v1 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 2));
+			lua_pop(lua, 2);
+			lua_pushnumber(lua, v1->xVal * v2->xVal);
+			lua_pushnumber(lua, v1->yVal * v2->yVal);
+			return newVector2(lua);
+		}
+
+		int divide(lua_State* lua) {
+			Vector2* v1 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 2));
+			lua_pop(lua, 2);
+			lua_pushnumber(lua, v1->xVal / v2->xVal);
+			lua_pushnumber(lua, v1->yVal / v2->yVal);
+			return newVector2(lua);
+		}
+
+		int unaryMinus(lua_State* lua) {
+			Vector2* v1 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			lua_pop(lua, 1);
+			lua_pushnumber(lua, -v1->xVal);
+			lua_pushnumber(lua, -v1->yVal);
+			return newVector2(lua);
+		}
+
+		int floorDiv(lua_State* lua) {
+			Vector2* v1 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 2));
+			lua_pop(lua, 2);
+			lua_pushnumber(lua, (int)(v1->xVal / v2->xVal));
+			lua_pushnumber(lua, (int)(v1->yVal / v2->yVal));
+			return newVector2(lua);
+		}
+
+		int toString(lua_State* lua) {
+			Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+			std::string v2s("vec2(");
+			v2s = v2s.append(std::to_string(v2->x())).append(", ").append(std::to_string(v2->y())).append(")");
+			lua_pushstring(lua, v2s.c_str());
+			return 1;
+		}
+
+		int FREE(lua_State* lua) {
+			memory::safe_delete(*(Vector2**)lua_touserdata(lua, 1));
+			return 0;
+		}
+
+		int newVector2(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 0 && nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 0 or 2: (number, number).", nargs);
+
+			float xComp = 0;
+			float yComp = 0;
+			if (nargs == 2) {
+				xComp = luaL_checknumber(lua, 1);
+				yComp = luaL_checknumber(lua, 2);
+				lua_pop(lua, 2);
+			}
+
+			Vector2** v2 = (Vector2**)lua_newuserdata(lua, sizeof(Vector2*));
+			*v2 = new Vector2(xComp, yComp);
+
+			luaL_newmetatable(lua, LUA_VECTOR2_NAME_INHERITABLE);
+
+			lua_pushstring(lua, "__gc");
+			lua_pushcfunction(lua, FREE);
+			lua_settable(lua, -3);
+			lua_pushstring(lua, "__tostring");
+			lua_pushcfunction(lua, toString);
+			lua_settable(lua, -3);
+			lua_pushstring(lua, "__add");
+			lua_pushcfunction(lua, add);
+			lua_settable(lua, -3);
+			lua_pushstring(lua, "__sub");
+			lua_pushcfunction(lua, subtract);
+			lua_settable(lua, -3);
+			lua_pushstring(lua, "__mul");
+			lua_pushcfunction(lua, multiply);
+			lua_settable(lua, -3);
+			lua_pushstring(lua, "__div");
+			lua_pushcfunction(lua, divide);
+			lua_settable(lua, -3);
+			lua_pushstring(lua, "__unm");
+			lua_pushcfunction(lua, unaryMinus);
+			lua_settable(lua, -3);
+			lua_pushstring(lua, "__idiv");
+			lua_pushcfunction(lua, floorDiv);
+			lua_settable(lua, -3);
+
+			lua_setmetatable(lua, -2);
+			return 1;
+		}
+
+		luaL_Reg functions[] = {
+			"new", newVector2,
+			"toString", toString,
+			LUA_VECTOR2_GETX, getX,
+			LUA_VECTOR2_GETY, getY,
+			LUA_VECTOR2_SETX, setX,
+			LUA_VECTOR2_SETY, setY,
+			LUA_VECTOR2_NORMALIZE, normalize,
+			LUA_VECTOR2_MAGNITUDE, magnitude,
+			LUA_VECTOR2_HYPOTENUSE, magnitude,
+			nullptr, nullptr
+		};
+
+		void registerVector2(lua_State* lua) {
+			luaL_newmetatable(lua, LUA_VECTOR2_NAME_INHERITABLE);
+			luaL_register(lua, 0, functions);
+			lua_pushvalue(lua, -1);
+			lua_setfield(lua, -2, "__index");
+			luaL_register(lua, LUA_VECTOR2_NAME, functions);
+		}
+	}
+
+	namespace hitbox2D
+	{
+#define LUA_HITBOX2D_NAME "Hitbox2D"
+#define LUA_HITBOX2D_NAME_INHERITABLE "Ingenium.Hitbox2D"
+#define LUA_HITBOX2D_GETTYPE "type"
+
+		int toString(lua_State* lua) {
+			Hitbox2D* v2 = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 1));
+			std::string v2s("Hitbox2D(");
+			switch (v2->type) {
+			case Hitbox2D::TYPE_RECTANGLE:
+				v2s = v2s.append("TYPE_RECTANGLE, pos=(").append(std::to_string(v2->rectPos().x())).append(", ").append(std::to_string(v2->rectPos().y())).
+					append("), width=").append(std::to_string(v2->rectSize().x())).append(", height=").append(std::to_string(v2->rectSize().y()));
+				break;
+			case Hitbox2D::TYPE_CIRCLE:
+				v2s = v2s.append("TYPE_CIRCLE, r=").append(std::to_string(v2->circleRadius()).append(", ").
+					append("centre=(").append(std::to_string(v2->circleCentre().x()))).append(", ").append(std::to_string(v2->circleCentre().y())).append(")");
+				break;
+			default:
+				v2s = v2s.append("TYPE_UNKNOWN");
+				break;
+			}
+			v2s = v2s.append(")");
+			lua_pushstring(lua, v2s.c_str());
+			return 1;
+		}
+
+		int FREE(lua_State* lua) {
+			memory::safe_delete(*(Hitbox2D**)lua_touserdata(lua, 1));
+			return 0;
+		}
+
+		int getType(lua_State* lua) {
+			Hitbox2D* v2 = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 1));
+			lua_pushnumber(lua, v2->type);
+			return 1;
+		}
+
+		int newHitbox2D(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 0 && nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 0 or 2: (Vector2, Vector2) or (number, Vector2).", nargs);
+
+			Hitbox2D** hit = (Hitbox2D**)lua_newuserdata(lua, sizeof(Hitbox2D*));
+			printStackTrace();
+			if (nargs == 0) {
+				*hit = Hitbox2D::createUndefinedHitboxPtr();
+			}
+			else {
+				switch (lua_type(lua, 1)) {
+				case LUA_TNUMBER:
+					{
+					float diameter = luaL_checknumber(lua, 1);
+					Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 2));
+					*hit = Hitbox2D::createCircleHitboxPtr(diameter, *v2);
+					}
+					break;
+				default:
+					Vector2* v1 = uDataToPtr<Vector2>(lua_touserdata(lua, 1));
+					Vector2* v2 = uDataToPtr<Vector2>(lua_touserdata(lua, 2));
+					*hit = Hitbox2D::createRectHitboxPtr(*v1, *v2);
+					break;
+				}
+				lua_remove(lua, -2);
+				lua_remove(lua, -2);
+			}
+			printStackTrace();
+
+			luaL_newmetatable(lua, LUA_HITBOX2D_NAME_INHERITABLE);
+			lua_pushstring(lua, "__gc");
+			lua_pushcfunction(lua, FREE);
+			lua_settable(lua, -3);
+			lua_pushstring(lua, "__tostring");
+			lua_pushcfunction(lua, toString);
+			lua_settable(lua, -3);
+
+			lua_setmetatable(lua, -2);
+			return 1;
+		}
+
+		luaL_Reg functions[] = {
+			"new", newHitbox2D,
+			"newUndefined", newHitbox2D,
+			"newCircle", newHitbox2D,
+			"newRect", newHitbox2D,
+			LUA_HITBOX2D_GETTYPE, getType,
+			nullptr, nullptr
+		};
+
+		void registerHitbox2D(lua_State* lua) {
+			luaL_newmetatable(lua, LUA_HITBOX2D_NAME_INHERITABLE);
+			luaL_register(lua, 0, functions);
+			lua_pushvalue(lua, -1);
+			lua_setfield(lua, -2, "__index");
+			luaL_register(lua, LUA_HITBOX2D_NAME, functions);
+		}
+	}
+}
+
+void Engine::loadToLua()
+{
+	if (!ingenium_lua::state) {
+		ingenium_lua::initLua();
+	}
+
+	lua_funcs::d2d::registerDRWN(ingenium_lua::state);
+	lua_funcs::vec2::registerVector2(ingenium_lua::state);
+	lua_funcs::hitbox2D::registerHitbox2D(ingenium_lua::state);
+}
+#endif

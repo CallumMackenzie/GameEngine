@@ -12,6 +12,12 @@ struct Vector2
 	float x(); // Returns the x component of the vector
 	float y(); // Returns the y component of the vector
 
+	float getX();
+	float getY();
+
+	float setX(float v);
+	float setY(float v);
+
 	float x(float val); // Sets the y component of the vector
 	float y(float val); // Sets the y component of the vector
 
@@ -45,6 +51,11 @@ struct Vector2
 	static Vector2 divide(Vector2 v1, Vector2 v2); // Divides the right by the left
 	static Vector2 add(Vector2 v1, Vector2 v2); // Adds 2 vectors
 	static Vector2 subtract(Vector2 v1, Vector2 v2); // Subtracts the right from the left
+
+	static Vector2* multiply(Vector2* v1, Vector2* v2); // Multiplies 2 vector2s
+	static Vector2* divide(Vector2* v1, Vector2* v2); // Divides the right by the left
+	static Vector2* add(Vector2* v1, Vector2* v2); // Adds 2 vectors
+	static Vector2* subtract(Vector2* v1, Vector2* v2); // Subtracts the right from the left
 
 	static float hypotenuse(Vector2 point);
 

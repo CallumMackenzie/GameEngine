@@ -24,6 +24,22 @@ float Vector2::y()
 {
 	return yVal;
 }
+float Vector2::getX()
+{
+	return x();
+}
+float Vector2::getY()
+{
+	return y();
+}
+float Vector2::setX(float v)
+{
+	return x(v);
+}
+float Vector2::setY(float v)
+{
+	return y(v);
+}
 float Vector2::x(float val)
 {
 	return (xVal = val);
@@ -36,7 +52,7 @@ float Vector2::y(float val)
 float Vector2::magnitude()
 {
 
-	return 1.f / Vector::qInvSqrt(x() * x() + y() * y());
+	return Vector::qSqrt(x() * x() + y() * y());
 }
 
 void Vector2::normalize()
@@ -148,9 +164,29 @@ Vector2 Vector2::subtract(Vector2 v1, Vector2 v2)
 	return Vector2(v1.x() - v2.x(), v1.y() - v2.y());
 }
 
+Vector2* Vector2::multiply(Vector2* v1, Vector2* v2)
+{
+	return new Vector2(v1->xVal * v2->xVal, v1->yVal * v2->yVal);
+}
+
+Vector2* Vector2::divide(Vector2* v1, Vector2* v2)
+{
+	return new Vector2(v1->xVal / v2->xVal, v1->yVal / v2->yVal);
+}
+
+Vector2* Vector2::add(Vector2* v1, Vector2* v2)
+{
+	return new Vector2(v1->xVal + v2->xVal, v1->yVal + v2->yVal);
+}
+
+Vector2* Vector2::subtract(Vector2* v1, Vector2* v2)
+{
+	return new Vector2(v1->xVal - v2->xVal, v1->yVal - v2->yVal);
+}
+
 float Vector2::hypotenuse(Vector2 point)
 {
-	return (1.f / Vector::qInvSqrt(point.x() * point.x() + point.y() * point.y()));
+	return (Vector::qSqrt(point.x() * point.x() + point.y() * point.y()));
 }
 
 Vector2* Vector2::asPtr(Vector2 v)

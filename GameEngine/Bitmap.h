@@ -1,7 +1,0 @@
-#pragma once
-
-#include "Direct2D.h";
-
-struct Bitmap : ID2D1Bitmap {
-	D2D1_BITMAP_INTERPOLATION_MODE interpolationMode = D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR;
-};

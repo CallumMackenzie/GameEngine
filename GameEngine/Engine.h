@@ -1,7 +1,12 @@
 #pragma once
 
+#define SCRIPT_LUA 1
+
 #include "Memory.h"
 #include "ModWin.h"
+#if defined(SCRIPT_LUA)
+#include "Lua.h"
+#endif
 #include "WindowClass.h"
 #include "Window.h"
 #include "Log.h"
@@ -18,7 +23,7 @@
 
 // Callum Mackenzie
 
-class Engine
+struct Engine
 {
 public:
     static Engine* getEngine(); // Returns the engine singleton, or creates one if it doesn't exist yet
@@ -31,6 +36,11 @@ public:
     void onClose();
     bool running = false; // Whether the engine is running or not
     ~Engine(); // Engine deconstructor to clean up memory leaks
+    const char* fileAbsolutePath(const char* relativePath);
+
+#if defined(SCRIPT_LUA)
+    void loadToLua();
+#endif
 
 public:
     WindowClass* primeClass = nullptr;

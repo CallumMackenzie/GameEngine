@@ -14,6 +14,7 @@ public:
     RootWindow *getWindow(); // Returns the RootWindow object of this Direct2DWindow
 
     void resizePRT(UINT width, UINT height);
+    void setSize(UINT wid, UINT hei);
 
     void beginRender(); // Starts rendering
     void endRender(); // Ends rendering

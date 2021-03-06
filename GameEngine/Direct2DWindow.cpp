@@ -6,7 +6,6 @@
 #include "Direct2D.h"
 #include "C_WICImageFactory.h"
 #include "LinkedList.h"
-#include "Bitmap.h"
 #include "Renderable.h"
 #include "Sprite.h"
 #include "Input.h"
@@ -65,6 +64,7 @@ Direct2DWindow::Direct2DWindow(RootWindow* window_)
 	// https://docs.microsoft.com/en-us/windows/win32/direct2d/getting-started-with-direct2d#step-1-include-direct2d-header
 }
 
+
 Direct2DWindow::~Direct2DWindow()
 {
 	memory::safe_delete(renderQueue);
@@ -95,6 +95,10 @@ void Direct2DWindow::resizePRT(UINT width, UINT height)
 		size.height = height;
 		pRT->Resize(size);
 	}
+}
+void Direct2DWindow::setSize(UINT wid, UINT hei)
+{
+	window->setSize(wid, hei);
 }
 void Direct2DWindow::beginRender()
 {
