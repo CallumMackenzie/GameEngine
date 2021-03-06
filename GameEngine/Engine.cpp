@@ -206,7 +206,6 @@ namespace lua_funcs
 			lua_setglobal(lua, LUA_D2DWIN_NAME);
 		}
 	}
-
 	namespace vec2
 	{
 #define LUA_VECTOR2_NAME "Vector2"
@@ -412,27 +411,31 @@ namespace lua_funcs
 			luaL_register(lua, LUA_VECTOR2_NAME, functions);
 		}
 	}
-
 	namespace hitbox2D
 	{
 #define LUA_HITBOX2D_NAME "Hitbox2D"
 #define LUA_HITBOX2D_NAME_INHERITABLE "Ingenium.Hitbox2D"
 #define LUA_HITBOX2D_GETTYPE "type"
+#define LUA_HITBOX2D_GETPOSX "posX"
+#define LUA_HITBOX2D_GETPOSY "posY"
+#define LUA_HITBOX2D_GETSIZEX "sizeX"
+#define LUA_HITBOX2D_GETSIZEY "sizeY"
+#define LUA_HITBOX2D_GETRADIUS "radius"
 
 		int toString(lua_State* lua) {
 			Hitbox2D* v2 = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 1));
 			std::string v2s("Hitbox2D(");
 			switch (v2->type) {
 			case Hitbox2D::TYPE_RECTANGLE:
-				v2s = v2s.append("TYPE_RECTANGLE, pos=(").append(std::to_string(v2->rectPos().x())).append(", ").append(std::to_string(v2->rectPos().y())).
+				v2s = v2s.append("TYPE_RECTANGLE (").append(std::to_string(Hitbox2D::TYPE_RECTANGLE)).append("), pos=(").append(std::to_string(v2->rectPos().x())).append(", ").append(std::to_string(v2->rectPos().y())).
 					append("), width=").append(std::to_string(v2->rectSize().x())).append(", height=").append(std::to_string(v2->rectSize().y()));
 				break;
 			case Hitbox2D::TYPE_CIRCLE:
-				v2s = v2s.append("TYPE_CIRCLE, r=").append(std::to_string(v2->circleRadius()).append(", ").
+				v2s = v2s.append("TYPE_CIRCLE (").append(std::to_string(Hitbox2D::TYPE_CIRCLE)).append("), r=").append(std::to_string(v2->circleRadius()).append(", ").
 					append("centre=(").append(std::to_string(v2->circleCentre().x()))).append(", ").append(std::to_string(v2->circleCentre().y())).append(")");
 				break;
 			default:
-				v2s = v2s.append("TYPE_UNKNOWN");
+				v2s = v2s.append("TYPE_UNKNOWN (").append(std::to_string(Hitbox2D::TYPE_UNDEFINED)).append(")");
 				break;
 			}
 			v2s = v2s.append(")");
@@ -446,8 +449,103 @@ namespace lua_funcs
 		}
 
 		int getType(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
 			Hitbox2D* v2 = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 1));
 			lua_pushnumber(lua, v2->type);
+			return 1;
+		}
+
+		int sizeX(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+			Hitbox2D* v2 = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 1));
+			switch (v2->type) {
+			case Hitbox2D::TYPE_RECTANGLE:
+				lua_pushnumber(lua, v2->rectSize().x());
+				break;
+			case Hitbox2D::TYPE_CIRCLE:
+				lua_pushnumber(lua, v2->circleRadius());
+				break;
+			default:
+				return luaL_error(lua, "No size for HITBOX2D_TYPE_UNDEFINED.");
+			}
+			return 1;
+		}
+
+		int sizeY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+			Hitbox2D* v2 = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 1));
+			switch (v2->type) {
+			case Hitbox2D::TYPE_RECTANGLE:
+				lua_pushnumber(lua, v2->rectSize().y());
+				break;
+			case Hitbox2D::TYPE_CIRCLE:
+				lua_pushnumber(lua, v2->circleRadius());
+				break;
+			default:
+				return luaL_error(lua, "No size for HITBOX2D_TYPE_UNDEFINED.");
+			}
+			return 1;
+		}
+
+		int xPosition (lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+			Hitbox2D* v2 = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 1));
+			switch (v2->type) {
+			case Hitbox2D::TYPE_RECTANGLE:
+				lua_pushnumber(lua, v2->rectPos().x());
+				break;
+			case Hitbox2D::TYPE_CIRCLE:
+				lua_pushnumber(lua, v2->circleCentre().x());
+				break;
+			default:
+				return luaL_error(lua, "No position for HITBOX2D_TYPE_UNDEFINED.");
+			}
+			return 1;
+		}
+
+		int yPosition(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+			Hitbox2D* v2 = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 1));
+			switch (v2->type) {
+			case Hitbox2D::TYPE_RECTANGLE:
+				lua_pushnumber(lua, v2->rectPos().y());
+				break;
+			case Hitbox2D::TYPE_CIRCLE:
+				lua_pushnumber(lua, v2->circleCentre().y());
+				break;
+			default:
+				return luaL_error(lua, "No position for HITBOX2D_TYPE_UNDEFINED.");
+			}
+			return 1;
+		}
+
+		int radius(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+
+			Hitbox2D* v2 = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 1));
+
+			switch (v2->type) {
+			case Hitbox2D::TYPE_CIRCLE:
+				lua_pushnumber(lua, v2->circleRadius());
+				break;
+			case Hitbox2D::TYPE_RECTANGLE:
+				return luaL_error(lua, "No radius for HITBOX2D_TYPE_RECTANGLE.");
+			default:
+				return luaL_error(lua, "No radius for HITBOX2D_TYPE_UNDEFINED.");
+			}
+
 			return 1;
 		}
 
@@ -457,7 +555,7 @@ namespace lua_funcs
 				return luaL_error(lua, "Got %d arguments, expected 0 or 2: (Vector2, Vector2) or (number, Vector2).", nargs);
 
 			Hitbox2D** hit = (Hitbox2D**)lua_newuserdata(lua, sizeof(Hitbox2D*));
-			printStackTrace();
+			
 			if (nargs == 0) {
 				*hit = Hitbox2D::createUndefinedHitboxPtr();
 			}
@@ -479,7 +577,6 @@ namespace lua_funcs
 				lua_remove(lua, -2);
 				lua_remove(lua, -2);
 			}
-			printStackTrace();
 
 			luaL_newmetatable(lua, LUA_HITBOX2D_NAME_INHERITABLE);
 			lua_pushstring(lua, "__gc");
@@ -499,6 +596,11 @@ namespace lua_funcs
 			"newCircle", newHitbox2D,
 			"newRect", newHitbox2D,
 			LUA_HITBOX2D_GETTYPE, getType,
+			LUA_HITBOX2D_GETPOSX, xPosition,
+			LUA_HITBOX2D_GETPOSY, yPosition,
+			LUA_HITBOX2D_GETRADIUS, radius,
+			LUA_HITBOX2D_GETSIZEY, sizeY,
+			LUA_HITBOX2D_GETSIZEX, sizeX,
 			nullptr, nullptr
 		};
 
@@ -508,6 +610,13 @@ namespace lua_funcs
 			lua_pushvalue(lua, -1);
 			lua_setfield(lua, -2, "__index");
 			luaL_register(lua, LUA_HITBOX2D_NAME, functions);
+				
+			lua_pushnumber(lua, Hitbox2D::TYPE_UNDEFINED);
+			lua_setglobal(lua, "HITBOX2D_TYPE_UNDEFINED");
+			lua_pushnumber(lua, Hitbox2D::TYPE_CIRCLE);
+			lua_setglobal(lua, "HITBOX2D_TYPE_CIRCLE");
+			lua_pushnumber(lua, Hitbox2D::TYPE_RECTANGLE);
+			lua_setglobal(lua, "HITBOX2D_TYPE_RECTANGLE");
 		}
 	}
 }
