@@ -192,13 +192,13 @@
     <ClInclude Include="WindowClass.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua5.1.lib" />
-    <Library Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua51.lib" />
+    <None Include="Entry.lua" />
+    <None Include="lualib\lua5.1.dll" />
+    <None Include="lualib\lua51.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua5.1.dll" />
-    <None Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua51.dll" />
-    <None Include="Entry.lua" />
+    <Library Include="lualib\lua5.1.lib" />
+    <Library Include="lualib\lua51.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

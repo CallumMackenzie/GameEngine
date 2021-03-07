@@ -22,12 +22,6 @@ Engine::~Engine() {
 	memory::safe_delete<Direct2DWindow>(drwn);
 	memory::safe_delete<WindowClass>(primeClass);
 }
-const char* Engine::fileAbsolutePath(const char* relativePath)
-{
-	char str[512];
-	GetFullPathNameA(relativePath, 512, str, NULL);
-	return str;
-}
 void Engine::stop()
 {
 	running = false;
@@ -54,7 +48,7 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 
 #if defined(SCRIPT_LUA)
 	loadToLua();
-	ingenium_lua::loadFile(fileAbsolutePath(LUA_ENGINE_ENTRY));
+	ingenium_lua::loadFile(windows::fileAbsolutePathA(LUA_ENGINE_ENTRY));
 	ingenium_lua::executeChunk();
 	ingenium_lua::executeFunc(LUA_ENGINE_INIT);
 #endif
@@ -129,12 +123,13 @@ namespace lua_funcs
 
 	namespace d2d
 	{
-#define LUA_D2DWIN_NAME "D2D"
-#define LUA_D2DWIN_SETSIZE "setSize"
-#define LUA_D2DWIN_GETMOUSEX "getMouseX"
-#define LUA_D2DWIN_GETMOUSEY "getMouseY"
-#define LUA_D2DWIN_PRINT "write"
-#define LUA_D2DWIN_RENDER "render"
+		constexpr auto CONSTANT_NAME_INHERITABLE = "Ingenium.D2D";
+		constexpr auto CONSTANT_NAME = "D2D";
+		constexpr auto CONSTANT_SET_SIZE = "setSize";
+		constexpr auto CONSTANT_GET_MOUSE_X = "getMouseX";
+		constexpr auto CONSTANT_GET_MOUSE_Y = "getMouseY";
+		constexpr auto CONSTANT_PRINT = "write";
+		constexpr auto CONSTANT_RENDER = "render";
 
 		int setDRWNSize(lua_State* lua) {
 			int nargs = lua_gettop(lua);
@@ -193,32 +188,38 @@ namespace lua_funcs
 			lua_setfield(lua, -2, "__index");
 
 			luaL_Reg functions[] = {
-				 LUA_D2DWIN_SETSIZE, setDRWNSize,
-				 LUA_D2DWIN_RENDER, renderDRWN,
-				 LUA_D2DWIN_GETMOUSEX, getMouseXDRWN,
-				 LUA_D2DWIN_GETMOUSEY, getMouseYDRWN,
-				 LUA_D2DWIN_PRINT, printDRWN,
+				 CONSTANT_SET_SIZE, setDRWNSize,
+				 CONSTANT_RENDER, renderDRWN,
+				 CONSTANT_GET_MOUSE_X, getMouseXDRWN,
+				 CONSTANT_GET_MOUSE_Y, getMouseYDRWN,
+				 CONSTANT_PRINT, printDRWN,
 				 nullptr, nullptr
 			};
 
 			luaL_register(lua, 0, functions);
 			lua_setmetatable(lua, -2);
-			lua_setglobal(lua, LUA_D2DWIN_NAME);
+			lua_setglobal(lua, CONSTANT_NAME);
 		}
 	}
 	namespace vec2
 	{
-#define LUA_VECTOR2_NAME "Vector2"
-#define LUA_VECTOR2_NAME_INHERITABLE "Ingenium.Vector2"
-#define LUA_VECTOR2_GETX "getX"
-#define LUA_VECTOR2_SETX "setX"
-#define LUA_VECTOR2_GETY "getY"
-#define LUA_VECTOR2_SETY "setY"
-#define LUA_VECTOR2_NORMALIZE "normalize"
-#define LUA_VECTOR2_HYPOTENUSE "hypotenuse"
-#define LUA_VECTOR2_MAGNITUDE "magnitude"
+#define CONSTRUCTOR_METHOD_NAME newVector2
+		constexpr auto INSTANCE_NAME_INHERITABLE = "Ingenium.Vector2";
+		constexpr auto INSTANCE_NAME = "Vector2";
+		constexpr auto INSTANCE_GET_X = "getX";
+		constexpr auto INSTANCE_SET_X = "setX";
+		constexpr auto INSTANCE_GET_Y = "getY";
+		constexpr auto INSTANCE_SET_Y = "setY";
+		constexpr auto INSTANCE_NORMALIZE = "normalize";
+		constexpr auto INSTANCE_MAGNITUDE = "magnitude";
+		constexpr auto INSTANCE_HYPOTENUSE = "hypotenuse";
 
-		int newVector2(lua_State* lua);
+		int CONSTRUCTOR_METHOD_NAME(lua_State* lua);
+
+		int FREE(lua_State* lua) {
+			memory::safe_delete(*(Vector2**)lua_touserdata(lua, 1));
+			return 0;
+		}
 
 		int magnitude(lua_State* lua) {
 			int nargs = lua_gettop(lua);
@@ -283,7 +284,7 @@ namespace lua_funcs
 			lua_pop(lua, 2);
 			lua_pushnumber(lua, v1->xVal + v2->xVal);
 			lua_pushnumber(lua, v1->yVal + v2->yVal);
-			return newVector2(lua);
+			return CONSTRUCTOR_METHOD_NAME(lua);
 		}
 
 		int subtract(lua_State* lua) {
@@ -292,7 +293,7 @@ namespace lua_funcs
 			lua_pop(lua, 2);
 			lua_pushnumber(lua, v1->xVal - v2->xVal);
 			lua_pushnumber(lua, v1->yVal - v2->yVal);
-			return newVector2(lua);
+			return CONSTRUCTOR_METHOD_NAME(lua);
 		}
 
 		int multiply(lua_State* lua) {
@@ -301,7 +302,7 @@ namespace lua_funcs
 			lua_pop(lua, 2);
 			lua_pushnumber(lua, v1->xVal * v2->xVal);
 			lua_pushnumber(lua, v1->yVal * v2->yVal);
-			return newVector2(lua);
+			return CONSTRUCTOR_METHOD_NAME(lua);
 		}
 
 		int divide(lua_State* lua) {
@@ -310,7 +311,7 @@ namespace lua_funcs
 			lua_pop(lua, 2);
 			lua_pushnumber(lua, v1->xVal / v2->xVal);
 			lua_pushnumber(lua, v1->yVal / v2->yVal);
-			return newVector2(lua);
+			return CONSTRUCTOR_METHOD_NAME(lua);
 		}
 
 		int unaryMinus(lua_State* lua) {
@@ -318,7 +319,7 @@ namespace lua_funcs
 			lua_pop(lua, 1);
 			lua_pushnumber(lua, -v1->xVal);
 			lua_pushnumber(lua, -v1->yVal);
-			return newVector2(lua);
+			return CONSTRUCTOR_METHOD_NAME(lua);
 		}
 
 		int floorDiv(lua_State* lua) {
@@ -327,7 +328,7 @@ namespace lua_funcs
 			lua_pop(lua, 2);
 			lua_pushnumber(lua, (int)(v1->xVal / v2->xVal));
 			lua_pushnumber(lua, (int)(v1->yVal / v2->yVal));
-			return newVector2(lua);
+			return CONSTRUCTOR_METHOD_NAME(lua);
 		}
 
 		int toString(lua_State* lua) {
@@ -338,12 +339,7 @@ namespace lua_funcs
 			return 1;
 		}
 
-		int FREE(lua_State* lua) {
-			memory::safe_delete(*(Vector2**)lua_touserdata(lua, 1));
-			return 0;
-		}
-
-		int newVector2(lua_State* lua) {
+		int CONSTRUCTOR_METHOD_NAME (lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 0 && nargs != 2)
 				return luaL_error(lua, "Got %d arguments, expected 0 or 2: (number, number).", nargs);
@@ -359,7 +355,7 @@ namespace lua_funcs
 			Vector2** v2 = (Vector2**)lua_newuserdata(lua, sizeof(Vector2*));
 			*v2 = new Vector2(xComp, yComp);
 
-			luaL_newmetatable(lua, LUA_VECTOR2_NAME_INHERITABLE);
+			luaL_newmetatable(lua, INSTANCE_NAME_INHERITABLE);
 
 			lua_pushstring(lua, "__gc");
 			lua_pushcfunction(lua, FREE);
@@ -391,36 +387,44 @@ namespace lua_funcs
 		}
 
 		luaL_Reg functions[] = {
-			"new", newVector2,
-			"toString", toString,
-			LUA_VECTOR2_GETX, getX,
-			LUA_VECTOR2_GETY, getY,
-			LUA_VECTOR2_SETX, setX,
-			LUA_VECTOR2_SETY, setY,
-			LUA_VECTOR2_NORMALIZE, normalize,
-			LUA_VECTOR2_MAGNITUDE, magnitude,
-			LUA_VECTOR2_HYPOTENUSE, magnitude,
+			"new", CONSTRUCTOR_METHOD_NAME,
+			INSTANCE_GET_X, getX,
+			INSTANCE_GET_Y, getY,
+			INSTANCE_SET_X, setX,
+			INSTANCE_SET_Y, setY,
+			INSTANCE_NORMALIZE, normalize,
+			INSTANCE_MAGNITUDE, magnitude,
+			INSTANCE_HYPOTENUSE, magnitude,
 			nullptr, nullptr
 		};
 
 		void registerVector2(lua_State* lua) {
-			luaL_newmetatable(lua, LUA_VECTOR2_NAME_INHERITABLE);
+			luaL_newmetatable(lua, INSTANCE_NAME_INHERITABLE);
 			luaL_register(lua, 0, functions);
 			lua_pushvalue(lua, -1);
 			lua_setfield(lua, -2, "__index");
-			luaL_register(lua, LUA_VECTOR2_NAME, functions);
+			luaL_register(lua, INSTANCE_NAME, functions);
 		}
+#ifdef CONSTRUCTOR_METHOD_NAME
+#undef CONSTRUCTOR_METHOD_NAME
+#endif
 	}
 	namespace hitbox2D
 	{
-#define LUA_HITBOX2D_NAME "Hitbox2D"
-#define LUA_HITBOX2D_NAME_INHERITABLE "Ingenium.Hitbox2D"
-#define LUA_HITBOX2D_GETTYPE "type"
-#define LUA_HITBOX2D_GETPOSX "posX"
-#define LUA_HITBOX2D_GETPOSY "posY"
-#define LUA_HITBOX2D_GETSIZEX "sizeX"
-#define LUA_HITBOX2D_GETSIZEY "sizeY"
-#define LUA_HITBOX2D_GETRADIUS "radius"
+#define CONSTRUCTOR_METHOD_NAME newHitbox2D
+		constexpr auto INSTANCE_NAME_INHERITABLE = "Ingenium.Hitbox2D";
+		constexpr auto INSTANCE_NAME = "Hitbox2D";
+		constexpr auto INSTANCE_GET_TYPE = "type";
+		constexpr auto INSTANCE_GET_POS_X = "posX";
+		constexpr auto INSTANCE_GET_POS_Y = "posY";
+		constexpr auto INSTANCE_GET_SIZE_X = "sizeX";
+		constexpr auto INSTANCE_GET_SIZE_Y = "sizeY";
+		constexpr auto INSTANCE_GET_RADIUS = "radius";
+
+		int FREE(lua_State* lua) {
+			memory::safe_delete(*(Hitbox2D**)lua_touserdata(lua, 1));
+			return 0;
+		}
 
 		int toString(lua_State* lua) {
 			Hitbox2D* v2 = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 1));
@@ -441,11 +445,6 @@ namespace lua_funcs
 			v2s = v2s.append(")");
 			lua_pushstring(lua, v2s.c_str());
 			return 1;
-		}
-
-		int FREE(lua_State* lua) {
-			memory::safe_delete(*(Hitbox2D**)lua_touserdata(lua, 1));
-			return 0;
 		}
 
 		int getType(lua_State* lua) {
@@ -549,7 +548,7 @@ namespace lua_funcs
 			return 1;
 		}
 
-		int newHitbox2D(lua_State* lua) {
+		int CONSTRUCTOR_METHOD_NAME (lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 0 && nargs != 2)
 				return luaL_error(lua, "Got %d arguments, expected 0 or 2: (Vector2, Vector2) or (number, Vector2).", nargs);
@@ -578,7 +577,7 @@ namespace lua_funcs
 				lua_remove(lua, -2);
 			}
 
-			luaL_newmetatable(lua, LUA_HITBOX2D_NAME_INHERITABLE);
+			luaL_newmetatable(lua, INSTANCE_NAME_INHERITABLE);
 			lua_pushstring(lua, "__gc");
 			lua_pushcfunction(lua, FREE);
 			lua_settable(lua, -3);
@@ -591,25 +590,25 @@ namespace lua_funcs
 		}
 
 		luaL_Reg functions[] = {
-			"new", newHitbox2D,
-			"newUndefined", newHitbox2D,
-			"newCircle", newHitbox2D,
-			"newRect", newHitbox2D,
-			LUA_HITBOX2D_GETTYPE, getType,
-			LUA_HITBOX2D_GETPOSX, xPosition,
-			LUA_HITBOX2D_GETPOSY, yPosition,
-			LUA_HITBOX2D_GETRADIUS, radius,
-			LUA_HITBOX2D_GETSIZEY, sizeY,
-			LUA_HITBOX2D_GETSIZEX, sizeX,
+			"new", CONSTRUCTOR_METHOD_NAME,
+			"newUndefined", CONSTRUCTOR_METHOD_NAME,
+			"newCircle", CONSTRUCTOR_METHOD_NAME,
+			"newRect", CONSTRUCTOR_METHOD_NAME,
+			INSTANCE_GET_TYPE, getType,
+			INSTANCE_GET_POS_X, xPosition,
+			INSTANCE_GET_POS_Y, yPosition,
+			INSTANCE_GET_RADIUS, radius,
+			INSTANCE_GET_SIZE_Y, sizeY,
+			INSTANCE_GET_SIZE_X, sizeX,
 			nullptr, nullptr
 		};
 
 		void registerHitbox2D(lua_State* lua) {
-			luaL_newmetatable(lua, LUA_HITBOX2D_NAME_INHERITABLE);
+			luaL_newmetatable(lua, INSTANCE_NAME_INHERITABLE);
 			luaL_register(lua, 0, functions);
 			lua_pushvalue(lua, -1);
 			lua_setfield(lua, -2, "__index");
-			luaL_register(lua, LUA_HITBOX2D_NAME, functions);
+			luaL_register(lua, INSTANCE_NAME, functions);
 				
 			lua_pushnumber(lua, Hitbox2D::TYPE_UNDEFINED);
 			lua_setglobal(lua, "HITBOX2D_TYPE_UNDEFINED");
@@ -618,6 +617,94 @@ namespace lua_funcs
 			lua_pushnumber(lua, Hitbox2D::TYPE_RECTANGLE);
 			lua_setglobal(lua, "HITBOX2D_TYPE_RECTANGLE");
 		}
+#ifdef CONSTRUCTOR_METHOD_NAME
+#undef CONSTRUCTOR_METHOD_NAME
+#endif
+	}
+	namespace sprite 
+	{
+#define CONSTRUCTOR_METHOD_NAME newSprite
+		constexpr auto INSTANCE_NAME_INHERITABLE = "Ingenium.Sprite";
+		constexpr auto INSTANCE_NAME = "Sprite";
+
+		/////////////////////////////////	Instance-specific methods
+		/////////////////////////////////
+
+
+
+		/////////////////////////////////
+		/////////////////////////////////
+
+		int FREE(lua_State* lua) {
+			memory::safe_delete(*(Sprite**)lua_touserdata(lua, 1));
+			return 0;
+		}
+
+		int toString(lua_State* lua) {
+			Sprite* sp = uDataToPtr<Sprite>(lua_touserdata(lua, 1));
+			lua_pushstring(lua, "sprite");
+			return 1;
+		}
+
+		int CONSTRUCTOR_METHOD_NAME (lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs < 2 || nargs > 5)
+				return luaL_error(lua, "Got %d arguments, expected 2, 3, 4, or 5.", nargs);
+			if (lua_type(lua, 1) != LUA_TSTRING)
+				return luaL_error(lua, "Argument 1 must be a string.");
+
+			Sprite** sp = (Sprite**)lua_newuserdata(lua, sizeof(Sprite*));
+
+			switch (nargs) {
+			case 2:
+			{
+				Sprite::FrameData fd = Sprite::FrameData();
+				*sp = new Sprite(lua_tostring(lua, 1), (LPCWSTR) lua_tostring(lua, 2), fd, Engine::getEngine()->drwn->pRT);
+				lua_remove(lua, -2);
+				lua_remove(lua, -2);
+				break;
+			}
+			case 3:
+			{
+				//Hitbox2D* hb2d = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 3));
+				//Sprite::FrameData fd = Sprite::FrameData();
+				//*sp = new Sprite(lua_tostring(lua, 1), lua_tostring(lua, 2), fd, Engine::getEngine()->drwn->pRT);
+				//lua_remove(lua, -2);
+				//lua_remove(lua, -2);
+				//lua_remove(lua, -2);
+				break;
+			}
+			default:
+				break;
+			}
+
+			luaL_newmetatable(lua, INSTANCE_NAME_INHERITABLE);
+			lua_pushstring(lua, "__gc");
+			lua_pushcfunction(lua, FREE);
+			lua_settable(lua, -3);
+			lua_pushstring(lua, "__tostring");
+			lua_pushcfunction(lua, toString);
+			lua_settable(lua, -3);
+
+			lua_setmetatable(lua, -2);
+			return 1;
+		}
+
+		luaL_Reg functions[] = {
+			"new", CONSTRUCTOR_METHOD_NAME,
+			nullptr, nullptr
+		};
+
+		void registerSprite(lua_State* lua) {
+			luaL_newmetatable(lua, INSTANCE_NAME_INHERITABLE);
+			luaL_register(lua, 0, functions);
+			lua_pushvalue(lua, -1);
+			lua_setfield(lua, -2, "__index");
+			luaL_register(lua, INSTANCE_NAME, functions);
+		}
+#ifdef CONSTRUCTOR_METHOD_NAME
+#undef CONSTRUCTOR_METHOD_NAME
+#endif
 	}
 }
 

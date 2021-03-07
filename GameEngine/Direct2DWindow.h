@@ -46,9 +46,6 @@ public:
     };
 
 public:
-    HRESULT loadFileBitmap(LPCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap);
-
-public:
     RootWindow *window = nullptr; // RootWindow object linked to this window
     ID2D1Factory *pD2DFactory = nullptr; // Factory for creating the render surface
     ID2D1SolidColorBrush *pBlackBrush = nullptr; // Black colour brush

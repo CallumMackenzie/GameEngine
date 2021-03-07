@@ -1,8 +1,39 @@
 #include "Memory.h"
-
 #include "Sprite.h"
 
-Sprite::Sprite(const char* name_, Vector2 pos, Rotation rot, ID2D1Bitmap* bitmap_, Hitbox2D hb2d) : Renderable<ID2D1Bitmap>(name_, pos, rot, bitmap_)
+
+Sprite::Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d, Vector2 pos, Rotation rot) : Sprite(name_, bitmap, hb2d, pos, rot)
+{
+	loadFileBitmap(windows::fileAbsolutePathW(bitmapPath),
+		(fd.spriteSheetDirection ? (fd.frameWidth * fd.frames) : fd.frameWidth),
+		(fd.spriteSheetDirection ? fd.frameHeight : (fd.frameHeight * fd.frames)), &bitmap, pRT);
+}
+
+Sprite::Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d, Vector2 pos) : Sprite(name_, bitmapPath, fd, pRT, hb2d, pos, Rotation())
+{
+}
+
+Sprite::Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d) : Sprite(name_, bitmapPath, fd, pRT, hb2d, Vector2())
+{
+}
+
+Sprite::Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT) : Sprite(name_, bitmapPath, fd, pRT, Hitbox2D::createUndefinedHitbox())
+{
+}
+
+Sprite::Sprite(const char* name_, ID2D1Bitmap* bitmap_) : Sprite(name_, bitmap_, Hitbox2D::createUndefinedHitbox())
+{
+}
+
+Sprite::Sprite(const char* name_, ID2D1Bitmap* bitmap_, Hitbox2D hb2d) : Sprite(name_, bitmap_, Hitbox2D::createUndefinedHitbox(), Vector2())
+{
+}
+
+Sprite::Sprite(const char* name_, ID2D1Bitmap* bitmap_, Hitbox2D hb2d, Vector2 pos) : Sprite(name_, bitmap_, hb2d, pos, Rotation())
+{
+}
+
+Sprite::Sprite(const char* name_, ID2D1Bitmap* bitmap_, Hitbox2D hb2d, Vector2 pos, Rotation rot) : Renderable<ID2D1Bitmap>(name_, pos, rot, bitmap_)
 {
 	hitbox2D = hb2d;
 	bitmap = bitmap_;

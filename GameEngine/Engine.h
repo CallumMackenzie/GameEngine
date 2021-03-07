@@ -36,7 +36,6 @@ public:
     void onClose();
     bool running = false; // Whether the engine is running or not
     ~Engine(); // Engine deconstructor to clean up memory leaks
-    const char* fileAbsolutePath(const char* relativePath);
 
 #if defined(SCRIPT_LUA)
     void loadToLua();

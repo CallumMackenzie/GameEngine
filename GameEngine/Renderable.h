@@ -38,6 +38,83 @@ public:
 		: Renderable(name_, Vector2(), rot, rElement)
 	{ };
 
+	static inline HRESULT loadFileBitmap(LPCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap, ID2D1RenderTarget* pRT)
+	{
+		IWICImagingFactory* pIWICFactory = C_WICImagingFactory::GetWIC();
+		if (!pIWICFactory) {
+			return E_FAIL;
+		}
+		IWICBitmapDecoder* pDecoder = NULL;
+		IWICBitmapFrameDecode* pSource = NULL;
+		IWICStream* pStream = NULL;
+		IWICFormatConverter* pConverter = NULL;
+		IWICBitmapScaler* pScaler = NULL;
+
+		HRESULT hr = pIWICFactory->CreateDecoderFromFilename(
+			uri,
+			NULL,
+			GENERIC_READ,
+			WICDecodeMetadataCacheOnLoad,
+			&pDecoder
+		);
+		if (SUCCEEDED(hr))
+		{
+			hr = pDecoder->GetFrame(0, &pSource);
+		}
+
+		if (SUCCEEDED(hr))
+		{
+
+			// Convert the image format to 32bppPBGRA
+			// (DXGI_FORMAT_B8G8R8A8_UNORM + D2D1_ALPHA_MODE_PREMULTIPLIED).
+			hr = pIWICFactory->CreateFormatConverter(&pConverter);
+		}
+
+		if (SUCCEEDED(hr))
+		{
+			hr = pConverter->Initialize(
+				pSource,
+				GUID_WICPixelFormat32bppPBGRA,
+				WICBitmapDitherTypeNone,
+				NULL,
+				0.f,
+				WICBitmapPaletteTypeMedianCut
+			);
+		}
+
+		if (SUCCEEDED(hr))
+		{
+			// Create a Direct2D bitmap from the WIC bitmap.
+			hr = pRT->CreateBitmapFromWicBitmap(
+				pConverter,
+				NULL,
+				ppBitmap
+			);
+		}
+
+		if (pDecoder) {
+			pDecoder->Release();
+			pDecoder = NULL;
+		}
+		if (pSource) {
+			pSource->Release();
+			pSource = NULL;
+		}
+		if (pStream) {
+			pStream->Release();
+			pStream = NULL;
+		}
+		if (pConverter) {
+			pConverter->Release();
+			pConverter = NULL;
+		}
+		if (pScaler) {
+			pScaler->Release();
+			pScaler = NULL;
+		}
+		return hr;
+	}
+
 public:
 	struct FrameData {
 		static const bool SPRITESHEET_VERTICAL = true;

@@ -196,20 +196,20 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua51.lib">
+    <None Include="Entry.lua" />
+    <None Include="lualib\lua5.1.dll">
       <Filter>Header Files\Lua</Filter>
-    </Library>
-    <Library Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua5.1.lib">
+    </None>
+    <None Include="lualib\lua51.dll">
       <Filter>Header Files\Lua</Filter>
-    </Library>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua5.1.dll">
+    <Library Include="lualib\lua5.1.lib">
       <Filter>Header Files\Lua</Filter>
-    </None>
-    <None Include="..\..\..\..\..\..\Program Files (x86)\Lua\5.1\lib\lua51.dll">
+    </Library>
+    <Library Include="lualib\lua51.lib">
       <Filter>Header Files\Lua</Filter>
-    </None>
-    <None Include="Entry.lua" />
+    </Library>
   </ItemGroup>
 </Project>
