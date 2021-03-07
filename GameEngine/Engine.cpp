@@ -117,6 +117,7 @@ namespace lua_funcs
 		Debug::oss << ingenium_lua::getStackTrace();
 		Debug::writeLn();
 	}
+
 	template <typename T> T* uDataToPtr(void* data) {
 		return *(T**)data;
 	}
@@ -135,8 +136,8 @@ namespace lua_funcs
 			int nargs = lua_gettop(lua);
 			if (nargs != 2)
 				return luaL_error(lua, "Got %d arguments, expected 2.", nargs);
-			UINT width = luaL_checkint(lua, 1);
-			UINT height = luaL_checkint(lua, 2);
+			UINT width = luaL_checkinteger(lua, 1);
+			UINT height = luaL_checkinteger(lua, 2);
 
 			lua_pop(lua, 2);
 
@@ -182,11 +183,6 @@ namespace lua_funcs
 			Direct2DWindow** pmPtr = (Direct2DWindow**)lua_newuserdata(lua, sizeof(Direct2DWindow*));
 			*pmPtr = Engine::getEngine()->drwn;
 
-			luaL_newmetatable(lua, "D2DMetaTable");
-
-			lua_pushvalue(lua, -1);
-			lua_setfield(lua, -2, "__index");
-
 			luaL_Reg functions[] = {
 				 CONSTANT_SET_SIZE, setDRWNSize,
 				 CONSTANT_RENDER, renderDRWN,
@@ -196,7 +192,12 @@ namespace lua_funcs
 				 nullptr, nullptr
 			};
 
-			luaL_register(lua, 0, functions);
+			luaL_newmetatable(lua, "D2DMetaTable");
+			luaL_setfuncs(lua, functions, 0);
+
+			lua_pushvalue(lua, -1);
+			lua_setfield(lua, -2, "__index");
+
 			lua_setmetatable(lua, -2);
 			lua_setglobal(lua, CONSTANT_NAME);
 		}
@@ -400,10 +401,10 @@ namespace lua_funcs
 
 		void registerVector2(lua_State* lua) {
 			luaL_newmetatable(lua, INSTANCE_NAME_INHERITABLE);
-			luaL_register(lua, 0, functions);
+			luaL_setfuncs(lua, functions, 0);
 			lua_pushvalue(lua, -1);
 			lua_setfield(lua, -2, "__index");
-			luaL_register(lua, INSTANCE_NAME, functions);
+			luaL_newlib(lua, functions, INSTANCE_NAME);
 		}
 #ifdef CONSTRUCTOR_METHOD_NAME
 #undef CONSTRUCTOR_METHOD_NAME
@@ -605,10 +606,10 @@ namespace lua_funcs
 
 		void registerHitbox2D(lua_State* lua) {
 			luaL_newmetatable(lua, INSTANCE_NAME_INHERITABLE);
-			luaL_register(lua, 0, functions);
+			luaL_setfuncs(lua, functions, 0);
 			lua_pushvalue(lua, -1);
 			lua_setfield(lua, -2, "__index");
-			luaL_register(lua, INSTANCE_NAME, functions);
+			luaL_newlib(lua, functions, INSTANCE_NAME);
 				
 			lua_pushnumber(lua, Hitbox2D::TYPE_UNDEFINED);
 			lua_setglobal(lua, "HITBOX2D_TYPE_UNDEFINED");
@@ -647,31 +648,39 @@ namespace lua_funcs
 		}
 
 		int CONSTRUCTOR_METHOD_NAME (lua_State* lua) {
+
+			// name, path, vec2_image_size --- 3
+			// name, path, vec2_image_size, vec2_frame_size, frames, frameTime, spriteSheetDirection --- 7
+			// name, path, vec2_image_size, vec2_frame_size, frames, frameTime, spriteSheetDirection, callback_function, callback_function_frame --- 9
+
 			int nargs = lua_gettop(lua);
-			if (nargs < 2 || nargs > 5)
-				return luaL_error(lua, "Got %d arguments, expected 2, 3, 4, or 5.", nargs);
+			if (nargs != 3 && nargs != 7 && nargs != 9)
+				return luaL_error(lua, "Got %d arguments, expected 3, 7, or 9.", nargs);
 			if (lua_type(lua, 1) != LUA_TSTRING)
 				return luaL_error(lua, "Argument 1 must be a string.");
+			if (lua_type(lua, 1) != LUA_TSTRING)
+				return luaL_error(lua, "Argument 2 must be a string.");
 
 			Sprite** sp = (Sprite**)lua_newuserdata(lua, sizeof(Sprite*));
 
 			switch (nargs) {
-			case 2:
+			case 3:
 			{
 				Sprite::FrameData fd = Sprite::FrameData();
+				
 				*sp = new Sprite(lua_tostring(lua, 1), (LPCWSTR) lua_tostring(lua, 2), fd, Engine::getEngine()->drwn->pRT);
 				lua_remove(lua, -2);
 				lua_remove(lua, -2);
 				break;
 			}
-			case 3:
+			case 7:
 			{
-				//Hitbox2D* hb2d = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 3));
-				//Sprite::FrameData fd = Sprite::FrameData();
-				//*sp = new Sprite(lua_tostring(lua, 1), lua_tostring(lua, 2), fd, Engine::getEngine()->drwn->pRT);
-				//lua_remove(lua, -2);
-				//lua_remove(lua, -2);
-				//lua_remove(lua, -2);
+				Hitbox2D* hb2d = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 3));
+				Sprite::FrameData fd = Sprite::FrameData();
+				*sp = new Sprite(lua_tostring(lua, 1), (LPCWSTR) lua_tostring(lua, 2), fd, Engine::getEngine()->drwn->pRT);
+				lua_remove(lua, -2);
+				lua_remove(lua, -2);
+				lua_remove(lua, -2);
 				break;
 			}
 			default:
@@ -697,10 +706,10 @@ namespace lua_funcs
 
 		void registerSprite(lua_State* lua) {
 			luaL_newmetatable(lua, INSTANCE_NAME_INHERITABLE);
-			luaL_register(lua, 0, functions);
+			luaL_setfuncs(lua, functions, 0);
 			lua_pushvalue(lua, -1);
 			lua_setfield(lua, -2, "__index");
-			luaL_register(lua, INSTANCE_NAME, functions);
+			luaL_newlib(lua, functions, INSTANCE_NAME);
 		}
 #ifdef CONSTRUCTOR_METHOD_NAME
 #undef CONSTRUCTOR_METHOD_NAME

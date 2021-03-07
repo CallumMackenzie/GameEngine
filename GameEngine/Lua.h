@@ -1,15 +1,18 @@
 #pragma once
 
+#include "ModWin.h"
 #include <string>
 
 extern "C"
 {
-#include "lualib/lua.h"
-#include "lualib/lauxlib.h"
-#include "lualib/lualib.h"
+#include "lualib/include/lua.h"
+#include "lualib/include/lauxlib.h"
+#include "lualib/include/lualib.h"
 }
 
-#include "ModWin.h"
+#ifdef _WIN32
+#pragma comment(lib, "lualib/lua54.lib")
+#endif
 
 namespace ingenium_lua {
 #define LUA_ENGINE_ENTRY "./Entry.lua"

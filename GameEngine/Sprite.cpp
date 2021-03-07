@@ -1,4 +1,5 @@
 #include "Memory.h"
+#include "ModWin.h"
 #include "Sprite.h"
 
 

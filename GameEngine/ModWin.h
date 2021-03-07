@@ -54,13 +54,13 @@
 #include "C_WICImageFactory.h"
 
 namespace windows {
-	const char* fileAbsolutePathA(const char* relativePath) 
+	inline const char* fileAbsolutePathA(const char* relativePath) 
 	{
 		char str[512];
 		GetFullPathNameA(relativePath, 512, str, NULL);
 		return str;
 	};
-	const wchar_t* fileAbsolutePathW(const wchar_t* relativePath)
+	inline const wchar_t* fileAbsolutePathW(const wchar_t* relativePath)
 	{
 		wchar_t str[512];
 		GetFullPathName(relativePath, 512, str, NULL);

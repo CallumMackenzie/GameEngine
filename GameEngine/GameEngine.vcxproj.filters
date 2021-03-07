@@ -176,39 +176,30 @@
     <ClInclude Include="Memory.h">
       <Filter>Header Files\Base Functions</Filter>
     </ClInclude>
-    <ClInclude Include="lualib\lua.h">
-      <Filter>Header Files\Lua</Filter>
-    </ClInclude>
-    <ClInclude Include="lualib\lua.hpp">
-      <Filter>Header Files\Lua</Filter>
-    </ClInclude>
     <ClInclude Include="Lua.h">
       <Filter>Header Files\Lua</Filter>
     </ClInclude>
-    <ClInclude Include="lualib\luaconf.h">
+    <ClInclude Include="lualib\include\lua.hpp">
       <Filter>Header Files\Lua</Filter>
     </ClInclude>
-    <ClInclude Include="lualib\lualib.h">
+    <ClInclude Include="lualib\include\luaconf.h">
       <Filter>Header Files\Lua</Filter>
     </ClInclude>
-    <ClInclude Include="lualib\lauxlib.h">
+    <ClInclude Include="lualib\include\lualib.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lualib\include\lauxlib.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lualib\include\lua.h">
       <Filter>Header Files\Lua</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Entry.lua" />
-    <None Include="lualib\lua5.1.dll">
-      <Filter>Header Files\Lua</Filter>
-    </None>
-    <None Include="lualib\lua51.dll">
-      <Filter>Header Files\Lua</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="lualib\lua5.1.lib">
-      <Filter>Header Files\Lua</Filter>
-    </Library>
-    <Library Include="lualib\lua51.lib">
+    <Library Include="lualib\lua54.lib">
       <Filter>Header Files\Lua</Filter>
     </Library>
   </ItemGroup>
