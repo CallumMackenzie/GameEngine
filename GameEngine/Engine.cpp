@@ -48,7 +48,7 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 
 #if defined(SCRIPT_LUA)
 	loadToLua();
-	ingenium_lua::loadFile(windows::fileAbsolutePathA(LUA_ENGINE_ENTRY));
+	ingenium_lua::loadFileA(windows::fileAbsolutePathA(LUA_ENGINE_ENTRY));
 	ingenium_lua::executeChunk();
 	ingenium_lua::executeFunc(LUA_ENGINE_INIT);
 #endif
@@ -192,7 +192,7 @@ namespace lua_funcs
 				 nullptr, nullptr
 			};
 
-			luaL_newmetatable(lua, "D2DMetaTable");
+			luaL_newmetatable(lua, CONSTANT_NAME);
 			luaL_setfuncs(lua, functions, 0);
 
 			lua_pushvalue(lua, -1);
@@ -404,7 +404,7 @@ namespace lua_funcs
 			luaL_setfuncs(lua, functions, 0);
 			lua_pushvalue(lua, -1);
 			lua_setfield(lua, -2, "__index");
-			luaL_newlib(lua, functions, INSTANCE_NAME);
+			lua_setglobal(lua, INSTANCE_NAME);
 		}
 #ifdef CONSTRUCTOR_METHOD_NAME
 #undef CONSTRUCTOR_METHOD_NAME
@@ -609,7 +609,7 @@ namespace lua_funcs
 			luaL_setfuncs(lua, functions, 0);
 			lua_pushvalue(lua, -1);
 			lua_setfield(lua, -2, "__index");
-			luaL_newlib(lua, functions, INSTANCE_NAME);
+			lua_setglobal(lua, INSTANCE_NAME);
 				
 			lua_pushnumber(lua, Hitbox2D::TYPE_UNDEFINED);
 			lua_setglobal(lua, "HITBOX2D_TYPE_UNDEFINED");

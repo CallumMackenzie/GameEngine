@@ -26,7 +26,7 @@ namespace ingenium_lua {
 	extern "C"
 	{
 		void initLua();
-		void loadFile(const char* file);
+		void loadFileA(const char* file);
 		bool executeChunk();
 		bool executeFunc(const char* function);
 		void stopLua();

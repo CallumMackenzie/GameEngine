@@ -52,18 +52,20 @@
 #endif
 
 #include "C_WICImageFactory.h"
+#include <string>
 
 namespace windows {
+#define FILE_PATH_MAX_CHARS 256
 	inline const char* fileAbsolutePathA(const char* relativePath) 
 	{
-		char str[512];
-		GetFullPathNameA(relativePath, 512, str, NULL);
+		char str[FILE_PATH_MAX_CHARS] = { 0 };
+		GetFullPathNameA(relativePath, FILE_PATH_MAX_CHARS, str, NULL);
 		return str;
 	};
 	inline const wchar_t* fileAbsolutePathW(const wchar_t* relativePath)
 	{
-		wchar_t str[512];
-		GetFullPathName(relativePath, 512, str, NULL);
+		wchar_t str[FILE_PATH_MAX_CHARS] = { 0 };
+		GetFullPathName(relativePath, FILE_PATH_MAX_CHARS, str, NULL);
 		return str;
 	};
 };

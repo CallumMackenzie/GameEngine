@@ -11,7 +11,7 @@ namespace ingenium_lua
 		luaL_openlibs(state);
 	}
 
-	void loadFile(const char* file)
+	void loadFileA(const char* file)
 	{
 		if (!state) {
 			initLua();
