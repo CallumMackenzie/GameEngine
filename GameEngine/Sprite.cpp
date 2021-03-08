@@ -3,8 +3,7 @@
 #include "Sprite.h"
 
 
-Sprite::Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d = Hitbox2D::createUndefinedHitbox(), 
-	Vector2 pos = Vector2(), Rotation rot = Rotation()) : Sprite(name_, bitmap, hb2d, pos, rot)
+Sprite::Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d, Vector2 pos, Rotation rot) : Sprite(name_, bitmap, hb2d, pos, rot)
 {
 	loadFileBitmap(windows::fileAbsolutePathW(bitmapPath),
 		(fd.spriteSheetDirection ? (fd.frameWidth * fd.frames) : fd.frameWidth),

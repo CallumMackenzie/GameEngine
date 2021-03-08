@@ -9,12 +9,13 @@ function init ()
 		return "wow it works\n"
 	end
 
-	-- local h2d = Hitbox2D.new(v1, v2)
+	local h2d = Hitbox2D:new(v1, v2)
 
 	v1:setX(100)
 	v1:setY(5)
 	v1:getX()
 	v1:getY()
+	v1:normalize()
 
 	D2D.write(
 	"Info from methods: " .. 
@@ -24,11 +25,13 @@ function init ()
 	"\nadded: " .. tostring(v1 + v2) .. 
 	"\nv1: " .. tostring(v1) .. 
 	"\nv2: " .. tostring(v2) .. 
-	"\nv1 magnitude: " .. v1:magnitude() .. "\n")
-	v1:normalize()
-	D2D.write(tostring(v1) .. "\n")
+	"\nv1 magnitude: " .. v1:magnitude() ..
+	"\nh2d: " .. tostring(h2d) .. 
+	"\nh2d type: " .. h2d:type() .. 
+	"\nh2d size: (" .. h2d:width() .. ", " .. h2d:height() .. ")" ..
+	"\n")
 	D2D.setClearColour(0x000000)
-	D2D.setFullscreen()
+	-- D2D.setFullscreen()
 end
 
 function onUpdate () 
