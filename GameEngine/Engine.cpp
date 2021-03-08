@@ -592,7 +592,6 @@ namespace lua_funcs
 			lua_pushstring(lua, str.c_str());
 			return 1;
 		}
-
 		int render(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 1)
@@ -601,11 +600,87 @@ namespace lua_funcs
 			Engine::getEngine()->drwn->addToRenderQueue(sp, Direct2DWindow::RenderLinkedList::TYPE_RENDER_SPRITE);
 			return 0;
 		}
+		int setHitbox2D(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (self, Hitbox2D).", nargs);
+
+			Hitbox2D* h2d = getSelfAsUData<Hitbox2D>(lua, 2, hitbox2D::iClass.metaName);
+			lua_pop(lua, 2);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			sp->hitbox2D = *h2d;
+			return 0;
+		}
+		int setX (lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (self, number).", nargs);
+
+			float xV = lua_tonumber(lua, 2);
+			lua_pop(lua, 1);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			sp->setX(xV);
+			return 0;
+		}
+		int setY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (self, number).", nargs);
+
+			float yV = lua_tonumber(lua, 2);
+			lua_pop(lua, 1);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			sp->setY(yV);
+			return 0;
+		}
+		int setXY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 3)
+				return luaL_error(lua, "Got %d arguments, expected 3: (self, number, number).", nargs);
+
+			float yV = lua_tonumber(lua, 3);
+			lua_pop(lua, 1);
+			float xV = lua_tonumber(lua, 2);
+			lua_pop(lua, 1);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			sp->setXY(xV, yV);
+			return 0;
+		}
+		int getX(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			lua_pushnumber(lua, sp->position.x());
+			return 1;
+		}
+		int getY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			lua_pushnumber(lua, sp->position.y());
+			return 1;
+		}
 
 		int newSprite(lua_State* lua) {
 			// name, path --- 3
-			// name, path, vec2_image_size, vec2_frame_size, frames, frameTime, spriteSheetDirection --- 8
-			// name, path, vec2_image_size, vec2_frame_size, frames, frameTime, spriteSheetDirection, callback_function, callback_function_frame --- 10
+			// name, path, frameSize, frames, frameTime, spriteSheetDirection --- 7
+			// name, path, frameSize, frames, frameTime, spriteSheetDirection, callback_function, callback_function_frame --- 8
 
 			int nargs = lua_gettop(lua);
 			if (nargs != 3 && nargs != 8 && nargs != 10)
@@ -628,7 +703,7 @@ namespace lua_funcs
 				lua_pop(lua, 2);
 				break;
 			}
-			case 8:
+			case 7:
 			{
 				Hitbox2D* hb2d = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 3));
 				Sprite::FrameData fd = Sprite::FrameData();
@@ -653,6 +728,12 @@ namespace lua_funcs
 			iClass.addMetaMethod(lua, lua_func("__tostring", toString));
 
 			iClass.addMethod(lua, lua_func("addToRender", render));
+			iClass.addMethod(lua, lua_func("setHitbox2D", setHitbox2D));
+			iClass.addMethod(lua, lua_func("setX", setX));
+			iClass.addMethod(lua, lua_func("setY", setY));
+			iClass.addMethod(lua, lua_func("setXY", setXY));
+			iClass.addMethod(lua, lua_func("getX", getX));
+			iClass.addMethod(lua, lua_func("getY", getY));
 
 			iClass.registerClass(lua);
 		}

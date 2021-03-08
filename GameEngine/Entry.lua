@@ -12,13 +12,15 @@ function init ()
 	local v1 = Vector2:new(10, 2)
 	local derived = Vector2:new(30, 1)
 
+	local h2d = Hitbox2D:new(47, Vector2:new(50, 50))
+
 	sprt = Sprite:new("SPRITE_1", "./Planet1.png")
+	sprt:setHitbox2D(h2d)
+	sprt:setXY(500, 100)
 
 	function derived:someMethod (slf)
 		return "wow it works\n"
 	end
-
-	local h2d = Hitbox2D:new(v1, v2)
 
 	v1:setX(100)
 	v1:setY(5)
@@ -39,6 +41,7 @@ function init ()
 	"\nh2d type: " .. h2d:type() .. 
 	"\nh2d size: (" .. h2d:width() .. ", " .. h2d:height() .. ")" ..
 	"\nsprt: " .. tostring(sprt) .. 
+	"\nsprt pos(" .. sprt:getX() .. ", " .. sprt:getY() .. ")" ..
 	"\n")
 	D2D.setClearColour(0xffffff)
 	-- D2D.setFullscreen()
