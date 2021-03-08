@@ -6,9 +6,6 @@
 class Sprite : public Renderable<ID2D1Bitmap> 
 {
 public:
-	Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT);
-	Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d);
-	Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d, Vector2 pos);
 	Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d, Vector2 pos, Rotation rot);
 
 	Sprite(const char* name_, ID2D1Bitmap* bitmap_);

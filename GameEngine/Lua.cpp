@@ -97,4 +97,11 @@ namespace ingenium_lua
 		ret = ret.append("---- End Stack ----\n");
 		return ret;
 	}
+	luaL_Reg lua_func(const char* name, lua_CFunction cf)
+	{
+		luaL_Reg lr = luaL_Reg();
+		lr.name = name;
+		lr.func = cf;
+		return lr;
+	}
 }
