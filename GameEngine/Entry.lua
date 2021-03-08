@@ -22,6 +22,11 @@ function init ()
 	printMethods(v1)
 	printMethods(getmetatable(v1))
 
+	v1:setX(100)
+	v1:setY(5)
+	v1:getX()
+	v1:getY()
+
 	D2D.write(
 	"Info from methods: " .. 
 	derived:someMethod() .. 
@@ -30,7 +35,9 @@ function init ()
 	"\nadded: " .. tostring(v1 + v2) .. 
 	"\nv1: " .. tostring(v1) .. 
 	"\nv2: " .. tostring(v2) .. 
-	"\n")
+	"\nv1 magnitude: " .. v1:magnitude() .. "\n")
+	v1:normalize()
+	D2D.write(tostring(v1) .. "\n")
 	D2D.setSize(1600, 900)
 end
 

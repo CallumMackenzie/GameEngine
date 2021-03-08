@@ -99,6 +99,7 @@ namespace ingenium_lua {
 
 			luaL_newmetatable(lua, metaName);
 			luaL_setfuncs(lua, metaMethods.data(), 0);
+			luaL_setfuncs(lua, methods.data(), 0);
 
 			lua_newtable(lua);
 			luaL_setfuncs(lua, methods.data(), 0);
