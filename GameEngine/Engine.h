@@ -10,6 +10,7 @@
 #include "WindowClass.h"
 #include "Window.h"
 #include "Log.h"
+#include "StringCon.h"
 #include "LinkedList.h"
 #include "Vector.h"
 #include "Vector2.h"

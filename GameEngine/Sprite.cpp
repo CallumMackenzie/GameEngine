@@ -3,11 +3,19 @@
 #include "Sprite.h"
 
 
-Sprite::Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d, Vector2 pos, Rotation rot) : Sprite(name_, bitmap, hb2d, pos, rot)
+Sprite* Sprite::createSpriteFromName(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d, Vector2 pos, Rotation rot)
 {
-	loadFileBitmap(windows::fileAbsolutePathW(bitmapPath),
+	std::wstring ws = windows::fileAbsolutePathW(std::wstring(bitmapPath));
+	ID2D1Bitmap* bitmap;
+	HRESULT s = loadFileBitmap(ws.c_str(),
 		(fd.spriteSheetDirection ? (fd.frameWidth * fd.frames) : fd.frameWidth),
 		(fd.spriteSheetDirection ? fd.frameHeight : (fd.frameHeight * fd.frames)), &bitmap, pRT);
+	if (!SUCCEEDED(s)) {
+		OutputDebugStringA("Error loading sprite bitmap.\n");
+	}
+	Sprite* sp = new Sprite(name_, bitmap, hb2d, pos, rot);
+	sp->frameData = fd;
+	return sp;
 }
 
 Sprite::Sprite(const char* name_, ID2D1Bitmap* bitmap_) : Sprite(name_, bitmap_, Hitbox2D::createUndefinedHitbox())

@@ -57,10 +57,11 @@ namespace ingenium_lua {
 		std::vector<luaL_Reg> methods = { };
 		std::vector<luaL_Reg> metaMethods = { };
 
+		std::string stdMetaName = std::string("Ingenium.");
+
 		inline LuaClass(const char* name_)
 		{
 			name = name_;
-			std::string stdMetaName("Ingenium.");
 			stdMetaName = stdMetaName.append(name);
 			metaName = stdMetaName.c_str();
 		};

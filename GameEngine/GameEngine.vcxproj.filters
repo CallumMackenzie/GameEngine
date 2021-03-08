@@ -194,6 +194,9 @@
     <ClInclude Include="lualib\include\lua.h">
       <Filter>Header Files\Lua</Filter>
     </ClInclude>
+    <ClInclude Include="StringCon.h">
+      <Filter>Header Files\Base Functions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Entry.lua" />

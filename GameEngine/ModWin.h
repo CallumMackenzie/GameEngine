@@ -68,4 +68,11 @@ namespace windows {
 		GetFullPathName(relativePath, FILE_PATH_MAX_CHARS, str, NULL);
 		return str;
 	};
+	inline std::wstring fileAbsolutePathW(std::wstring relPath) 
+	{
+		wchar_t str[FILE_PATH_MAX_CHARS] = { 0 };
+		GetFullPathName(relPath.c_str(), FILE_PATH_MAX_CHARS, str, NULL);
+		std::wstring fin(str);
+		return fin;
+	};
 };

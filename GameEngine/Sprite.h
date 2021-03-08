@@ -6,7 +6,7 @@
 class Sprite : public Renderable<ID2D1Bitmap> 
 {
 public:
-	Sprite(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d = Hitbox2D::createUndefinedHitbox(), Vector2 pos = Vector2(), Rotation rot = Rotation());
+	static Sprite* createSpriteFromName(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d = Hitbox2D::createUndefinedHitbox(), Vector2 pos = Vector2(), Rotation rot = Rotation());
 
 	Sprite(const char* name_, ID2D1Bitmap* bitmap_);
 	Sprite(const char* name_, ID2D1Bitmap* bitmap_, Hitbox2D hb2d);

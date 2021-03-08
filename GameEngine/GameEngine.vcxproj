@@ -187,6 +187,7 @@
     <ClInclude Include="Rotation.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="StringCon.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="Vector2.h" />

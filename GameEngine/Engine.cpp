@@ -510,7 +510,7 @@ namespace lua_funcs
 			return 1;
 		}
 
-		int newHitbox2D (lua_State* lua) {
+		int newHitbox2D(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 1 && nargs != 3)
 				return luaL_error(lua, "Got %d arguments, expected 0 or 2: (Vector2, Vector2) or (number, Vector2).", nargs);
@@ -575,69 +575,88 @@ namespace lua_funcs
 #undef CONSTRUCTOR_METHOD_NAME
 #endif
 	}
-	namespace sprite 
+	namespace sprite
 	{
 		ingenium_lua::LuaClass<Sprite> iClass = ingenium_lua::LuaClass<Sprite>("Sprite");
 
 		int free(lua_State* lua) {
 			return ingenium_lua::free<Sprite>(lua);
 		}
-	
-			int toString(lua_State* lua) {
-				Sprite* sp = uDataToPtr<Sprite>(lua_touserdata(lua, 1));
-				lua_pushstring(lua, "sprite");
-				return 1;
-			}
-	
-			int newSprite(lua_State* lua) {
-	
-				// name, path, vec2_image_size --- 3
-				// name, path, vec2_image_size, vec2_frame_size, frames, frameTime, spriteSheetDirection --- 7
-				// name, path, vec2_image_size, vec2_frame_size, frames, frameTime, spriteSheetDirection, callback_function, callback_function_frame --- 9
-	
-				int nargs = lua_gettop(lua);
-				if (nargs != 3 && nargs != 7 && nargs != 9)
-					return luaL_error(lua, "Got %d arguments, expected 3, 7, or 9.", nargs);
-				if (lua_type(lua, 1) != LUA_TSTRING)
-					return luaL_error(lua, "Argument 1 must be a string.");
-				if (lua_type(lua, 1) != LUA_TSTRING)
-					return luaL_error(lua, "Argument 2 must be a string.");
-	
-				Sprite* sp = nullptr;
-	
-				switch (nargs) {
-				case 3:
-				{
-					Sprite::FrameData fd = Sprite::FrameData();
-					
-					sp = new Sprite(lua_tostring(lua, 1), (LPCWSTR) lua_tostring(lua, 2), fd, Engine::getEngine()->drwn->pRT);
-					lua_pop(lua, 2);
-					break;
-				}
-				case 7:
-				{
-					Hitbox2D* hb2d = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 3));
-					Sprite::FrameData fd = Sprite::FrameData();
-					sp = new Sprite(lua_tostring(lua, 1), (LPCWSTR) lua_tostring(lua, 2), fd, Engine::getEngine()->drwn->pRT);
-					lua_pop(lua, 6);
-					break;
-				}
-				default:
-					break;
-				}
-	
-				iClass.createInstance(lua, sp);
 
-				return 1;
-			}
-	
-			void registerSprite(lua_State* lua) {
-				using namespace ingenium_lua;
-				iClass.addMetaMethod(lua, lua_func("new", newSprite));
-
-				iClass.registerClass(lua);
-			}
+		int toString(lua_State* lua) {
+			ingenium_lua::printStackTrace();
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+			std::string str ("sprite(");
+			str = str.append(sp->name).append(")");
+			lua_pushstring(lua, str.c_str());
+			return 1;
 		}
+
+		int render(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			Engine::getEngine()->drwn->addToRenderQueue(sp, Direct2DWindow::RenderLinkedList::TYPE_RENDER_SPRITE);
+			return 0;
+		}
+
+		int newSprite(lua_State* lua) {
+			// name, path --- 3
+			// name, path, vec2_image_size, vec2_frame_size, frames, frameTime, spriteSheetDirection --- 8
+			// name, path, vec2_image_size, vec2_frame_size, frames, frameTime, spriteSheetDirection, callback_function, callback_function_frame --- 10
+
+			int nargs = lua_gettop(lua);
+			if (nargs != 3 && nargs != 8 && nargs != 10)
+				return luaL_error(lua, "Got %d arguments, expected 2, 7, or 9.", nargs);
+
+			Sprite* sp = nullptr;
+
+			switch (nargs) {
+			case 3:
+			{
+				Sprite::FrameData fd = Sprite::FrameData();
+				fd.frameWidth = 500;
+				fd.frameHeight = 500;
+				const char* name = lua_tostring(lua, 2);
+				std::wstring path = string_conversion::widen(lua_tostring(lua, 3));
+
+				sp = Sprite::createSpriteFromName(name, path.c_str(), fd, Engine::getEngine()->drwn->pRT);
+				sp->size.x(100);
+				sp->size.y(100);
+				lua_pop(lua, 2);
+				break;
+			}
+			case 8:
+			{
+				Hitbox2D* hb2d = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 3));
+				Sprite::FrameData fd = Sprite::FrameData();
+				sp = Sprite::createSpriteFromName(lua_tostring(lua, 2), (LPCWSTR)lua_tostring(lua, 3), fd, Engine::getEngine()->drwn->pRT);
+				lua_pop(lua, 6);
+				break;
+			}
+			default:
+				break;
+			}
+
+			iClass.createInstance(lua, sp);
+
+			return 1;
+		}
+
+		void registerSprite(lua_State* lua) {
+			using namespace ingenium_lua;
+
+			iClass.addMetaMethod(lua, lua_func("new", newSprite));
+			iClass.addMetaMethod(lua, lua_func("__gc", free));
+			iClass.addMetaMethod(lua, lua_func("__tostring", toString));
+
+			iClass.addMethod(lua, lua_func("addToRender", render));
+
+			iClass.registerClass(lua);
+		}
+	}
 }
 
 void Engine::loadToLua()
@@ -649,5 +668,6 @@ void Engine::loadToLua()
 	lua_funcs::d2d::registerDRWN(ingenium_lua::state);
 	lua_funcs::vec2::registerVector2(ingenium_lua::state);
 	lua_funcs::hitbox2D::registerHitbox2D(ingenium_lua::state);
+	lua_funcs::sprite::registerSprite(ingenium_lua::state);
 }
 #endif

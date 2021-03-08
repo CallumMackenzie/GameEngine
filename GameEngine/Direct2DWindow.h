@@ -18,7 +18,7 @@ public:
 
     void beginRender(); // Starts rendering
     void endRender(); // Ends rendering
-    void drawQueue(bool preservePrev); // TODO : Draw render queue
+    void drawQueue(bool preservePrev);
     void drawBitmap(ID2D1Bitmap *bt, int width, int height, float top, float left, float rotX, float rotY, float rotZ, float transparency, 
         D2D1_POINT_2F rotationCenter, RECT sourceRect, D2D1_BITMAP_INTERPOLATION_MODE interpMode,
         float scaleX, float scaleY); // Draws bitmap
