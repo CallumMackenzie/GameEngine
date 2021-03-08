@@ -47,7 +47,26 @@ function init ()
 	-- D2D.setFullscreen()
 end
 
+addValueY = 2
+addValueX = 1
+
 function onUpdate () 
+	sprt:setXY(sprt:getX() + addValueX, sprt:getY() + addValueY)
+
+	if sprt:getX() + 47 * 2 >= 1600 then
+		addValueX = -1
+	end
+	if sprt:getX() <= 0 then
+		addValueX = 1
+	end
+
+	if sprt:getY() + 47 * 2 >= 800 then
+		addValueY = -2
+	end
+	if sprt:getY() <= 0 then
+		addValueY = 2
+	end
+
 	sprt:addToRender()
 	D2D.render(false)
 end

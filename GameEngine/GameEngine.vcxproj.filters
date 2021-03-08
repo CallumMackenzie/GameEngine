@@ -206,4 +206,9 @@
       <Filter>Header Files\Lua</Filter>
     </Library>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Planet1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

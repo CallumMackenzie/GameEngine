@@ -200,6 +200,9 @@
   <ItemGroup>
     <Library Include="lualib\lua54.lib" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Planet1.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
