@@ -113,11 +113,6 @@ LRESULT CALLBACK Engine::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, L
 #if defined(SCRIPT_LUA)
 namespace lua_funcs
 {
-	//void printStackTrace() {
-	//	Debug::oss << ingenium_lua::getStackTrace();
-	//	Debug::writeLn();
-	//}
-
 	template <typename T> T* uDataToPtr(void* data) {
 		return *(T**)data;
 	}
@@ -135,13 +130,7 @@ namespace lua_funcs
 
 	namespace d2d
 	{
-		constexpr auto CONSTANT_NAME_INHERITABLE = "Ingenium.D2D";
-		constexpr auto CONSTANT_NAME = "D2D";
-		constexpr auto CONSTANT_SET_SIZE = "setSize";
-		constexpr auto CONSTANT_GET_MOUSE_X = "getMouseX";
-		constexpr auto CONSTANT_GET_MOUSE_Y = "getMouseY";
-		constexpr auto CONSTANT_PRINT = "write";
-		constexpr auto CONSTANT_RENDER = "render";
+		ingenium_lua::LuaClass<Direct2DWindow> iClass = ingenium_lua::LuaClass<Direct2DWindow>("D2D");
 
 		int setDRWNSize(lua_State* lua) {
 			int nargs = lua_gettop(lua);
@@ -189,33 +178,40 @@ namespace lua_funcs
 			lua_pop(lua, 1);
 			return 0;
 		}
+		int setDRWNFullScreen(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 0)
+				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
+			Engine::getEngine()->drwn->window->setFullscreen();
+		}
+		int setDRWNClearColour(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1.", nargs);
+			UINT32 colour = luaL_checkinteger(lua, 1);
+			Engine::getEngine()->drwn->clearColour = D2D1::ColorF(colour);
+		}
+
 		void registerDRWN(lua_State* lua)
 		{
+			using namespace ingenium_lua;
 			Direct2DWindow** pmPtr = (Direct2DWindow**)lua_newuserdata(lua, sizeof(Direct2DWindow*));
 			*pmPtr = Engine::getEngine()->drwn;
 
-			luaL_Reg functions[] = {
-				 CONSTANT_SET_SIZE, setDRWNSize,
-				 CONSTANT_RENDER, renderDRWN,
-				 CONSTANT_GET_MOUSE_X, getMouseXDRWN,
-				 CONSTANT_GET_MOUSE_Y, getMouseYDRWN,
-				 CONSTANT_PRINT, printDRWN,
-				 nullptr, nullptr
-			};
+			iClass.addMetaMethod(lua, lua_func("setSize", setDRWNSize));
+			iClass.addMetaMethod(lua, lua_func("render", renderDRWN));
+			iClass.addMetaMethod(lua, lua_func("getMouseX", getMouseXDRWN));
+			iClass.addMetaMethod(lua, lua_func("getMouseY", getMouseYDRWN));
+			iClass.addMetaMethod(lua, lua_func("write", printDRWN));
+			iClass.addMetaMethod(lua, lua_func("setFullscreen", setDRWNFullScreen));
+			iClass.addMetaMethod(lua, lua_func("setClearColour", setDRWNClearColour));
 
-			luaL_newmetatable(lua, CONSTANT_NAME);
-			luaL_setfuncs(lua, functions, 0);
-
-			lua_pushvalue(lua, -1);
-			lua_setfield(lua, -2, "__index");
-
-			lua_setmetatable(lua, -2);
-			lua_setglobal(lua, CONSTANT_NAME);
+			iClass.registerClass(lua);
 		}
 	}
 	namespace vec2
 	{
-		ingenium_lua::LuaInstanceClass<Vector2> iClass = ingenium_lua::LuaInstanceClass<Vector2>("Vector2");
+		ingenium_lua::LuaClass<Vector2> iClass = ingenium_lua::LuaClass<Vector2>("Vector2");
 
 		constexpr int exargs = 1;
 

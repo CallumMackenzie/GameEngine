@@ -51,13 +51,13 @@ namespace ingenium_lua {
 	}
 
 	template <typename T>
-	struct LuaInstanceClass {
+	struct LuaClass {
 		const char* name;
 		const char* metaName;
 		std::vector<luaL_Reg> methods = { };
 		std::vector<luaL_Reg> metaMethods = { };
 
-		inline LuaInstanceClass(const char* name_) 
+		inline LuaClass(const char* name_)
 		{
 			name = name_;
 			std::string stdMetaName("Ingenium.");
