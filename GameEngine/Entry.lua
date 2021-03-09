@@ -15,8 +15,16 @@ function init ()
 	local h2d = Hitbox2D:new(47, Vector2:new(50, 50))
 
 	sprt = Sprite:new("SPRITE_1", "./Planet1.png")
+	sprt:setSize(100, 100)
 	sprt:setHitbox2D(h2d)
 	sprt:setXY(500, 100)
+	sprt:setRotationCenter(50, 50)
+
+	D2D.write(tostring(frameData) .. "\n")
+	runner = Sprite:new("Runner", "./RunSpriteSheet.png", SpriteFrameData:new(12, false, 40, 64, 0.1))
+	runner:setSize(80, 128)
+	runner:setXY(0, 0)
+	runner:setRotationCenter(40, 64)
 
 	function derived:someMethod (slf)
 		return "wow it works\n"
@@ -45,7 +53,7 @@ function init ()
 	"\nsprt: " .. tostring(sprt) .. 
 	"\nsprt pos(" .. sprt:getX() .. ", " .. sprt:getY() .. ")" ..
 	"\nsprt hitbox method call: " .. tostring(spriteHitbox) .. 
-	"\n")
+	"\nrunner: " .. tostring(runner))
 	D2D.setClearColour(0xffffff)
 	Time.setFPS(200)
 	-- D2D.setFullscreen()
@@ -73,6 +81,9 @@ function onUpdate ()
 	sprt:addXY(addValue:getX() * Time.deltaTime(), addValue:getY() * Time.deltaTime())
 
 	sprt:addToRender()
+	runner:calculateFrame()
+	sprt:addRotation(0, 0, 0.1 * Time.deltaTime())
+	runner:addToRender()
 	D2D.render(false)
 end
 

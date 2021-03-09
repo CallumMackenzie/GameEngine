@@ -631,6 +631,56 @@ namespace lua_funcs
 #undef CONSTRUCTOR_METHOD_NAME
 #endif
 	}
+	namespace sprite_frame_data {
+		ingenium_lua::LuaClass<Sprite::FrameData> iClass = ingenium_lua::LuaClass<Sprite::FrameData>("SpriteFrameData");
+
+		int free(lua_State* lua) {
+			return ingenium_lua::free<Sprite::FrameData>(lua);
+		}
+		int toString(lua_State* lua) {
+			ingenium_lua::printStackTrace();
+			Sprite::FrameData* fd = getSelfAsUData<Sprite::FrameData>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+			ingenium_lua::printStackTrace();
+			std::string str("SFrameData(");
+			str = str.append("frames=").append(std::to_string(fd->frames)).append(", fdelta=").append(std::to_string(fd->frameTime)).append("s").append(")");
+			lua_pushstring(lua, str.c_str());
+			return 1;
+		}
+
+		int newFrameData(lua_State* lua) {
+
+			// frames, spritesheetDirection, frameWidth, frameHeight, frameDelta
+
+			int nargs = lua_gettop(lua);
+			if (nargs != 6)
+				return luaL_error(lua, "Got %d arguments, expected 6.", nargs);
+
+			Sprite::FrameData* fd = nullptr;
+
+			fd = new Sprite::FrameData();
+			fd->frameTime = lua_tonumber(lua, 6);
+			fd->frameHeight = lua_tonumber(lua, 5);
+			fd->frameWidth = lua_tonumber(lua, 4);
+			fd->spriteSheetDirection = lua_toboolean(lua, 3);
+			fd->frames = lua_tointeger(lua, 2);
+			lua_pop(lua, 5);
+
+			iClass.createInstance(lua, fd);
+
+			return 1;
+		}
+
+		void registerSpriteFrameData (lua_State* lua) {
+			using namespace ingenium_lua;
+
+			iClass.addMetaMethod(lua, lua_func("new", newFrameData));
+			iClass.addMetaMethod(lua, lua_func("__gc", free));
+			iClass.addMetaMethod(lua, lua_func("__tostring", toString));
+
+			iClass.registerClass(lua);
+		}
+	};
 	namespace sprite
 	{
 		ingenium_lua::LuaClass<Sprite> iClass = ingenium_lua::LuaClass<Sprite>("Sprite");
@@ -640,7 +690,6 @@ namespace lua_funcs
 		}
 
 		int toString(lua_State* lua) {
-			ingenium_lua::printStackTrace();
 			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 			std::string str ("sprite(");
@@ -778,8 +827,6 @@ namespace lua_funcs
 			if (nargs != 1)
 				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
 
-			ingenium_lua::printStackTrace();
-
 			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 
@@ -791,15 +838,87 @@ namespace lua_funcs
 			lua_remove(lua, -2);
 			return 1;
 		}
+		int setSize(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 3)
+				return luaL_error(lua, "Got %d arguments, expected 3: (self, number, number).", nargs);
+
+			float width = lua_tonumber(lua, 2);
+			float height = lua_tonumber(lua, 3);
+			lua_pop(lua, 2);
+
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+			sp->size.x(width);
+			sp->size.y(height);
+			return 0;
+		}
+		int calculateFrame(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+			sp->frameData.calculateFrame();
+			return 0;
+		}
+		int setRotation(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 4)
+				return luaL_error(lua, "Got %d arguments, expected 4: (self, number, number, number).", nargs);
+
+			float xRot = lua_tonumber(lua, 2), yRot = lua_tonumber(lua, 3), zRot = lua_tonumber(lua, 4);
+			lua_pop(lua, 3);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			sp->rotation.x = xRot;
+			sp->rotation.y = yRot;
+			sp->rotation.z = zRot;
+
+			return 0;
+		}
+		int addRotation(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 4)
+				return luaL_error(lua, "Got %d arguments, expected 4: (self, number, number, number).", nargs);
+
+			float xRot = lua_tonumber(lua, 2), yRot = lua_tonumber(lua, 3), zRot = lua_tonumber(lua, 4);
+			lua_pop(lua, 3);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			sp->rotation.x += xRot;
+			sp->rotation.y += yRot;
+			sp->rotation.z += zRot;
+
+			return 0;
+		}
+		int setRotationCenter(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 3)
+				return luaL_error(lua, "Got %d arguments, expected 3: (self, number, number).", nargs);
+
+			float xRot = lua_tonumber(lua, 2), yRot = lua_tonumber(lua, 3);
+			lua_pop(lua, 2);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			sp->rotation.centre[0] = xRot;
+			sp->rotation.centre[1] = yRot;
+
+			return 0;
+		}
 
 		int newSprite(lua_State* lua) {
 			// name, path --- 3
-			// name, path, frameSize, frames, frameTime, spriteSheetDirection --- 7
-			// name, path, frameSize, frames, frameTime, spriteSheetDirection, callback_function, callback_function_frame --- 8
+			// name, path, frameData --- 4
+			// name, path, frameData, callback_function, callback_function_frame --- 6
 
 			int nargs = lua_gettop(lua);
-			if (nargs != 3 && nargs != 8 && nargs != 10)
-				return luaL_error(lua, "Got %d arguments, expected 2, 7, or 9.", nargs);
+			if (nargs != 3 && nargs != 4 && nargs != 6)
+				return luaL_error(lua, "Got %d arguments, expected 3, 4, or 6.", nargs);
 
 			Sprite* sp = nullptr;
 
@@ -807,23 +926,21 @@ namespace lua_funcs
 			case 3:
 			{
 				Sprite::FrameData fd = Sprite::FrameData();
-				fd.frameWidth = 500;
-				fd.frameHeight = 500;
 				const char* name = lua_tostring(lua, 2);
 				std::wstring path = string_conversion::widen(lua_tostring(lua, 3));
+				lua_pop(lua, 2);
 
 				sp = Sprite::createSpriteFromName(name, path.c_str(), fd, Engine::getEngine()->drwn->pRT);
-				sp->size.x(100);
-				sp->size.y(100);
-				lua_pop(lua, 2);
 				break;
 			}
-			case 7:
+			case 4:
 			{
-				Hitbox2D* hb2d = uDataToPtr<Hitbox2D>(lua_touserdata(lua, 3));
-				Sprite::FrameData fd = Sprite::FrameData();
-				sp = Sprite::createSpriteFromName(lua_tostring(lua, 2), (LPCWSTR)lua_tostring(lua, 3), fd, Engine::getEngine()->drwn->pRT);
-				lua_pop(lua, 6);
+				Sprite::FrameData* fd = getSelfAsUData<Sprite::FrameData>(lua, 4, sprite_frame_data::iClass.metaName);
+				lua_pop(lua, 2);
+				const char* name = lua_tostring(lua, 2);
+				std::wstring path = string_conversion::widen(lua_tostring(lua, 3));
+				lua_pop(lua, 2);
+				sp = Sprite::createSpriteFromName(name, path.c_str(), *fd, Engine::getEngine()->drwn->pRT);
 				break;
 			}
 			default:
@@ -849,11 +966,15 @@ namespace lua_funcs
 			iClass.addMethod(lua, lua_func("setXY", setXY));
 			iClass.addMethod(lua, lua_func("getX", getX));
 			iClass.addMethod(lua, lua_func("getY", getY));
-
 			iClass.addMethod(lua, lua_func("addX", addX));
 			iClass.addMethod(lua, lua_func("addY", addY));
 			iClass.addMethod(lua, lua_func("addXY", addXY));
 			iClass.addMethod(lua, lua_func("getHitbox2D", getHitbox));
+			iClass.addMethod(lua, lua_func("setSize", setSize));
+			iClass.addMethod(lua, lua_func("calculateFrame", calculateFrame));
+			iClass.addMethod(lua, lua_func("setRotation", setRotation));
+			iClass.addMethod(lua, lua_func("addRotation", addRotation));
+			iClass.addMethod(lua, lua_func("setRotationCenter", setRotationCenter));
 
 			iClass.registerClass(lua);
 		}
@@ -870,6 +991,7 @@ void Engine::loadToLua()
 	lua_funcs::time::registerTime(ingenium_lua::state);
 	lua_funcs::vec2::registerVector2(ingenium_lua::state);
 	lua_funcs::hitbox2D::registerHitbox2D(ingenium_lua::state);
+	lua_funcs::sprite_frame_data::registerSpriteFrameData(ingenium_lua::state);
 	lua_funcs::sprite::registerSprite(ingenium_lua::state);
 }
 #endif

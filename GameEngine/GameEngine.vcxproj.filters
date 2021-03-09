@@ -210,5 +210,8 @@
     <Image Include="Planet1.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="RunSpriteSheet.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -202,6 +202,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Planet1.png" />
+    <Image Include="RunSpriteSheet.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
