@@ -135,7 +135,7 @@ namespace lua_funcs
 		int setDRWNSize(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 2)
-				return luaL_error(lua, "Got %d arguments, expected 2.", nargs);
+				return luaL_error(lua, "Got %d arguments, expected 2: (number, number).", nargs);
 			UINT width = luaL_checkinteger(lua, 1);
 			UINT height = luaL_checkinteger(lua, 2);
 
@@ -170,7 +170,7 @@ namespace lua_funcs
 		int renderDRWN(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 1)
-				return luaL_error(lua, "Got %d arguments, expected 1.", nargs);
+				return luaL_error(lua, "Got %d arguments, expected 1: (boolean).", nargs);
 			bool clear = lua_toboolean(lua, 1);
 			Engine::getEngine()->drwn->beginRender();
 			Engine::getEngine()->drwn->drawQueue(clear);
@@ -187,11 +187,20 @@ namespace lua_funcs
 		int setDRWNClearColour(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 1)
-				return luaL_error(lua, "Got %d arguments, expected 1.", nargs);
+				return luaL_error(lua, "Got %d arguments, expected 1: (int).", nargs);
 			UINT32 colour = luaL_checkinteger(lua, 1);
 			Engine::getEngine()->drwn->clearColour = D2D1::ColorF(colour);
 		}
-
+		int isKeyPressed(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (integer).", nargs);
+			int key = luaL_checkinteger(lua, 1);
+			lua_pop(lua, 1);
+			bool keyPressed = Input::getInput()->getKeyState(key);
+			lua_pushboolean(lua, keyPressed);
+			return 1;
+		}
 		void registerDRWN(lua_State* lua)
 		{
 			using namespace ingenium_lua;
@@ -203,6 +212,40 @@ namespace lua_funcs
 			iClass.addMetaMethod(lua, lua_func("write", printDRWN));
 			iClass.addMetaMethod(lua, lua_func("setFullscreen", setDRWNFullScreen));
 			iClass.addMetaMethod(lua, lua_func("setClearColour", setDRWNClearColour));
+			iClass.addMetaMethod(lua, lua_func("keyPressed", isKeyPressed));
+
+			iClass.registerClass(lua);
+		}
+	}
+	namespace time 
+	{
+		ingenium_lua::LuaClass<Direct2DWindow> iClass = ingenium_lua::LuaClass<Direct2DWindow>("Time");
+
+		int getDeltaTime(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 0)
+				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
+
+			lua_pushnumber(lua, Time::getTime()->deltaTime);
+			return 1;
+		}
+		int setFPS(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (number).", nargs);
+
+			float newFPS = luaL_checknumber(lua, 1);
+			lua_pop(lua, 1);
+			Time::getTime()->setFPS(newFPS);
+
+			return 0;
+		}
+
+		void registerTime(lua_State* lua) {
+			using namespace ingenium_lua;
+
+			iClass.addMetaMethod(lua, lua_func("deltaTime", getDeltaTime));
+			iClass.addMetaMethod(lua, lua_func("setFPS", setFPS));
 
 			iClass.registerClass(lua);
 		}
@@ -335,6 +378,18 @@ namespace lua_funcs
 			lua_pushstring(lua, v2s.c_str());
 			return 1;
 		}
+		int getNormalized(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+			Vector2 v2 = *getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
+			lua_pop(lua, 1);
+			
+			v2.normalize();
+			lua_pushnumber(lua, v2.x());
+			lua_pushnumber(lua, v2.y());
+			return newVector2(lua);
+		}
 
 		int newVector2(lua_State* lua) {
 			int nargs = lua_gettop(lua);
@@ -377,6 +432,7 @@ namespace lua_funcs
 			iClass.addMethod(lua, lua_func("setX", setX));
 			iClass.addMethod(lua, lua_func("setY", setY));
 			iClass.addMethod(lua, lua_func("normalize", normalize));
+			iClass.addMethod(lua, lua_func("normalized", getNormalized));
 			iClass.addMethod(lua, lua_func("magnitude", magnitude));
 
 			iClass.registerClass(lua);
@@ -676,6 +732,65 @@ namespace lua_funcs
 			lua_pushnumber(lua, sp->position.y());
 			return 1;
 		}
+		int addX(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (self, number).", nargs);
+
+			float xV = lua_tonumber(lua, 2);
+			lua_pop(lua, 1);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			sp->addXY(xV, 0);
+			return 0;
+		}
+		int addY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (self, number).", nargs);
+
+			float yV = lua_tonumber(lua, 2);
+			lua_pop(lua, 1);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			sp->addXY(0, yV);
+			return 0;
+		}
+		int addXY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 3)
+				return luaL_error(lua, "Got %d arguments, expected 3: (self, number, number).", nargs);
+
+			float yV = lua_tonumber(lua, 3);
+			lua_pop(lua, 1);
+			float xV = lua_tonumber(lua, 2);
+			lua_pop(lua, 1);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			sp->addXY(xV, yV);
+			return 0;
+		}
+		int getHitbox(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+
+			ingenium_lua::printStackTrace();
+
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			Hitbox2D* hb2d = Hitbox2D::createUndefinedHitboxPtr();
+			*hb2d = sp->hitbox2D;
+
+			lua_getglobal(lua, hitbox2D::iClass.name);
+			hitbox2D::iClass.createInstance(lua, hb2d);
+			lua_remove(lua, -2);
+			return 1;
+		}
 
 		int newSprite(lua_State* lua) {
 			// name, path --- 3
@@ -735,6 +850,11 @@ namespace lua_funcs
 			iClass.addMethod(lua, lua_func("getX", getX));
 			iClass.addMethod(lua, lua_func("getY", getY));
 
+			iClass.addMethod(lua, lua_func("addX", addX));
+			iClass.addMethod(lua, lua_func("addY", addY));
+			iClass.addMethod(lua, lua_func("addXY", addXY));
+			iClass.addMethod(lua, lua_func("getHitbox2D", getHitbox));
+
 			iClass.registerClass(lua);
 		}
 	}
@@ -747,6 +867,7 @@ void Engine::loadToLua()
 	}
 
 	lua_funcs::d2d::registerDRWN(ingenium_lua::state);
+	lua_funcs::time::registerTime(ingenium_lua::state);
 	lua_funcs::vec2::registerVector2(ingenium_lua::state);
 	lua_funcs::hitbox2D::registerHitbox2D(ingenium_lua::state);
 	lua_funcs::sprite::registerSprite(ingenium_lua::state);

@@ -59,6 +59,8 @@ namespace ingenium_lua {
 
 		std::string stdMetaName = std::string("Ingenium.");
 
+		bool registering = false;
+
 		inline LuaClass(const char* name_)
 		{
 			name = name_;
@@ -92,8 +94,8 @@ namespace ingenium_lua {
 			lua_setmetatable(lua, -2);
 			lua_setfield(lua, -2, "__self");
 		};
-		inline void registerClass(lua_State* lua) 
-		{
+		inline void registerMetatable(lua_State* lua) {
+			registering = true;
 			luaL_Reg nullFn = lua_func(nullptr, nullptr);
 			metaMethods.push_back(nullFn);
 			methods.push_back(nullFn);
@@ -101,11 +103,19 @@ namespace ingenium_lua {
 			luaL_newmetatable(lua, metaName);
 			luaL_setfuncs(lua, metaMethods.data(), 0);
 			luaL_setfuncs(lua, methods.data(), 0);
+		};
+		inline void registerTable(lua_State* lua) {
+			registering = false;
 
 			lua_newtable(lua);
 			luaL_setfuncs(lua, methods.data(), 0);
 			lua_setfield(lua, -2, "__index");
 			lua_setglobal(lua, name);
+		};
+		inline void registerClass(lua_State* lua) 
+		{
+			registerMetatable(lua);
+			registerTable(lua);
 		};
 	};
 }

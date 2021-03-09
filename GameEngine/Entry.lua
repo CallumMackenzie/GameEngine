@@ -28,6 +28,8 @@ function init ()
 	v1:getY()
 	v1:normalize()
 
+	spriteHitbox = sprt:getHitbox2D()
+
 	D2D.write(
 	"Info from methods: " .. 
 	derived:someMethod() .. 
@@ -42,30 +44,33 @@ function init ()
 	"\nh2d size: (" .. h2d:width() .. ", " .. h2d:height() .. ")" ..
 	"\nsprt: " .. tostring(sprt) .. 
 	"\nsprt pos(" .. sprt:getX() .. ", " .. sprt:getY() .. ")" ..
+	"\nsprt hitbox method call: " .. tostring(spriteHitbox) .. 
 	"\n")
 	D2D.setClearColour(0xffffff)
+	Time.setFPS(200)
 	-- D2D.setFullscreen()
 end
 
-addValueY = 2
-addValueX = 1
+addValue = Vector2:new()
+deceleration = Vector2:new(0.9, 0.9)
 
 function onUpdate () 
-	sprt:setXY(sprt:getX() + addValueX, sprt:getY() + addValueY)
+	if D2D.keyPressed(87) then
+		addValue:setY(-1)
+	end
+	if D2D.keyPressed(83) then
+		addValue:setY(1)
+	end
+	if D2D.keyPressed(68) then
+		addValue:setX(1)
+	end
+	if D2D.keyPressed(65) then
+		addValue:setX(-1)
+	end
 
-	if sprt:getX() + 47 * 2 >= 1600 then
-		addValueX = -1
-	end
-	if sprt:getX() <= 0 then
-		addValueX = 1
-	end
+	addValue = addValue * deceleration
 
-	if sprt:getY() + 47 * 2 >= 800 then
-		addValueY = -2
-	end
-	if sprt:getY() <= 0 then
-		addValueY = 2
-	end
+	sprt:addXY(addValue:getX() * Time.deltaTime(), addValue:getY() * Time.deltaTime())
 
 	sprt:addToRender()
 	D2D.render(false)
