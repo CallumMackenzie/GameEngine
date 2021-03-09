@@ -206,7 +206,7 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 						rct.bottom = rObj->frameData.frameHeight * (rObj->frameData.frame + 1);
 					}
 					else { // Horizontal
-						rct.left = rObj->frameData.frameHeight * rObj->frameData.frame;
+						rct.left = rObj->frameData.frameWidth * rObj->frameData.frame;
 						rct.top = 0;
 						rct.right = rObj->frameData.frameWidth * (rObj->frameData.frame + 1);
 						rct.bottom = rObj->frameData.frameHeight;
