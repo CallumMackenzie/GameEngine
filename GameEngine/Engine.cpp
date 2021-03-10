@@ -40,7 +40,6 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 	RootWindow* win = new RootWindow(hInstance, primeClass, L"Ingenium", CW_USEDEFAULT, CW_USEDEFAULT, 900, 1600);
 	win->style = WS_SYSMENU | WS_SIZEBOX;
 	win->create();
-	win->show();
 
 	drwn = new Direct2DWindow(win);
 
@@ -57,6 +56,11 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 void Engine::onUpdate() {
 #if defined(SCRIPT_LUA)
 	ingenium_lua::executeFunc(LUA_ENGINE_UPDATE);
+#endif
+}
+void Engine::onFixedUpdate() {
+#if defined(SCRIPT_LUA)
+	ingenium_lua::executeFunc(LUA_ENGINE_FIXED_UPDATE);
 #endif
 }
 
@@ -199,6 +203,15 @@ namespace lua_funcs_2D
 			lua_pushboolean(lua, keyPressed);
 			return 1;
 		}
+		int showWindow(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 0)
+				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
+
+			Engine::getEngine()->drwn->window->show();
+
+			return 0;
+		}
 		void registerDRWN(lua_State* lua)
 		{
 			using namespace ingenium_lua;
@@ -211,6 +224,7 @@ namespace lua_funcs_2D
 			iClass.addMetaMethod(lua, lua_func("setFullscreen", setDRWNFullScreen));
 			iClass.addMetaMethod(lua, lua_func("setClearColour", setDRWNClearColour));
 			iClass.addMetaMethod(lua, lua_func("keyPressed", isKeyPressed));
+			iClass.addMetaMethod(lua, lua_func("show", showWindow));
 
 			iClass.registerClass(lua);
 		}

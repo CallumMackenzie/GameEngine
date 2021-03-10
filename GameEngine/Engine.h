@@ -36,22 +36,22 @@ public:
     static LRESULT CALLBACK DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam); // Modified wnd_proc that handles input
     void init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow); // Initializes the engine
     void onUpdate();
+    void onFixedUpdate();
     void onClose();
     bool running = false; // Whether the engine is running or not
     ~Engine(); // Engine deconstructor to clean up memory leaks
 
-#if defined(SCRIPT_LUA)
+#ifdef SCRIPT_LUA
     void loadToLua();
 #endif
 
 public:
+
     WindowClass* primeClass = nullptr;
     Direct2DWindow* drwn = nullptr;
 
 private:
     static Engine* engine; // Engine singleton
-
-    // LinkedList* gameObjects = new LinkedList();
 
 private:
     Engine(); // Engine constructor

@@ -44,6 +44,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLin
 		}
 
 		if (Engine::getEngine()->running) {
+			if (Time::getTime()->nextFixedFrameReady()) {
+				Engine::getEngine()->onFixedUpdate();
+			}
 			if (Time::getTime()->nextFrameReady()) {
 				Engine::getEngine()->onUpdate();
 #if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
@@ -64,7 +67,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLin
 	delete Engine::getEngine();
 
 #ifdef _DEBUG
-	Debug::oss << (memManagementTracker >= 0 ? "Objects not deallocated: " : "Extra objects deleted: ") << memManagementTracker;
+	Debug::oss << (memManagementTracker > 0 ? "Objects not deallocated: " : "Extra objects deleted: ") << memManagementTracker;
 #endif
 	Debug::writeLn();
 
