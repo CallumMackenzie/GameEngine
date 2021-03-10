@@ -2,6 +2,8 @@
 
 #include "Hitbox2D.h"
 
+using namespace ingenium2D;
+
 Hitbox2D Hitbox2D::createUndefinedHitbox()
 {
 	return Hitbox2D(TYPE_UNDEFINED);

@@ -2,6 +2,7 @@
 #include "ModWin.h"
 #include "Sprite.h"
 
+using namespace ingenium2D;
 
 Sprite* Sprite::createSpriteFromName(const char* name_, LPCWSTR bitmapPath, FrameData fd, ID2D1RenderTarget* pRT, Hitbox2D hb2d, Vector2 pos, Rotation rot)
 {

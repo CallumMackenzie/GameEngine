@@ -116,7 +116,6 @@ namespace lua_funcs
 	template <typename T> T* uDataToPtr(void* data) {
 		return *(T**)data;
 	}
-
 	template <typename T> T* getSelfAsUData(lua_State* L, int index, const char* inheritName) {
 		using namespace ingenium_lua;
 		void* ud = 0;
@@ -441,6 +440,69 @@ namespace lua_funcs
 #undef CONSTRUCTOR_METHOD_NAME
 #endif
 	}
+	namespace collision_data_2D {
+		ingenium_lua::LuaClass<Physics2D::CollisionData> iClass = ingenium_lua::LuaClass<Physics2D::CollisionData>("CollisionData2D");
+
+		int free(lua_State* lua) {
+			return ingenium_lua::free<Physics2D::CollisionData>(lua);
+		}
+		int toString(lua_State* lua) {
+			Physics2D::CollisionData* v2 = getSelfAsUData<Physics2D::CollisionData>(lua, 1, iClass.metaName);
+			std::string v2s("");
+			v2s = v2s.append(iClass.name).append("(").append("dir=").append(std::to_string(v2->direction)).append(")");
+			lua_pushstring(lua, v2s.c_str());
+			return 1;
+		}
+		int hitVectorX(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+
+			Physics2D::CollisionData* cd = getSelfAsUData<Physics2D::CollisionData>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			lua_pushnumber(lua, cd->hitVector.x());
+
+			return 1;
+		}
+		int hitVectorY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+
+			Physics2D::CollisionData* cd = getSelfAsUData<Physics2D::CollisionData>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			lua_pushnumber(lua, cd->hitVector.y());
+
+			return 1;
+		}
+		int getDirection(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+
+			Physics2D::CollisionData* cd = getSelfAsUData<Physics2D::CollisionData>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			lua_pushinteger(lua, cd->direction);
+			
+			return 1;
+		}
+
+		void registerCollision2DData (lua_State* lua) {
+			using namespace ingenium_lua;
+
+			iClass.addMetaMethod(lua, lua_func("__gc", free));
+			iClass.addMetaMethod(lua, lua_func("__tostring", toString));
+
+			iClass.addMetaMethod(lua, lua_func("getHitVectorX", hitVectorX));
+			iClass.addMetaMethod(lua, lua_func("getHitVectorY", hitVectorY));
+			iClass.addMetaMethod(lua, lua_func("getDirection", getDirection));
+
+			iClass.registerClass(lua);
+		}
+	}
 	namespace hitbox2D
 	{
 		ingenium_lua::LuaClass<Hitbox2D> iClass = ingenium_lua::LuaClass<Hitbox2D>("Hitbox2D");
@@ -448,7 +510,6 @@ namespace lua_funcs
 		int free(lua_State* lua) {
 			return ingenium_lua::free<Hitbox2D>(lua);
 		}
-
 		int toString(lua_State* lua) {
 			Hitbox2D* v2 = getSelfAsUData<Hitbox2D>(lua, 1, iClass.metaName);
 			std::string v2s("Hitbox2D(");
@@ -552,6 +613,7 @@ namespace lua_funcs
 				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
 
 			Hitbox2D* v2 = getSelfAsUData<Hitbox2D>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
 
 			switch (v2->type) {
 			case Hitbox2D::TYPE_CIRCLE:
@@ -562,6 +624,53 @@ namespace lua_funcs
 			default:
 				return luaL_error(lua, "No radius for HITBOX2D_TYPE_UNDEFINED.");
 			}
+
+			return 1;
+		}
+		int colliding(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (Hitbox2D, Hitbox2D).", nargs);
+
+			Hitbox2D* hb2 = getSelfAsUData<Hitbox2D>(lua, 2, iClass.metaName);
+			lua_pop(lua, 2);
+			Hitbox2D* hb1 = getSelfAsUData<Hitbox2D>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			Physics2D::CollisionData cd = Physics2D::getPhysics2D()->colliding(*hb1, *hb2);
+
+			lua_pushboolean(lua, !(cd.direction == Physics2D::COLLISION_NONE));
+
+			return 1;
+		}
+		int getCollisionData(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (Hitbox2D, Hitbox2D).", nargs);
+
+			Hitbox2D* hb2 = getSelfAsUData<Hitbox2D>(lua, 2, iClass.metaName);
+			lua_pop(lua, 2);
+			Hitbox2D* hb1 = getSelfAsUData<Hitbox2D>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			Physics2D::CollisionData* cd = new Physics2D::CollisionData(-1, Vector2());
+			*cd = Physics2D::getPhysics2D()->colliding(*hb1, *hb2);
+
+			collision_data_2D::iClass.createInstance(lua, cd);
+
+			return 1;
+		}
+		int manageCollision(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (Hitbox2D, Hitbox2D).", nargs);
+
+			Hitbox2D* hb2 = getSelfAsUData<Hitbox2D>(lua, 2, iClass.metaName);
+			lua_pop(lua, 2);
+			Hitbox2D* hb1 = getSelfAsUData<Hitbox2D>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+
 
 			return 1;
 		}
@@ -910,6 +1019,18 @@ namespace lua_funcs
 
 			return 0;
 		}
+		int toggleHitboxRender(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 3: (self, boolean).", nargs);
+
+			bool renderHitboxFlag = lua_toboolean(lua, 2);
+			lua_pop(lua, 1);
+			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+			sp->renderHitbox = renderHitboxFlag;
+			return 0;
+		}
 
 		int newSprite(lua_State* lua) {
 			// name, path --- 3
@@ -959,7 +1080,7 @@ namespace lua_funcs
 			iClass.addMetaMethod(lua, lua_func("__gc", free));
 			iClass.addMetaMethod(lua, lua_func("__tostring", toString));
 
-			iClass.addMethod(lua, lua_func("addToRender", render));
+			iClass.addMethod(lua, lua_func("render", render));
 			iClass.addMethod(lua, lua_func("setHitbox2D", setHitbox2D));
 			iClass.addMethod(lua, lua_func("setX", setX));
 			iClass.addMethod(lua, lua_func("setY", setY));
@@ -975,6 +1096,7 @@ namespace lua_funcs
 			iClass.addMethod(lua, lua_func("setRotation", setRotation));
 			iClass.addMethod(lua, lua_func("addRotation", addRotation));
 			iClass.addMethod(lua, lua_func("setRotationCenter", setRotationCenter));
+			iClass.addMethod(lua, lua_func("renderHitbox", toggleHitboxRender));
 
 			iClass.registerClass(lua);
 		}
@@ -990,6 +1112,7 @@ void Engine::loadToLua()
 	lua_funcs::d2d::registerDRWN(ingenium_lua::state);
 	lua_funcs::time::registerTime(ingenium_lua::state);
 	lua_funcs::vec2::registerVector2(ingenium_lua::state);
+	lua_funcs::collision_data_2D::registerCollision2DData(ingenium_lua::state);
 	lua_funcs::hitbox2D::registerHitbox2D(ingenium_lua::state);
 	lua_funcs::sprite_frame_data::registerSpriteFrameData(ingenium_lua::state);
 	lua_funcs::sprite::registerSprite(ingenium_lua::state);

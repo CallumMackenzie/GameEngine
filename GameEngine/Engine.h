@@ -24,6 +24,8 @@
 
 // Callum Mackenzie
 
+using namespace ingenium2D;
+
 struct Engine
 {
 public:

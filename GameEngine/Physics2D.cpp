@@ -2,6 +2,8 @@
 #include "Log.h"
 #include "Physics2D.h"
 
+using namespace ingenium2D;
+
 #define DEFAULT_COLLISION_DIST Vector2()
 
 Physics2D* Physics2D::getPhysics2D()

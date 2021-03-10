@@ -3,6 +3,8 @@
 
 // Callum Mackenzie
 
+using namespace ingenium2D;
+
 GameObject::GameObject(const char* name_, Vector2 pos, Rotation rot)
 {
 	name = name_;

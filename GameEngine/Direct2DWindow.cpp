@@ -11,6 +11,8 @@
 #include "Input.h"
 #include "Direct2DWindow.h"
 
+using namespace ingenium2D;
+
 // Callum Mackenzie
 
 Direct2DWindow::Direct2DWindow(RootWindow* window_)

@@ -19,6 +19,7 @@ function init ()
 	sprt:setHitbox2D(h2d)
 	sprt:setXY(500, 100)
 	sprt:setRotationCenter(50, 50)
+	sprt:renderHitbox(false)
 
 	D2D.write(tostring(frameData) .. "\n")
 	runner = Sprite:new("Runner", "./RunSpriteSheet.png", SpriteFrameData:new(12, false, 40, 64, 0.1))
@@ -53,7 +54,7 @@ function init ()
 	"\nsprt: " .. tostring(sprt) .. 
 	"\nsprt pos(" .. sprt:getX() .. ", " .. sprt:getY() .. ")" ..
 	"\nsprt hitbox method call: " .. tostring(spriteHitbox) .. 
-	"\nrunner: " .. tostring(runner))
+	"\nrunner: " .. tostring(runner) .. "\n")
 	D2D.setClearColour(0xffffff)
 	Time.setFPS(200)
 	-- D2D.setFullscreen()
@@ -80,10 +81,10 @@ function onUpdate ()
 
 	sprt:addXY(addValue:getX() * Time.deltaTime(), addValue:getY() * Time.deltaTime())
 
-	sprt:addToRender()
+	sprt:render()
 	runner:calculateFrame()
 	sprt:addRotation(0, 0, 0.1 * Time.deltaTime())
-	runner:addToRender()
+	runner:render()
 	D2D.render(false)
 end
 
