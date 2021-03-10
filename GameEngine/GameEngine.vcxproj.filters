@@ -49,7 +49,10 @@
     <Filter Include="Source Files\Base Logic\Physics">
       <UniqueIdentifier>{7f1225e1-0817-4adc-858c-bf4ef1dea05d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Lua">
+    <Filter Include="Packaged Dependencies">
+      <UniqueIdentifier>{5826af6e-7fd7-43af-ad10-94e844c2f044}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Packaged Dependencies\Lua">
       <UniqueIdentifier>{4f3057d2-70e5-4603-82a2-460e4e4f73ee}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -109,7 +112,7 @@
       <Filter>Source Files\Base Logic\Physics</Filter>
     </ClCompile>
     <ClCompile Include="Lua.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Packaged Dependencies\Lua</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -177,22 +180,22 @@
       <Filter>Header Files\Base Functions</Filter>
     </ClInclude>
     <ClInclude Include="Lua.h">
-      <Filter>Header Files\Lua</Filter>
+      <Filter>Packaged Dependencies\Lua</Filter>
     </ClInclude>
     <ClInclude Include="lualib\include\lua.hpp">
-      <Filter>Header Files\Lua</Filter>
+      <Filter>Packaged Dependencies\Lua</Filter>
     </ClInclude>
     <ClInclude Include="lualib\include\luaconf.h">
-      <Filter>Header Files\Lua</Filter>
+      <Filter>Packaged Dependencies\Lua</Filter>
     </ClInclude>
     <ClInclude Include="lualib\include\lualib.h">
-      <Filter>Header Files\Lua</Filter>
+      <Filter>Packaged Dependencies\Lua</Filter>
     </ClInclude>
     <ClInclude Include="lualib\include\lauxlib.h">
-      <Filter>Header Files\Lua</Filter>
+      <Filter>Packaged Dependencies\Lua</Filter>
     </ClInclude>
     <ClInclude Include="lualib\include\lua.h">
-      <Filter>Header Files\Lua</Filter>
+      <Filter>Packaged Dependencies\Lua</Filter>
     </ClInclude>
     <ClInclude Include="StringCon.h">
       <Filter>Header Files\Base Functions</Filter>
@@ -203,7 +206,7 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="lualib\lua54.lib">
-      <Filter>Header Files\Lua</Filter>
+      <Filter>Packaged Dependencies\Lua</Filter>
     </Library>
   </ItemGroup>
   <ItemGroup>

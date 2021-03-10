@@ -9,6 +9,7 @@ function printMethods (o)
 end
 
 function init ()
+	D2D.show()
 	local v1 = Vector2:new(10, 2)
 	local derived = Vector2:new(30, 1)
 
@@ -63,6 +64,10 @@ end
 addValue = Vector2:new()
 deceleration = Vector2:new(0.9, 0.9)
 
+function onFixedUpdate() 
+	addValue = addValue * deceleration
+end
+
 function onUpdate () 
 	if D2D.keyPressed(87) then
 		addValue:setY(-1)
@@ -76,8 +81,6 @@ function onUpdate ()
 	if D2D.keyPressed(65) then
 		addValue:setX(-1)
 	end
-
-	addValue = addValue * deceleration
 
 	sprt:addXY(addValue:getX() * Time.deltaTime(), addValue:getY() * Time.deltaTime())
 
