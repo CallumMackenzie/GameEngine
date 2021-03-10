@@ -111,7 +111,7 @@ LRESULT CALLBACK Engine::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, L
 };
 
 #if defined(SCRIPT_LUA)
-namespace lua_funcs
+namespace lua_funcs_2D
 {
 	template <typename T> T* uDataToPtr(void* data) {
 		return *(T**)data;
@@ -126,7 +126,6 @@ namespace lua_funcs
 		// luaL_argcheck(L, ud != 0, "Inheritable class type expected but not found.");
 		return ret;
 	}
-
 	namespace d2d
 	{
 		ingenium_lua::LuaClass<Direct2DWindow> iClass = ingenium_lua::LuaClass<Direct2DWindow>("D2D");
@@ -1109,12 +1108,12 @@ void Engine::loadToLua()
 		ingenium_lua::initLua();
 	}
 
-	lua_funcs::d2d::registerDRWN(ingenium_lua::state);
-	lua_funcs::time::registerTime(ingenium_lua::state);
-	lua_funcs::vec2::registerVector2(ingenium_lua::state);
-	lua_funcs::collision_data_2D::registerCollision2DData(ingenium_lua::state);
-	lua_funcs::hitbox2D::registerHitbox2D(ingenium_lua::state);
-	lua_funcs::sprite_frame_data::registerSpriteFrameData(ingenium_lua::state);
-	lua_funcs::sprite::registerSprite(ingenium_lua::state);
+	lua_funcs_2D::d2d::registerDRWN(ingenium_lua::state);
+	lua_funcs_2D::time::registerTime(ingenium_lua::state);
+	lua_funcs_2D::vec2::registerVector2(ingenium_lua::state);
+	lua_funcs_2D::collision_data_2D::registerCollision2DData(ingenium_lua::state);
+	lua_funcs_2D::hitbox2D::registerHitbox2D(ingenium_lua::state);
+	lua_funcs_2D::sprite_frame_data::registerSpriteFrameData(ingenium_lua::state);
+	lua_funcs_2D::sprite::registerSprite(ingenium_lua::state);
 }
 #endif
