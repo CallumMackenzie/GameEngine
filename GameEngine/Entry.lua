@@ -22,10 +22,10 @@ function init ()
 	sprt:setRotationCenter(50, 50)
 	sprt:renderHitbox(false)
 
-	D2D.write(tostring(frameData) .. "\n")
 	runner = Sprite:new("Runner", "./RunSpriteSheet.png", SpriteFrameData:new(12, false, 40, 64, 0.1))
+	runner:setHitbox2D(h2d)
 	runner:setSize(80, 128)
-	runner:setXY(0, 0)
+	runner:setXY(200, 200)
 	runner:setRotationCenter(40, 64)
 
 	function derived:someMethod (slf)
@@ -68,21 +68,29 @@ function onFixedUpdate()
 	addValue = addValue * deceleration
 end
 
+accel = 0.5
+
 function onUpdate () 
 	if D2D.keyPressed(87) then
-		addValue:setY(-1)
+		addValue:setY(-accel)
 	end
 	if D2D.keyPressed(83) then
-		addValue:setY(1)
+		addValue:setY(accel)
 	end
 	if D2D.keyPressed(68) then
-		addValue:setX(1)
+		addValue:setX(accel)
 	end
 	if D2D.keyPressed(65) then
-		addValue:setX(-1)
+		addValue:setX(-accel)
 	end
 
 	sprt:addXY(addValue:getX() * Time.deltaTime(), addValue:getY() * Time.deltaTime())
+	local coll = sprt:getCollision(runner)
+
+	if coll:getDirection() > 0 then
+		sprt:addXY(coll:getHitVectorX() / 2, coll:getHitVectorY() / 2)
+		runner:addXY(-coll:getHitVectorX() / 2, -coll:getHitVectorY() / 2)
+	end
 
 	sprt:render()
 	runner:calculateFrame()

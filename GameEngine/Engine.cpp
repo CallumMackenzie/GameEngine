@@ -669,21 +669,8 @@ namespace lua_funcs_2D
 			Physics2D::CollisionData* cd = new Physics2D::CollisionData(-1, Vector2());
 			*cd = Physics2D::getPhysics2D()->colliding(*hb1, *hb2);
 
+			lua_getglobal(lua, collision_data_2D::iClass.name);
 			collision_data_2D::iClass.createInstance(lua, cd);
-
-			return 1;
-		}
-		int manageCollision(lua_State* lua) {
-			int nargs = lua_gettop(lua);
-			if (nargs != 2)
-				return luaL_error(lua, "Got %d arguments, expected 2: (Hitbox2D, Hitbox2D).", nargs);
-
-			Hitbox2D* hb2 = getSelfAsUData<Hitbox2D>(lua, 2, iClass.metaName);
-			lua_pop(lua, 2);
-			Hitbox2D* hb1 = getSelfAsUData<Hitbox2D>(lua, 1, iClass.metaName);
-			lua_pop(lua, 2);
-
-
 
 			return 1;
 		}
@@ -739,6 +726,8 @@ namespace lua_funcs_2D
 			iClass.addMethod(lua, lua_func("radius", radius));
 			iClass.addMethod(lua, lua_func("width", sizeX));
 			iClass.addMethod(lua, lua_func("height", sizeY));
+			iClass.addMethod(lua, lua_func("colliding", colliding));
+			iClass.addMethod(lua, lua_func("getCollision", getCollisionData));
 
 			iClass.registerClass(lua);
 
@@ -804,6 +793,9 @@ namespace lua_funcs_2D
 		}
 	};
 	namespace sprite
+
+
+
 	{
 		ingenium_lua::LuaClass<Sprite> iClass = ingenium_lua::LuaClass<Sprite>("Sprite");
 
@@ -1044,6 +1036,40 @@ namespace lua_funcs_2D
 			sp->renderHitbox = renderHitboxFlag;
 			return 0;
 		}
+		int colliding(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (Sprite, Sprite).", nargs);
+
+			Sprite* hb2 = getSelfAsUData<Sprite>(lua, 2, iClass.metaName);
+			lua_pop(lua, 2);
+			Sprite* hb1 = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			Physics2D::CollisionData cd = Physics2D::getPhysics2D()->colliding(hb1->hitbox2D, hb2->hitbox2D);
+
+			lua_pushboolean(lua, !(cd.direction == Physics2D::COLLISION_NONE));
+
+			return 1;
+		}
+		int getCollisionData(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (Hitbox2D, Hitbox2D).", nargs);
+
+			Sprite* hb2 = getSelfAsUData<Sprite>(lua, 2, iClass.metaName);
+			lua_pop(lua, 2);
+			Sprite* hb1 = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			Physics2D::CollisionData* cd = new Physics2D::CollisionData(-1, Vector2());
+			*cd = Physics2D::getPhysics2D()->colliding(hb1->hitbox2D, hb2->hitbox2D);
+
+			lua_getglobal(lua, collision_data_2D::iClass.name);
+			collision_data_2D::iClass.createInstance(lua, cd);
+
+			return 1;
+		}
 
 		int newSprite(lua_State* lua) {
 			// name, path --- 3
@@ -1110,6 +1136,8 @@ namespace lua_funcs_2D
 			iClass.addMethod(lua, lua_func("addRotation", addRotation));
 			iClass.addMethod(lua, lua_func("setRotationCenter", setRotationCenter));
 			iClass.addMethod(lua, lua_func("renderHitbox", toggleHitboxRender));
+			iClass.addMethod(lua, lua_func("colliding", colliding));
+			iClass.addMethod(lua, lua_func("getCollision", getCollisionData));
 
 			iClass.registerClass(lua);
 		}
