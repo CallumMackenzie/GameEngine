@@ -14,6 +14,8 @@ namespace ingenium2D {
 		Sprite(const char* name_, ID2D1Bitmap* bitmap_, Hitbox2D hb2d);
 		Sprite(const char* name_, ID2D1Bitmap* bitmap_, Hitbox2D hb2d, Vector2 pos);
 		Sprite(const char* name_, ID2D1Bitmap* bitmap_, Hitbox2D hb2d, Vector2 pos, Rotation rot);
+		~Sprite();
+
 		Hitbox2D hitbox2D = Hitbox2D::createUndefinedHitbox();
 		Vector2 size = Vector2(1, 1);
 		Vector2 velocity = Vector2();

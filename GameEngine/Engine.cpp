@@ -749,14 +749,29 @@ namespace lua_funcs_2D
 			return ingenium_lua::free<Sprite::FrameData>(lua);
 		}
 		int toString(lua_State* lua) {
-			ingenium_lua::printStackTrace();
 			Sprite::FrameData* fd = getSelfAsUData<Sprite::FrameData>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
-			ingenium_lua::printStackTrace();
 			std::string str("SFrameData(");
 			str = str.append("frames=").append(std::to_string(fd->frames)).append(", fdelta=").append(std::to_string(fd->frameTime)).append("s").append(")");
 			lua_pushstring(lua, str.c_str());
 			return 1;
+		}
+		int setStartFrame(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 3)
+				return luaL_error(lua, "Got %d arguments, expected 3: (self, number, number).", nargs);
+
+			int newX = lua_tointeger(lua, 2);
+			int newY = lua_tointeger(lua, 3);
+			lua_pop(lua, 2);
+
+			Sprite::FrameData* fd = getSelfAsUData<Sprite::FrameData>(lua, 1, iClass.metaName);
+			lua_pop(lua, 2);
+
+			fd->startFrame[0] = newX;
+			fd->startFrame[1] = newY;
+
+			return 0;
 		}
 
 		int newFrameData(lua_State* lua) {
@@ -789,13 +804,12 @@ namespace lua_funcs_2D
 			iClass.addMetaMethod(lua, lua_func("__gc", free));
 			iClass.addMetaMethod(lua, lua_func("__tostring", toString));
 
+			iClass.addMethod(lua, lua_func("setStartFrame", setStartFrame));
+
 			iClass.registerClass(lua);
 		}
 	};
 	namespace sprite
-
-
-
 	{
 		ingenium_lua::LuaClass<Sprite> iClass = ingenium_lua::LuaClass<Sprite>("Sprite");
 

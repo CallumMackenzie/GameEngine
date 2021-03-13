@@ -38,6 +38,12 @@ Sprite::Sprite(const char* name_, ID2D1Bitmap* bitmap_, Hitbox2D hb2d, Vector2 p
 	setXY(pos);
 }
 
+ingenium2D::Sprite::~Sprite()
+{
+	bitmap->Release();
+	bitmap = nullptr;
+}
+
 void Sprite::setXY(float x, float y)
 {
 	position.x(x);

@@ -46,6 +46,8 @@ namespace ingenium2D
             }
             t = NULL;
         };
+    private:
+        RECT getDesiredFrameRect(Renderable<ID2D1Bitmap>::FrameData fd, ID2D1Bitmap* rElement);
 
     public:
         RootWindow* window = nullptr; // RootWindow object linked to this window

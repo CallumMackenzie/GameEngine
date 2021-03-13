@@ -63,10 +63,7 @@ Direct2DWindow::Direct2DWindow(RootWindow* window_)
 		m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 	}
 	calculateRPR();
-	// https://docs.microsoft.com/en-us/windows/win32/direct2d/getting-started-with-direct2d#step-1-include-direct2d-header
 }
-
-
 Direct2DWindow::~Direct2DWindow()
 {
 	memory::safe_delete(renderQueue);
@@ -80,7 +77,6 @@ Direct2DWindow::~Direct2DWindow()
 
 	memory::safe_delete(window);
 }
-
 ID2D1HwndRenderTarget* Direct2DWindow::getRenderPane()
 {
 	return pRT;
@@ -132,28 +128,7 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 				Renderable<ID2D1Bitmap>* rObj = ((Renderable<ID2D1Bitmap>*)node->data);
 				if (rObj->renderElement == nullptr)
 					break;
-
-				RECT rct = RECT();
-				if (rObj->frameData.frames <= 1) {
-					rct.left = 0;
-					rct.top = 0;
-					rct.bottom = rObj->renderElement->GetSize().height;
-					rct.right = rObj->renderElement->GetSize().width;
-				}
-				else {
-					if (rObj->frameData.spriteSheetDirection) { // Vertical
-						rct.left = 0;
-						rct.top = rObj->frameData.frameHeight * rObj->frameData.frame;
-						rct.right = rObj->frameData.frameWidth;
-						rct.bottom = rObj->frameData.frameHeight * (rObj->frameData.frame + 1);
-					}
-					else { // Horizontal
-						rct.left = rObj->frameData.frameHeight * rObj->frameData.frame;
-						rct.top = 0;
-						rct.right = rObj->frameData.frameWidth * (rObj->frameData.frame + 1);
-						rct.bottom = rObj->frameData.frameHeight;
-					}
-				}
+				RECT rct = getDesiredFrameRect(rObj->frameData, rObj->renderElement);
 				drawBitmap(rObj->renderElement, // Bitmap
 					rObj->frameData.frameWidth, // Width
 					rObj->frameData.frameHeight, // Height
@@ -161,7 +136,7 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 					rObj->position.y(), // Top
 					rObj->rotation.x, rObj->rotation.y, rObj->rotation.z, // Rotation
 					rObj->transparency, // Transparency
-					D2D1::Point2F(rObj->rotation.centre[0], rObj->rotation.centre[1]), // Center of rotation
+					D2D1::Point2F(rObj->rotation.centre[0] + rObj->position.x(), rObj->rotation.centre[1] + rObj->position.y()), // Center of rotation
 					rct, // Bitmap source rect
 					D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, // Interpolation mode
 					rObj->scale.x(), rObj->scale.y()); // Scale
@@ -193,27 +168,7 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 				if (rObj->renderElement == nullptr) {
 					break;
 				}
-				RECT rct = RECT();
-				if (rObj->frameData.frames <= 1) {
-					rct.left = 0;
-					rct.top = 0;
-					rct.bottom = rObj->renderElement->GetSize().height;
-					rct.right = rObj->renderElement->GetSize().width;
-				}
-				else {
-					if (rObj->frameData.spriteSheetDirection) { // Vertical
-						rct.left = 0;
-						rct.top = rObj->frameData.frameHeight * rObj->frameData.frame;
-						rct.right = rObj->frameData.frameWidth;
-						rct.bottom = rObj->frameData.frameHeight * (rObj->frameData.frame + 1);
-					}
-					else { // Horizontal
-						rct.left = rObj->frameData.frameWidth * rObj->frameData.frame;
-						rct.top = 0;
-						rct.right = rObj->frameData.frameWidth * (rObj->frameData.frame + 1);
-						rct.bottom = rObj->frameData.frameHeight;
-					}
-				}
+				RECT rct = getDesiredFrameRect(rObj->frameData, rObj->renderElement);
 				drawBitmap(
 					rObj->renderElement, // Bitmap
 					rObj->size.x(), // Width
@@ -288,7 +243,6 @@ void Direct2DWindow::drawLine(float point1X, float point1Y, float point2X, float
 		strokeWidth,
 		strokeStyle);
 }
-
 void Direct2DWindow::calculateRPR()
 {
 	RECT* rect = new RECT();
@@ -302,20 +256,54 @@ void Direct2DWindow::calculateRPR()
 
 	memory::safe_delete(rect);
 }
-
 float Direct2DWindow::getMouseX()
 {
 	return Input::getInput()->getHWNDCursorPos(window->getHWND()).x() / renderPixelRatio[0];
 }
-
 float Direct2DWindow::getMouseY()
 {
 	return Input::getInput()->getHWNDCursorPos(window->getHWND()).y() / renderPixelRatio[1];
 }
-
 Vector2 Direct2DWindow::getMousePos() 
 {
 	Vector2 v2 = Input::getInput()->getHWNDCursorPos(window->getHWND());
 	v2.divide(renderPixelRatio[0], renderPixelRatio[1]);
 	return v2;
+}
+RECT ingenium2D::Direct2DWindow::getDesiredFrameRect(Renderable<ID2D1Bitmap>::FrameData fd, ID2D1Bitmap* rElement)
+{
+	RECT rct = RECT();
+	if (fd.frames <= 1) { // Static image
+		rct.left = fd.startFrame[0] * fd.frameWidth;
+		rct.top = fd.startFrame[1] * fd.frameHeight;
+		if (fd.frameWidth > 0) {
+			rct.right = (fd.startFrame[0] + 1) * fd.frameWidth;
+		}
+		else {
+			rct.right = rElement->GetSize().width;
+		}
+		if (fd.frameHeight > 0) {
+			rct.bottom = (fd.startFrame[1] + 1) * fd.frameHeight;
+		}
+		else {
+			rct.bottom = rElement->GetSize().height;
+		}
+	}
+	else {
+		if (fd.spriteSheetDirection) { // Vertical
+			rct.left = fd.startFrame[0] * fd.frameWidth;
+			rct.right = (fd.startFrame[0] + 1) * fd.frameWidth;
+
+			rct.top = fd.frameHeight * fd.frame;
+			rct.bottom = fd.frameHeight * (fd.frame + 1);
+		}
+		else { // Horizontal
+			rct.left = fd.frameWidth * fd.frame;
+			rct.right = fd.frameWidth * (fd.frame + 1);
+
+			rct.top = fd.startFrame[1] * fd.frameHeight;
+			rct.bottom = (fd.startFrame[1] + 1) * fd.frameHeight;
+		}
+	}
+	return rct;
 }

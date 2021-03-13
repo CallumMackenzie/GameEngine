@@ -10,7 +10,6 @@ namespace ingenium2D {
 	template <typename T>
 	class Renderable : public GameObject
 	{
-		//TODO : Static assert preventing certain template args
 	public:
 		inline Renderable(const char* name_, Vector2 pos, Rotation rot, T* rElement) : GameObject(name_, pos, rot)
 		{
@@ -123,6 +122,7 @@ namespace ingenium2D {
 			static const bool SPRITESHEET_HORIZONTAL = false;
 
 			int frames = 1;
+			int startFrame[2] = { 0, 0 };
 			int frame = 0;
 			float frameTime = 0;
 			int frameWidth = 0;
@@ -133,9 +133,13 @@ namespace ingenium2D {
 			void calculateFrame() {
 				if (((float)clock() / CLOCKS_PER_SEC) - ((float)frameDeltaClock / CLOCKS_PER_SEC) >= frameTime) {
 					frameDeltaClock = clock();
+					int startFrameVal = (spriteSheetDirection ? startFrame[1] : startFrame[0]);
+					if (frame < startFrameVal) {
+						frame = startFrameVal;
+					}
 					frame++;
 					if (frame >= frames) {
-						frame = 0;
+						frame = startFrameVal;
 					}
 				}
 			}
