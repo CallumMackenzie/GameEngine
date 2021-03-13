@@ -212,6 +212,15 @@ namespace lua_funcs_2D
 
 			return 0;
 		}
+		int setWallpaper(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 0)
+				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
+
+			Engine::getEngine()->drwn->getWindow()->embedWallpaper();
+
+			return 0;
+		}
 		void registerDRWN(lua_State* lua)
 		{
 			using namespace ingenium_lua;
@@ -225,6 +234,7 @@ namespace lua_funcs_2D
 			iClass.addMetaMethod(lua, lua_func("setClearColour", setDRWNClearColour));
 			iClass.addMetaMethod(lua, lua_func("keyPressed", isKeyPressed));
 			iClass.addMetaMethod(lua, lua_func("show", showWindow));
+			iClass.addMetaMethod(lua, lua_func("setWallpaper", setWallpaper));
 
 			iClass.registerClass(lua);
 		}

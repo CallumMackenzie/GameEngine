@@ -1,25 +1,15 @@
-function printMethods (o)
-	D2D.write("Printing table methods:\n")
-	for key,value in pairs(o) do
-		D2D.write("found member " .. key .. "\n");
-	end
-end
-
 function init ()
 	D2D.show()
 
-	local h2d = Hitbox2D:new(47, Vector2:new(50, 50))
-
 	sprt = Sprite:new("SPRITE_1", "./Planet1.png")
 	sprt:setSize(100, 100)
-	sprt:setHitbox2D(h2d)
+	sprt:setHitbox2D(Hitbox2D:new(47, Vector2:new(50, 50)))
 	sprt:setXY(500, 100)
 	sprt:setRotationCenter(50, 50)
 	sprt:renderHitbox(false)
 
-	local sfd = SpriteFrameData:new(12, false, 40, 64, 0.1)
-	runner = Sprite:new("Runner", "./RunSpriteSheet.png", sfd)
-	runner:setHitbox2D(h2d)
+	runner = Sprite:new("Runner", "./RunSpriteSheet.png", SpriteFrameData:new(12, false, 40, 64, 0.1))
+	runner:setHitbox2D(Hitbox2D:new(47, Vector2:new(50, 50)))
 	runner:setSize(80, 128)
 	runner:setXY(200, 200)
 	runner:setRotationCenter(40, 64)
@@ -44,9 +34,9 @@ function init ()
 		return
 	end
 
-	D2D.setClearColour(0xffffff)
+	D2D.setClearColour(0x000000)
 	Time.setFPS(200)
-	D2D.setFullscreen()
+	-- D2D.setFullscreen()
 end
 
 function onFixedUpdate() 
@@ -55,23 +45,24 @@ end
 
 function onUpdate () 
 	sprt:manageMovement()
-
 	sprt:addXY(addValue:getX() * Time.deltaTime(), addValue:getY() * Time.deltaTime())
 	sprt:addRotation(0, 0, 0.1 * Time.deltaTime())
-
 	local coll = sprt:getCollision(runner)
 	if coll:getDirection() > 0 then
-		sprt:addXY(coll:getHitVectorX() / 2, coll:getHitVectorY() / 2)
-		runner:addXY(-coll:getHitVectorX() / 2, -coll:getHitVectorY() / 2)
+		-- sprt:addXY(coll:getHitVectorX() / 2, coll:getHitVectorY() / 2)
+		-- runner:addXY(-coll:getHitVectorX() / 2, -coll:getHitVectorY() / 2)
+		runner:addXY(-coll:getHitVectorX(), -coll:getHitVectorY())
 	end
 
+	if runner:getX() > 1610 then
+		runner:setX(-50)
+	end
 	runner:calculateFrame()
-
 	sprt:render()
 	runner:render()
 	D2D.render(false)
 end
 
 function onClose()
-
+	
 end
