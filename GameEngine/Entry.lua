@@ -1,10 +1,12 @@
 function init ()
 	D2D.show()
+	D2D.setCameraPos(-200, 50)
+	D2D.setCameraZoom(2, 2)
 
 	sprt = Sprite:new("SPRITE_1", "./Planet1.png")
 	sprt:setSize(100, 100)
-	sprt:setHitbox2D(Hitbox2D:new(47, Vector2:new(50, 50)))
-	sprt:setXY(500, 100)
+	sprt:setHitbox2D(Hitbox2D:new(46, Vector2:new(50, 50)))
+	sprt:setXY(0, 0)
 	sprt:setRotationCenter(50, 50)
 	sprt:renderHitbox(false)
 
@@ -34,7 +36,7 @@ function init ()
 		return
 	end
 
-	D2D.setClearColour(0x000000)
+	D2D.setClearColour(0xffffff)
 	Time.setFPS(200)
 	-- D2D.setFullscreen()
 end
@@ -44,6 +46,8 @@ function onFixedUpdate()
 end
 
 function onUpdate () 
+	-- D2D.addCameraPos(0.1 * Time.deltaTime(), 0.1 * Time.deltaTime())
+	
 	sprt:manageMovement()
 	sprt:addXY(addValue:getX() * Time.deltaTime(), addValue:getY() * Time.deltaTime())
 	sprt:addRotation(0, 0, 0.1 * Time.deltaTime())

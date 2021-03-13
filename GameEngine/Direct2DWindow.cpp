@@ -118,8 +118,6 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 		while (node != nullptr)
 		{
 			pRT->SetTransform(D2D1::Matrix3x2F::Rotation(0, D2D1::Point2F(0, 0)));
-			pRT->SetTransform(D2D1::Matrix3x2F::Scale(zoom, D2D1::Point2F(0, 0)));
-			pRT->SetTransform(D2D1::Matrix3x2F::Translation(offset.x, offset.y));
 			pRT->SetTransform(skew);
 			switch (node->type)
 			{
@@ -197,17 +195,19 @@ void Direct2DWindow::drawBitmap(ID2D1Bitmap* bt, int width, int height, float to
 	D2D1_POINT_2F rotationCenter, RECT sourceRect, D2D1_BITMAP_INTERPOLATION_MODE interpMode,
 	float scaleX, float scaleY)
 {
-	rotationCenter.x = rotationCenter.x * renderPixelRatio[0];
-	rotationCenter.y = rotationCenter.y * renderPixelRatio[1];
+	rotationCenter.x = (rotationCenter.x + offset.x) * zoom.width * renderPixelRatio[0];
+	rotationCenter.y = (rotationCenter.y + offset.y) * zoom.height * renderPixelRatio[1];
 	D2D1_POINT_2F upperLeftCorner = D2D1::Point2F(top, left);
+	upperLeftCorner.x += offset.x;
+	upperLeftCorner.y += offset.y;
 	pRT->SetTransform(D2D1::Matrix3x2F::Rotation(rotZ, rotationCenter));
 	pRT->DrawBitmap(
 		bt,
 		D2D1::RectF(
-			upperLeftCorner.x * renderPixelRatio[0],
-			upperLeftCorner.y * renderPixelRatio[1],
-			(upperLeftCorner.x + (width * scaleX)) * renderPixelRatio[0],
-			(upperLeftCorner.y + (height * scaleY)) * renderPixelRatio[1]),
+			upperLeftCorner.x * zoom.width * renderPixelRatio[0],
+			upperLeftCorner.y * zoom.height * renderPixelRatio[1],
+			(upperLeftCorner.x + (width * scaleX)) * zoom.width * renderPixelRatio[0],
+			(upperLeftCorner.y + (height * scaleY)) * zoom.width * renderPixelRatio[1]),
 		transparency,
 		interpMode,
 		D2D1::RectF(
@@ -218,21 +218,27 @@ void Direct2DWindow::drawBitmap(ID2D1Bitmap* bt, int width, int height, float to
 }
 void Direct2DWindow::drawRectangle(float x, float y, float width, float height, ID2D1Brush* brush, float strokeWidth, ID2D1StrokeStyle* strokeStyle)
 {
+	x += offset.x;
+	y += offset.y;
 	pRT->DrawRectangle(D2D1::RectF(
-		x * renderPixelRatio[0],
-		y * renderPixelRatio[1],
-		(x + width) * renderPixelRatio[0],
-		(y + height) * renderPixelRatio[1]),
-		brush, strokeWidth * renderPixelRatio[0],
+		x * zoom.width * renderPixelRatio[0],
+		y * zoom.height * renderPixelRatio[1],
+		(x + width) * zoom.width * renderPixelRatio[0],
+		(y + height) * zoom.width * renderPixelRatio[1]),
+		brush, strokeWidth * zoom.width * renderPixelRatio[0],
 		strokeStyle);
 }
 void Direct2DWindow::drawEllipse(float elipseCenterX, float elipseCenterY, float elipseWidth, float elipseHeight, ID2D1Brush* brush, float strokeWidth, ID2D1StrokeStyle* strokeStyle)
 {
+	elipseCenterX += offset.x;
+	elipseCenterY += offset.y;
 	pRT->DrawEllipse(D2D1::Ellipse(
-		D2D1::Point2F(elipseCenterX * renderPixelRatio[0], elipseCenterY * renderPixelRatio[1]),
-		elipseWidth * renderPixelRatio[0],
-		elipseHeight * renderPixelRatio[1]
-	), brush, strokeWidth * renderPixelRatio[0], strokeStyle);
+		D2D1::Point2F(
+			elipseCenterX * zoom.width * renderPixelRatio[0], 
+			elipseCenterY * zoom.height * renderPixelRatio[1]),
+		elipseWidth * zoom.width * renderPixelRatio[0],
+		elipseHeight * zoom.height * renderPixelRatio[1]
+	), brush, strokeWidth * zoom.width * renderPixelRatio[0], strokeStyle);
 }
 void Direct2DWindow::drawLine(float point1X, float point1Y, float point2X, float point2Y, ID2D1Brush* brush, float strokeWidth, ID2D1StrokeStyle* strokeStyle)
 {

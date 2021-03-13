@@ -203,6 +203,7 @@ namespace lua_funcs_2D
 			lua_pushboolean(lua, keyPressed);
 			return 1;
 		}
+
 		int showWindow(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 0)
@@ -221,6 +222,78 @@ namespace lua_funcs_2D
 
 			return 0;
 		}
+
+		int setCameraPos (lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (number, number).", nargs);
+
+			Engine::getEngine()->drwn->offset = D2D1::Point2F(-lua_tonumber(lua, 1), -lua_tonumber(lua, 2));
+			lua_pop(lua, 2);
+
+			return 0;
+		}
+		int setCameraX(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (number).", nargs);
+
+			lua_pushnumber(lua, Engine::getEngine()->drwn->offset.y);
+
+			return setCameraPos(lua);
+		}
+		int setCameraY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (number).", nargs);
+
+			float yVal = lua_tonumber(lua, 1);
+			lua_pop(lua, 1);
+			lua_pushnumber(lua, Engine::getEngine()->drwn->offset.x);
+			lua_pushnumber(lua, yVal);
+
+			return setCameraPos(lua);
+		}
+		int addCameraPos(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (number, number).", nargs);
+
+			Engine::getEngine()->drwn->offset.x += lua_tonumber(lua, 1);
+			Engine::getEngine()->drwn->offset.y += lua_tonumber(lua, 2);
+			lua_pop(lua, 2);
+
+			return 0;
+		}
+		int getCameraX(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
+
+			lua_pushnumber(lua, Engine::getEngine()->drwn->offset.x);
+
+			return 1;
+		}
+		int getCameraY(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
+
+			lua_pushnumber(lua, Engine::getEngine()->drwn->offset.y);
+
+			return 1;
+		}
+		int setCameraZoom(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 2)
+				return luaL_error(lua, "Got %d arguments, expected 2: (number, number).", nargs);
+
+			Engine::getEngine()->drwn->zoom = D2D1::SizeF(lua_tonumber(lua, 1), lua_tonumber(lua, 2));
+			lua_pop(lua, 2);
+
+			return 0;
+		}
+
 		void registerDRWN(lua_State* lua)
 		{
 			using namespace ingenium_lua;
@@ -235,6 +308,13 @@ namespace lua_funcs_2D
 			iClass.addMetaMethod(lua, lua_func("keyPressed", isKeyPressed));
 			iClass.addMetaMethod(lua, lua_func("show", showWindow));
 			iClass.addMetaMethod(lua, lua_func("setWallpaper", setWallpaper));
+			iClass.addMetaMethod(lua, lua_func("setCameraPos", setCameraPos));
+			iClass.addMetaMethod(lua, lua_func("setCameraX", setCameraX));
+			iClass.addMetaMethod(lua, lua_func("setCameraY", setCameraY));
+			iClass.addMetaMethod(lua, lua_func("addCameraPos", addCameraPos));
+			iClass.addMetaMethod(lua, lua_func("getCameraX", getCameraX));
+			iClass.addMetaMethod(lua, lua_func("getCameraY", getCameraY));
+			iClass.addMetaMethod(lua, lua_func("setCameraZoom", setCameraZoom));
 
 			iClass.registerClass(lua);
 		}
