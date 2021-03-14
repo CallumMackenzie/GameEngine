@@ -6,8 +6,16 @@
 
 struct Vector2
 {
-	float x = 0;
-	float y = 0;
+	union {
+		float x;
+		float width;
+		float u;
+	};
+	union {
+		float y;
+		float height;
+		float v;
+	};
 
 	float getX();
 	float getY();

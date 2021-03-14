@@ -13,7 +13,8 @@ Vector2::Vector2(float x_, float y_)
 
 Vector2::Vector2()
 { 
-
+	x = 0;
+	y = 0;
 }
 
 float Vector2::getX()
