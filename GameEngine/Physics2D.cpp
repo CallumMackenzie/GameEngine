@@ -30,11 +30,11 @@ Physics2D::CollisionData Physics2D::colliding(Hitbox2D hb1, Hitbox2D hb2, Vector
 	if (hb1.type == Hitbox2D::TYPE_CIRCLE && hb2.type == Hitbox2D::TYPE_CIRCLE) {
 		Vector2 posDifference = Vector2::subtract(hb1.circleCentre(), hb2.circleCentre());
 		float combinedRadii = hb1.circleRadius() + hb2.circleRadius();
-		float distance = Vector::qSqrt(posDifference.x() * posDifference.x() + posDifference.y() * posDifference.y());
+		float distance = Vector::qSqrt(posDifference.x * posDifference.x + posDifference.y * posDifference.y);
 		if (distance <= combinedRadii) {
 
 			float r = combinedRadii - distance;
-			float theta = std::atan(posDifference.y() / posDifference.x());
+			float theta = std::atan(posDifference.y / posDifference.x);
 			float p = std::sin(theta) * r;
 			float q = Vector::qSqrt(r * r - p * p);
 
@@ -50,22 +50,22 @@ Physics2D::CollisionData Physics2D::colliding(Hitbox2D hb1, Hitbox2D hb2, Vector
 		return CollisionData(COLLISION_NONE, DEFAULT_COLLISION_DIST);
 	}
 	if (hb1.type == Hitbox2D::TYPE_RECTANGLE && hb2.type == Hitbox2D::TYPE_RECTANGLE) {
-		if (hb1.position.x() <= hb2.position.x() + hb2.rectSize().x() &&
-			hb1.position.x() + hb1.rectSize().x() >= hb2.position.x() &&
-			hb1.position.y() <= hb2.position.y() + hb2.rectSize().y() &&
-			hb1.position.y() + hb1.rectSize().y() >= hb2.position.y()) {
+		if (hb1.position.x <= hb2.position.x + hb2.rectSize().x &&
+			hb1.position.x + hb1.rectSize().x >= hb2.position.x &&
+			hb1.position.y <= hb2.position.y + hb2.rectSize().y &&
+			hb1.position.y + hb1.rectSize().y >= hb2.position.y) {
 			Vector2 hitVector = Vector2();
 			int hitDirec = hitDirection(hb1, hb2);
 
-			Vector2 hb1Center = Vector2(hb1.position.x() + hb1.rectSize().x() * 0.5, hb1.position.y() + hb1.rectSize().y() * 0.5);
-			Vector2 hb2Center = Vector2(hb2.position.x() + hb2.rectSize().x() * 0.5, hb2.position.y() + hb2.rectSize().y() * 0.5);
+			Vector2 hb1Center = Vector2(hb1.position.x + hb1.rectSize().x * 0.5, hb1.position.y + hb1.rectSize().y * 0.5);
+			Vector2 hb2Center = Vector2(hb2.position.x + hb2.rectSize().x * 0.5, hb2.position.y + hb2.rectSize().y * 0.5);
 
-			float errMargin = Vector2::add(hb1Speed, hb2Speed).y();
+			float errMargin = Vector2::add(hb1Speed, hb2Speed).y;
 			float correction = 3;
 			errMargin = (errMargin < 0 ? (-errMargin + correction) : (errMargin + correction));
 
-			if (hb1.position.y() + hb1.rectSize().y() <= hb2.position.y() + errMargin || hb1.position.y() + errMargin >= hb2.position.y() + hb2.rectSize().y()) {
-				if (hb1Center.y() < hb2Center.y()) { // Relatively above
+			if (hb1.position.y + hb1.rectSize().y <= hb2.position.y + errMargin || hb1.position.y + errMargin >= hb2.position.y + hb2.rectSize().y) {
+				if (hb1Center.y < hb2Center.y) { // Relatively above
 					hitDirec = COLLISION_UP;
 				}
 				else { // Relatively below
@@ -73,7 +73,7 @@ Physics2D::CollisionData Physics2D::colliding(Hitbox2D hb1, Hitbox2D hb2, Vector
 				}
 			}
 			else {
-				if (hb1Center.x() > hb2Center.x()) { // Relatively left
+				if (hb1Center.x > hb2Center.x) { // Relatively left
 					hitDirec = COLLISION_LEFT;
 				}
 				else { // Relatively right
@@ -95,64 +95,64 @@ Physics2D::CollisionData Physics2D::colliding(Hitbox2D hb1, Hitbox2D hb2, Vector
 			hb2 = rect;
 			swap = true;
 		}
-		float testX = hb1.circleCentre().x();
-		float testY = hb1.circleCentre().y();
+		float testX = hb1.circleCentre().x;
+		float testY = hb1.circleCentre().y;
 
-		if (hb1.circleCentre().x() < hb2.rectPos().x()) {
-			testX = hb2.rectPos().x();
+		if (hb1.circleCentre().x < hb2.rectPos().x) {
+			testX = hb2.rectPos().x;
 		}
-		else if (hb1.circleCentre().x() > hb2.rectPos().x() + hb2.rectSize().x()) {
-			testX = hb2.rectPos().x() + hb2.rectSize().x();
+		else if (hb1.circleCentre().x > hb2.rectPos().x + hb2.rectSize().x) {
+			testX = hb2.rectPos().x + hb2.rectSize().x;
 		}
-		if (hb1.circleCentre().y() < hb2.rectPos().y()) {
-			testY = hb2.rectPos().y();
+		if (hb1.circleCentre().y < hb2.rectPos().y) {
+			testY = hb2.rectPos().y;
 		}
-		else if (hb1.circleCentre().y() > hb2.rectPos().y() + hb2.rectSize().y()) {
-			testY = hb2.rectPos().y() + hb2.rectSize().y();
+		else if (hb1.circleCentre().y > hb2.rectPos().y + hb2.rectSize().y) {
+			testY = hb2.rectPos().y + hb2.rectSize().y;
 		}
 
-		Vector2 distanceVector = Vector2(hb1.circleCentre().x() - testX, hb1.circleCentre().y() - testY);
+		Vector2 distanceVector = Vector2(hb1.circleCentre().x - testX, hb1.circleCentre().y - testY);
 		float distance = Vector2::hypotenuse(distanceVector);
 
 
 		if (distance <= hb1.circleRadius()) {
 
-			float L = hb2.rectPos().x();
-			float T = hb2.rectPos().y();
-			float R = hb2.rectPos().x() + hb2.rectSize().x();
-			float B = hb2.rectPos().y() + hb2.rectSize().y();
+			float L = hb2.rectPos().x;
+			float T = hb2.rectPos().y;
+			float R = hb2.rectPos().x + hb2.rectSize().x;
+			float B = hb2.rectPos().y + hb2.rectSize().y;
 			Vector2 hitVec = Vector2();
 			int hitDir = hitDirection(hb1, hb2);
 			if (swap)
 				hitDir = hitDirection(hb2, hb1);
-			
-			if (hb1.circleCentre().x() > L && hb1.circleCentre().x() < R) {
-				if (hb1.circleCentre().y() < T) {
+
+			if (hb1.circleCentre().x > L && hb1.circleCentre().x < R) {
+				if (hb1.circleCentre().y < T) {
 					// Top side
-					hitVec.y((hb1.circleCentre().y() + hb1.circleRadius()) - hb2.rectPos().y());
+					hitVec.y = (hb1.circleCentre().y + hb1.circleRadius()) - hb2.rectPos().y;
 				}
 				else {
 					// Bottom side
-					hitVec.y((hb1.circleCentre().y() - hb1.circleRadius()) - (hb2.rectPos().y() + hb2.rectSize().y()));
+					hitVec.y = (hb1.circleCentre().y - hb1.circleRadius()) - (hb2.rectPos().y + hb2.rectSize().y);
 				}
 				return CollisionData(hitDir, hitVec);
 			}
-			else if (hb1.circleCentre().y() > T && hb1.circleCentre().y() < B) {
-				if (hb1.circleCentre().x() < L) {
+			else if (hb1.circleCentre().y > T && hb1.circleCentre().y < B) {
+				if (hb1.circleCentre().x < L) {
 					// Left side
-					hitVec.x((hb1.circleCentre().x() + hb1.circleRadius()) - hb2.rectPos().x());
+					hitVec.x = (hb1.circleCentre().x + hb1.circleRadius()) - hb2.rectPos().x;
 				}
 				else {
 					// Right side
-					hitVec.x((hb1.circleCentre().x() - hb1.circleRadius()) - (hb2.rectPos().x() + hb2.rectSize().x()));
+					hitVec.x = ((hb1.circleCentre().x - hb1.circleRadius()) - (hb2.rectPos().x + hb2.rectSize().x));
 				}
 				return CollisionData(hitDir, hitVec);
 			}
-			else if (hb1.circleCentre().x() < L) {
-				if (hb1.circleCentre().y() < T) {
+			else if (hb1.circleCentre().x < L) {
+				if (hb1.circleCentre().y < T) {
 					// Top left corner
-					float a = hb2.rectUL().y() - hb1.circleCentre().y();
-					float b = hb2.rectUL().x() - hb1.circleCentre().x();
+					float a = hb2.rectUL().y - hb1.circleCentre().y;
+					float b = hb2.rectUL().x - hb1.circleCentre().x;
 					float c = Vector::qSqrt(a * a + b * b);
 					float theta = std::asin(b / c);
 					float epsilon = std::asin(a / c);
@@ -162,8 +162,8 @@ Physics2D::CollisionData Physics2D::colliding(Hitbox2D hb1, Hitbox2D hb2, Vector
 					float y = r * std::sin(epsilon);
 					float p = x - a;
 					float q = Vector::qSqrt(z * z - p * p);
-					hitVec.y(p);
-					hitVec.x(q);
+					hitVec.y = p;
+					hitVec.x = q;
 				}
 				else {
 					// Bottom left corner
@@ -171,8 +171,8 @@ Physics2D::CollisionData Physics2D::colliding(Hitbox2D hb1, Hitbox2D hb2, Vector
 				}
 				return CollisionData(hitDir, hitVec);
 			}
-			else if (hb1.circleCentre().x() > R)  {
-				if (hb1.circleCentre().y() < T) {
+			else if (hb1.circleCentre().x > R) {
+				if (hb1.circleCentre().y < T) {
 					// Top right corner
 				}
 				else {
@@ -190,15 +190,15 @@ Physics2D::CollisionData Physics2D::colliding(Hitbox2D hb1, Hitbox2D hb2, Vector
 
 int Physics2D::hitDirection(Hitbox2D hb1, Hitbox2D hb2)
 {
-	float hb1Right = hb1.type == Hitbox2D::TYPE_CIRCLE ? hb1.circleCentre().x() : (hb1.rectPos().x() + hb1.rectSize().x());
-	float hb1Left = hb1.type == Hitbox2D::TYPE_CIRCLE ? hb1.circleCentre().x() : (hb1.rectPos().x());
-	float hb1Top = hb1.type == Hitbox2D::TYPE_CIRCLE ? hb1.circleCentre().y() : (hb1.rectPos().y());
-	float hb1Bottom = hb1.type == Hitbox2D::TYPE_CIRCLE ? hb1.circleCentre().y() : (hb1.rectPos().y() + hb1.rectSize().y());
+	float hb1Right = hb1.type == Hitbox2D::TYPE_CIRCLE ? hb1.circleCentre().x : (hb1.rectPos().x + hb1.rectSize().x);
+	float hb1Left = hb1.type == Hitbox2D::TYPE_CIRCLE ? hb1.circleCentre().x : (hb1.rectPos().x);
+	float hb1Top = hb1.type == Hitbox2D::TYPE_CIRCLE ? hb1.circleCentre().y : (hb1.rectPos().y);
+	float hb1Bottom = hb1.type == Hitbox2D::TYPE_CIRCLE ? hb1.circleCentre().y : (hb1.rectPos().y + hb1.rectSize().y);
 
-	float hb2Right = hb2.type == Hitbox2D::TYPE_CIRCLE ? hb2.circleCentre().x() : (hb2.rectPos().x() + hb2.rectSize().x());
-	float hb2Left = hb2.type == Hitbox2D::TYPE_CIRCLE ? hb2.circleCentre().x() : (hb2.rectPos().x());
-	float hb2Top = hb2.type == Hitbox2D::TYPE_CIRCLE ? hb2.circleCentre().y() : (hb2.rectPos().y());
-	float hb2Bottom = hb2.type == Hitbox2D::TYPE_CIRCLE ? hb2.circleCentre().y() : (hb2.rectPos().y() + hb2.rectSize().y());
+	float hb2Right = hb2.type == Hitbox2D::TYPE_CIRCLE ? hb2.circleCentre().x : (hb2.rectPos().x + hb2.rectSize().x);
+	float hb2Left = hb2.type == Hitbox2D::TYPE_CIRCLE ? hb2.circleCentre().x : (hb2.rectPos().x);
+	float hb2Top = hb2.type == Hitbox2D::TYPE_CIRCLE ? hb2.circleCentre().y : (hb2.rectPos().y);
+	float hb2Bottom = hb2.type == Hitbox2D::TYPE_CIRCLE ? hb2.circleCentre().y : (hb2.rectPos().y + hb2.rectSize().y);
 
 	int ret = COLLISION_NONE;
 	if (hb1Right >= hb2Left && hb1Right <= hb2Right) {

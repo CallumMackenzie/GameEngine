@@ -7,8 +7,8 @@
 
 Vector2::Vector2(float x_, float y_)
 {
-	xVal = x_;
-	yVal = y_;
+	x = x_;
+	y = y_;
 }
 
 Vector2::Vector2()
@@ -16,181 +16,165 @@ Vector2::Vector2()
 
 }
 
-float Vector2::x() 
-{
-	return xVal;
-}
-float Vector2::y()
-{
-	return yVal;
-}
 float Vector2::getX()
 {
-	return x();
+	return x;
 }
 float Vector2::getY()
 {
-	return y();
+	return y;
 }
 float Vector2::setX(float v)
 {
-	return x(v);
+	return x = v;
 }
 float Vector2::setY(float v)
 {
-	return y(v);
-}
-float Vector2::x(float val)
-{
-	return (xVal = val);
-}
-float Vector2::y(float val)
-{
-	return (yVal = val);
+	return y = v;
 }
 
 float Vector2::magnitude()
 {
 
-	return Vector::qSqrt(x() * x() + y() * y());
+	return Vector::qSqrt(x * x + y * y);
 }
 
 void Vector2::normalize()
 {
 	float magnitude_ = magnitude();
-	xVal = xVal / magnitude_;
-	yVal = yVal / magnitude_;
+	x = x / magnitude_;
+	y = y / magnitude_;
 }
 
 
 void Vector2::multiply(Vector2 v2)
 {
-	xVal *= v2.x();
-	yVal *= v2.y();
+	x *= v2.x;
+	y *= v2.y;
 }
 void Vector2::divide(Vector2 v2)
 {
-	xVal /= v2.x();
-	yVal /= v2.y();
+	x /= v2.x;
+	y /= v2.y;
 }
 void Vector2::add(Vector2 v2)
 {
-	xVal += v2.x();
-	yVal += v2.y();
+	x += v2.x;
+	y += v2.y;
 }
 void Vector2::subtract(Vector2 v2)
 {
-	xVal -= v2.x();
-	yVal -= v2.y();
+	x -= v2.x;
+	y -= v2.y;
 }
 void Vector2::reassign(Vector2 v2)
 {
-	xVal = v2.x();
-	yVal = v2.y();
+	x = v2.x;
+	y = v2.y;
 }
 
 void Vector2::add(float x, float y)
 {
-	xVal += x;
-	yVal += y;
+	x += x;
+	y += y;
 }
 void Vector2::multiply(float x, float y)
 {
-	xVal *= x;
-	yVal *= y;
+	x *= x;
+	y *= y;
 }
 void Vector2::divide(float x, float y) 
 {
-	xVal /= x;
-	yVal /= y;
+	x /= x;
+	y /= y;
 }
 void Vector2::subtract(float x, float y)
 {
-	xVal -= x;
-	yVal -= y;
+	x -= x;
+	y -= y;
 }
 
 void Vector2::multiply(Vector2* v2)
 {
-	xVal *= v2->x();
-	yVal *= v2->y();
+	x *= v2->x;
+	y *= v2->y;
 }
 void Vector2::divide(Vector2* v2)
 {
-	xVal /= v2->x();
-	yVal /= v2->y();
+	x /= v2->x;
+	y /= v2->y;
 }
 void Vector2::add(Vector2* v2)
 {
-	xVal += v2->x();
-	yVal += v2->y();
+	x += v2->x;
+	y += v2->y;
 }
 void Vector2::subtract(Vector2* v2)
 {
-	xVal -= v2->x();
-	yVal -= v2->y();
+	x -= v2->x;
+	y -= v2->y;
 }
 void Vector2::reassign(Vector2* v2)
 {
-	xVal = v2->x();
-	yVal = v2->y();
+	x = v2->x;
+	y = v2->y;
 }
 
 void Vector2::rotate(float thetaRadians)
 {
-	xVal = std::cos(thetaRadians) * xVal - std::sin(thetaRadians) * yVal;
-	yVal = std::sin(thetaRadians) * xVal + std::cos(thetaRadians) * yVal;
+	x = std::cos(thetaRadians) * x - std::sin(thetaRadians) * y;
+	y = std::sin(thetaRadians) * x + std::cos(thetaRadians) * y;
 }
 
 float Vector2::dotProduct(Vector2 v2)
 {
-	return xVal * v2.x() + yVal * v2.y();
+	return x * v2.x + y * v2.y;
 }
 
 Vector2 Vector2::multiply(Vector2 v1, Vector2 v2)
 {
-	return Vector2(v1.x() * v2.x(), v1.y() * v2.y());
+	return Vector2(v1.x * v2.x, v1.y * v2.y);
 }
 Vector2 Vector2::divide(Vector2 v1, Vector2 v2)
 {
-	return Vector2(v1.x() / v2.x(), v1.y() / v2.y());
+	return Vector2(v1.x / v2.x, v1.y / v2.y);
 }
 Vector2 Vector2::add(Vector2 v1, Vector2 v2)
 {
-	return Vector2(v1.x() + v2.x(), v1.y() + v2.y());
+	return Vector2(v1.x + v2.x, v1.y + v2.y);
 }
 Vector2 Vector2::subtract(Vector2 v1, Vector2 v2)
 {
-	return Vector2(v1.x() - v2.x(), v1.y() - v2.y());
+	return Vector2(v1.x - v2.x, v1.y - v2.y);
 }
 
 Vector2* Vector2::multiply(Vector2* v1, Vector2* v2)
 {
-	return new Vector2(v1->xVal * v2->xVal, v1->yVal * v2->yVal);
+	return new Vector2(v1->x * v2->x, v1->y * v2->y);
 }
 
 Vector2* Vector2::divide(Vector2* v1, Vector2* v2)
 {
-	return new Vector2(v1->xVal / v2->xVal, v1->yVal / v2->yVal);
+	return new Vector2(v1->x / v2->x, v1->y / v2->y);
 }
 
 Vector2* Vector2::add(Vector2* v1, Vector2* v2)
 {
-	return new Vector2(v1->xVal + v2->xVal, v1->yVal + v2->yVal);
+	return new Vector2(v1->x + v2->x, v1->y + v2->y);
 }
 
 Vector2* Vector2::subtract(Vector2* v1, Vector2* v2)
 {
-	return new Vector2(v1->xVal - v2->xVal, v1->yVal - v2->yVal);
+	return new Vector2(v1->x - v2->x, v1->y - v2->y);
 }
 
 float Vector2::hypotenuse(Vector2 point)
 {
-	return (Vector::qSqrt(point.x() * point.x() + point.y() * point.y()));
+	return (Vector::qSqrt(point.x * point.x + point.y * point.y));
 }
 
 Vector2* Vector2::asPtr(Vector2 v)
 {
-	return new Vector2(v.x(), v.y());
+	return new Vector2(v.x, v.y);
 }
 

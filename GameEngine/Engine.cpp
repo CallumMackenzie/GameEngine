@@ -181,6 +181,7 @@ namespace lua_funcs_2D
 			if (nargs != 0)
 				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
 			Engine::getEngine()->drwn->window->setFullscreen();
+			return 0;
 		}
 		int setDRWNClearColour(lua_State* lua) {
 			int nargs = lua_gettop(lua);
@@ -188,6 +189,7 @@ namespace lua_funcs_2D
 				return luaL_error(lua, "Got %d arguments, expected 1: (int).", nargs);
 			UINT32 colour = luaL_checkinteger(lua, 1);
 			Engine::getEngine()->drwn->clearColour = D2D1::ColorF(colour);
+			return 0;
 		}
 		int isKeyPressed(lua_State* lua) {
 			int nargs = lua_gettop(lua);
@@ -241,10 +243,10 @@ namespace lua_funcs_2D
 			if (nargs != 1)
 				return luaL_error(lua, "Got %d arguments, expected 1: (number).", nargs);
 
-			float yVal = lua_tonumber(lua, 1);
+			float y = lua_tonumber(lua, 1);
 			lua_pop(lua, 1);
 			lua_pushnumber(lua, Engine::getEngine()->drwn->offset.x);
-			lua_pushnumber(lua, yVal);
+			lua_pushnumber(lua, y);
 
 			return setCameraPos(lua);
 		}
@@ -376,7 +378,7 @@ namespace lua_funcs_2D
 				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
 
 			Vector2* v2 = getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
-			lua_pushnumber(lua, v2->x());
+			lua_pushnumber(lua, v2->x);
 			return 1;
 		}
 		int getY(lua_State* lua) {
@@ -384,7 +386,7 @@ namespace lua_funcs_2D
 			if (nargs != 1)
 				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
 			Vector2* v2 = getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
-			lua_pushnumber(lua, v2->y());
+			lua_pushnumber(lua, v2->y);
 			return 1;
 		}
 		int setX(lua_State* lua) {
@@ -395,7 +397,7 @@ namespace lua_funcs_2D
 			lua_pop(lua, 1);
 			Vector2* v2 = getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
 			lua_pop(lua, 1);
-			v2->x(nv);
+			v2->x = nv;
 			return 0;
 		}
 		int setY(lua_State* lua) {
@@ -406,7 +408,7 @@ namespace lua_funcs_2D
 			lua_pop(lua, 1);
 			Vector2* v2 = getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
 			lua_pop(lua, 1);
-			v2->y(nv);
+			v2->y = nv;
 			return 0;
 		}
 		int add(lua_State* lua) {
@@ -415,8 +417,8 @@ namespace lua_funcs_2D
 			Vector2* v1 = getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 			lua_getglobal(lua, iClass.name);
-			lua_pushnumber(lua, v1->xVal + v2->xVal);
-			lua_pushnumber(lua, v1->yVal + v2->yVal);
+			lua_pushnumber(lua, v1->x + v2->x);
+			lua_pushnumber(lua, v1->y + v2->y);
 			return newVector2(lua);
 		}
 		int subtract(lua_State* lua) {
@@ -425,8 +427,8 @@ namespace lua_funcs_2D
 			Vector2* v1 = getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 			lua_getglobal(lua, iClass.name);
-			lua_pushnumber(lua, v1->xVal - v2->xVal);
-			lua_pushnumber(lua, v1->yVal - v2->yVal);
+			lua_pushnumber(lua, v1->x - v2->x);
+			lua_pushnumber(lua, v1->y - v2->y);
 			return newVector2(lua);
 		}
 		int multiply(lua_State* lua) {
@@ -435,8 +437,8 @@ namespace lua_funcs_2D
 			Vector2* v1 = getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 			lua_getglobal(lua, iClass.name);
-			lua_pushnumber(lua, v1->xVal * v2->xVal);
-			lua_pushnumber(lua, v1->yVal * v2->yVal);
+			lua_pushnumber(lua, v1->x * v2->x);
+			lua_pushnumber(lua, v1->y * v2->y);
 			return newVector2(lua);
 		}
 		int divide(lua_State* lua) {
@@ -445,16 +447,16 @@ namespace lua_funcs_2D
 			Vector2* v1 = getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 			lua_getglobal(lua, iClass.name);
-			lua_pushnumber(lua, v1->xVal / v2->xVal);
-			lua_pushnumber(lua, v1->yVal / v2->yVal);
+			lua_pushnumber(lua, v1->x / v2->x);
+			lua_pushnumber(lua, v1->y / v2->y);
 			return newVector2(lua);
 		}
 		int unaryMinus(lua_State* lua) {
 			Vector2* v1 = getSelfAsUData<Vector2>(lua, 2, iClass.metaName);
 			lua_pop(lua, 3);
 			lua_getglobal(lua, iClass.name);
-			lua_pushnumber(lua, -v1->xVal);
-			lua_pushnumber(lua, -v1->yVal);
+			lua_pushnumber(lua, -v1->x);
+			lua_pushnumber(lua, -v1->y);
 			return newVector2(lua);
 		}
 		int floorDiv(lua_State* lua) {
@@ -463,14 +465,14 @@ namespace lua_funcs_2D
 			Vector2* v1 = getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 			lua_getglobal(lua, iClass.name);
-			lua_pushnumber(lua, (int)(v1->xVal / v2->xVal));
-			lua_pushnumber(lua, (int)(v1->yVal / v2->yVal));
+			lua_pushnumber(lua, (int)(v1->x / v2->x));
+			lua_pushnumber(lua, (int)(v1->y / v2->y));
 			return newVector2(lua);
 		}
 		int toString(lua_State* lua) {
 			Vector2* v2 = getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
 			std::string v2s("vec2(");
-			v2s = v2s.append(std::to_string(v2->x())).append(", ").append(std::to_string(v2->y())).append(")");
+			v2s = v2s.append(std::to_string(v2->x)).append(", ").append(std::to_string(v2->y)).append(")");
 			lua_pushstring(lua, v2s.c_str());
 			return 1;
 		}
@@ -482,8 +484,8 @@ namespace lua_funcs_2D
 			lua_pop(lua, 1);
 
 			v2.normalize();
-			lua_pushnumber(lua, v2.x());
-			lua_pushnumber(lua, v2.y());
+			lua_pushnumber(lua, v2.x);
+			lua_pushnumber(lua, v2.y);
 			return newVector2(lua);
 		}
 
@@ -536,7 +538,7 @@ namespace lua_funcs_2D
 #ifdef CONSTRUCTOR_METHOD_NAME
 #undef CONSTRUCTOR_METHOD_NAME
 #endif
-	}
+		}
 	namespace collision_data_2D {
 		ingenium_lua::LuaClass<Physics2D::CollisionData> iClass = ingenium_lua::LuaClass<Physics2D::CollisionData>("CollisionData2D");
 
@@ -558,7 +560,7 @@ namespace lua_funcs_2D
 			Physics2D::CollisionData* cd = getSelfAsUData<Physics2D::CollisionData>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 
-			lua_pushnumber(lua, cd->hitVector.x());
+			lua_pushnumber(lua, cd->hitVector.x);
 
 			return 1;
 		}
@@ -570,7 +572,7 @@ namespace lua_funcs_2D
 			Physics2D::CollisionData* cd = getSelfAsUData<Physics2D::CollisionData>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 
-			lua_pushnumber(lua, cd->hitVector.y());
+			lua_pushnumber(lua, cd->hitVector.y);
 
 			return 1;
 		}
@@ -612,12 +614,12 @@ namespace lua_funcs_2D
 			std::string v2s("Hitbox2D(");
 			switch (v2->type) {
 			case Hitbox2D::TYPE_RECTANGLE:
-				v2s = v2s.append("TYPE_RECTANGLE (").append(std::to_string(Hitbox2D::TYPE_RECTANGLE)).append("), pos=(").append(std::to_string(v2->rectPos().x())).append(", ").append(std::to_string(v2->rectPos().y())).
-					append("), width=").append(std::to_string(v2->rectSize().x())).append(", height=").append(std::to_string(v2->rectSize().y()));
+				v2s = v2s.append("TYPE_RECTANGLE (").append(std::to_string(Hitbox2D::TYPE_RECTANGLE)).append("), pos=(").append(std::to_string(v2->rectPos().x)).append(", ").append(std::to_string(v2->rectPos().y)).
+					append("), width=").append(std::to_string(v2->rectSize().x)).append(", height=").append(std::to_string(v2->rectSize().y));
 				break;
 			case Hitbox2D::TYPE_CIRCLE:
 				v2s = v2s.append("TYPE_CIRCLE (").append(std::to_string(Hitbox2D::TYPE_CIRCLE)).append("), r=").append(std::to_string(v2->circleRadius()).append(", ").
-					append("centre=(").append(std::to_string(v2->circleCentre().x()))).append(", ").append(std::to_string(v2->circleCentre().y())).append(")");
+					append("centre=(").append(std::to_string(v2->circleCentre().x))).append(", ").append(std::to_string(v2->circleCentre().y)).append(")");
 				break;
 			default:
 				v2s = v2s.append("TYPE_UNKNOWN (").append(std::to_string(Hitbox2D::TYPE_UNDEFINED)).append(")");
@@ -643,7 +645,7 @@ namespace lua_funcs_2D
 			Hitbox2D* v2 = getSelfAsUData<Hitbox2D>(lua, 1, iClass.metaName);
 			switch (v2->type) {
 			case Hitbox2D::TYPE_RECTANGLE:
-				lua_pushnumber(lua, v2->rectSize().x());
+				lua_pushnumber(lua, v2->rectSize().x);
 				break;
 			case Hitbox2D::TYPE_CIRCLE:
 				lua_pushnumber(lua, v2->circleRadius());
@@ -660,7 +662,7 @@ namespace lua_funcs_2D
 			Hitbox2D* v2 = getSelfAsUData<Hitbox2D>(lua, 1, iClass.metaName);
 			switch (v2->type) {
 			case Hitbox2D::TYPE_RECTANGLE:
-				lua_pushnumber(lua, v2->rectSize().y());
+				lua_pushnumber(lua, v2->rectSize().y);
 				break;
 			case Hitbox2D::TYPE_CIRCLE:
 				lua_pushnumber(lua, v2->circleRadius());
@@ -677,10 +679,10 @@ namespace lua_funcs_2D
 			Hitbox2D* v2 = getSelfAsUData<Hitbox2D>(lua, 1, iClass.metaName);
 			switch (v2->type) {
 			case Hitbox2D::TYPE_RECTANGLE:
-				lua_pushnumber(lua, v2->rectPos().x());
+				lua_pushnumber(lua, v2->rectPos().x);
 				break;
 			case Hitbox2D::TYPE_CIRCLE:
-				lua_pushnumber(lua, v2->circleCentre().x());
+				lua_pushnumber(lua, v2->circleCentre().x);
 				break;
 			default:
 				return luaL_error(lua, "No position for HITBOX2D_TYPE_UNDEFINED.");
@@ -694,10 +696,10 @@ namespace lua_funcs_2D
 			Hitbox2D* v2 = getSelfAsUData<Hitbox2D>(lua, 1, iClass.metaName);
 			switch (v2->type) {
 			case Hitbox2D::TYPE_RECTANGLE:
-				lua_pushnumber(lua, v2->rectPos().y());
+				lua_pushnumber(lua, v2->rectPos().y);
 				break;
 			case Hitbox2D::TYPE_CIRCLE:
-				lua_pushnumber(lua, v2->circleCentre().y());
+				lua_pushnumber(lua, v2->circleCentre().y);
 				break;
 			default:
 				return luaL_error(lua, "No position for HITBOX2D_TYPE_UNDEFINED.");
@@ -825,7 +827,7 @@ namespace lua_funcs_2D
 #ifdef CONSTRUCTOR_METHOD_NAME
 #undef CONSTRUCTOR_METHOD_NAME
 #endif
-	}
+		}
 	namespace sprite_frame_data {
 		ingenium_lua::LuaClass<Sprite::FrameData> iClass = ingenium_lua::LuaClass<Sprite::FrameData>("SpriteFrameData");
 
@@ -979,7 +981,7 @@ namespace lua_funcs_2D
 			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 
-			lua_pushnumber(lua, sp->position.x());
+			lua_pushnumber(lua, sp->position.x);
 			return 1;
 		}
 		int getY(lua_State* lua) {
@@ -990,7 +992,7 @@ namespace lua_funcs_2D
 			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
 
-			lua_pushnumber(lua, sp->position.y());
+			lua_pushnumber(lua, sp->position.y);
 			return 1;
 		}
 		int addX(lua_State* lua) {
@@ -1061,8 +1063,8 @@ namespace lua_funcs_2D
 
 			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
-			sp->size.x(width);
-			sp->size.y(height);
+			sp->size.x = (width);
+			sp->size.y = (height);
 			return 0;
 		}
 		int calculateFrame(lua_State* lua) {
@@ -1323,7 +1325,7 @@ namespace lua_funcs_2D
 			iClass.registerClass(lua);
 		}
 	}
-}
+	}
 
 void Engine::loadToLua()
 {

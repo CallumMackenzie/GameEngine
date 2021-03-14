@@ -2,7 +2,7 @@
 
 namespace ingenium2D {
 	struct Line : Renderable<ID2D1StrokeStyle> {
-		Line(Vector2 pos, Vector2 end_, ID2D1StrokeStyle* pStrokeStyle = (ID2D1StrokeStyle*) 0);
+		Line(Vector2 pos, Vector2 end_, ID2D1StrokeStyle* pStrokeStyle = (ID2D1StrokeStyle*)0);
 		~Line();
 
 		ID2D1SolidColorBrush* brush = nullptr;

@@ -46,10 +46,10 @@ ingenium2D::Sprite::~Sprite()
 
 void Sprite::setXY(float x, float y)
 {
-	position.x(x);
-	position.y(y);
-	hitbox2D.position.x(x);
-	hitbox2D.position.y(y);
+	position.x = x;
+	position.y = y;
+	hitbox2D.position.x = x;
+	hitbox2D.position.y = y;
 }
 
 void Sprite::setXY(Vector2 pos)
@@ -81,8 +81,8 @@ void Sprite::addXY(Vector2 pos)
 }
 
 void Sprite::setY(float y) {
-	setXY(position.x(), y);
+	setXY(position.x, y);
 }
 void Sprite::setX(float x) {
-	setXY(x, position.y());
+	setXY(x, position.y);
 }

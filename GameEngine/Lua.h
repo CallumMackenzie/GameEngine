@@ -26,17 +26,14 @@ namespace ingenium_lua {
 
 	extern lua_State* state;
 
-	extern "C"
-	{
-		void initLua();
-		void loadFileA(const char* file);
-		bool executeChunk();
-		bool executeFunc(const char* function);
-		void stopLua();
-		std::string getStackTrace();
+	void initLua();
+	void loadFileA(const char* file);
+	bool executeChunk();
+	bool executeFunc(const char* function);
+	void stopLua();
+	std::string getStackTrace();
 
-		luaL_Reg lua_func(const char* name, lua_CFunction cf);
-	}
+	luaL_Reg lua_func(const char* name, lua_CFunction cf);
 
 	template <typename T>
 	static inline int free(lua_State* lua)
@@ -67,7 +64,7 @@ namespace ingenium_lua {
 			stdMetaName = stdMetaName.append(name);
 			metaName = stdMetaName.c_str();
 		};
-		inline void addMethod(lua_State* lua, luaL_Reg fn) 
+		inline void addMethod(lua_State* lua, luaL_Reg fn)
 		{
 			methods.push_back(fn);
 		}
@@ -112,7 +109,7 @@ namespace ingenium_lua {
 			lua_setfield(lua, -2, "__index");
 			lua_setglobal(lua, name);
 		};
-		inline void registerClass(lua_State* lua) 
+		inline void registerClass(lua_State* lua)
 		{
 			registerMetatable(lua);
 			registerTable(lua);

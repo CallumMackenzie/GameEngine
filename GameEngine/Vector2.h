@@ -6,20 +6,14 @@
 
 struct Vector2
 {
-	float xVal = 0;
-	float yVal = 0;
-
-	float x(); // Returns the x component of the vector
-	float y(); // Returns the y component of the vector
+	float x = 0;
+	float y = 0;
 
 	float getX();
 	float getY();
 
 	float setX(float v);
 	float setY(float v);
-
-	float x(float val); // Sets the y component of the vector
-	float y(float val); // Sets the y component of the vector
 
 	Vector2(float x_, float y_); // Creates new vector2
 	Vector2(); // Creates new vector2 with magnitude 0

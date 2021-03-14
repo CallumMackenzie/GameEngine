@@ -132,22 +132,22 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 					drawBitmap(rObj->renderElement, // Bitmap
 						rObj->frameData.frameWidth, // Width
 						rObj->frameData.frameHeight, // Height
-						rObj->position.x(), // Left
-						rObj->position.y(), // Top
+						rObj->position.x, // Left
+						rObj->position.y, // Top
 						rObj->rotation.x, rObj->rotation.y, rObj->rotation.z, // Rotation
 						rObj->transparency, // Transparency
-						D2D1::Point2F(rObj->rotation.centre[0] + rObj->position.x(), rObj->rotation.centre[1] + rObj->position.y()), // Center of rotation
+						D2D1::Point2F(rObj->rotation.centre[0] + rObj->position.x, rObj->rotation.centre[1] + rObj->position.y), // Center of rotation
 						rct, // Bitmap source rect
 						D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, // Interpolation mode
-						rObj->scale.x(), rObj->scale.y()); // Scale
+						rObj->scale.x, rObj->scale.y); // Scale
 				}
 				break;
 			}
 			case RenderLinkedList::TYPE_RENDER_ID2D1LINE:
 			{
 				Line* rObj = ((Line*)node->data);
-				drawLine(rObj->position.x(), rObj->position.y(),
-					rObj->end.x(), rObj->end.y(),
+				drawLine(rObj->position.x, rObj->position.y,
+					rObj->end.x, rObj->end.y,
 					(rObj->brush == nullptr) ? pBlackBrush : rObj->brush,
 					rObj->lineSize,
 					rObj->renderElement);
@@ -162,15 +162,15 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 				if (rObj->renderHitbox) {
 					if (rObj->hitbox2D.type == Hitbox2D::TYPE_RECTANGLE) {
 						drawRectangle(
-							rObj->hitbox2D.rectPos().x(),
-							rObj->hitbox2D.rectPos().y(),
-							rObj->hitbox2D.rectSize().x(),
-							rObj->hitbox2D.rectSize().y(),
+							rObj->hitbox2D.rectPos().x,
+							rObj->hitbox2D.rectPos().y,
+							rObj->hitbox2D.rectSize().x,
+							rObj->hitbox2D.rectSize().y,
 							pBlackBrush
 						);
 					}
 					else if (rObj->hitbox2D.type == Hitbox2D::TYPE_CIRCLE) {
-						drawEllipse(rObj->hitbox2D.circleCentre().x(), rObj->hitbox2D.circleCentre().y(), rObj->hitbox2D.circleRadius(), rObj->hitbox2D.circleRadius(), pBlackBrush);
+						drawEllipse(rObj->hitbox2D.circleCentre().x, rObj->hitbox2D.circleCentre().y, rObj->hitbox2D.circleRadius(), rObj->hitbox2D.circleRadius(), pBlackBrush);
 					}
 				}
 				if (rObj->renderElement == nullptr) {
@@ -179,16 +179,16 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 				RECT rct = getDesiredFrameRect(rObj->frameData, rObj->renderElement);
 				drawBitmap(
 					rObj->renderElement, // Bitmap
-					rObj->size.x(), // Width
-					rObj->size.y(), // Height
-					rObj->position.x(), // Top
-					rObj->position.y(), // Left
+					rObj->size.x, // Width
+					rObj->size.y, // Height
+					rObj->position.x, // Top
+					rObj->position.y, // Left
 					rObj->rotation.x, rObj->rotation.y, rObj->rotation.z, // Rotation
 					rObj->transparency, // Transparency
-					D2D1::Point2F(rObj->rotation.centre[0] + rObj->position.x(), rObj->rotation.centre[1] + rObj->position.y()), // Rotation center
+					D2D1::Point2F(rObj->rotation.centre[0] + rObj->position.x, rObj->rotation.centre[1] + rObj->position.y), // Rotation center
 					rct, // Bitmap source rect
 					D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, // Bitmap interpolation mode
-					rObj->scale.x(), rObj->scale.y() // Scale
+					rObj->scale.x, rObj->scale.y // Scale
 				);
 			}
 			break;
@@ -278,11 +278,11 @@ void Direct2DWindow::calculateRPR()
 }
 float Direct2DWindow::getMouseX()
 {
-	return Input::getInput()->getHWNDCursorPos(window->getHWND()).x() / renderPixelRatio[0];
+	return Input::getInput()->getHWNDCursorPos(window->getHWND()).x / renderPixelRatio[0];
 }
 float Direct2DWindow::getMouseY()
 {
-	return Input::getInput()->getHWNDCursorPos(window->getHWND()).y() / renderPixelRatio[1];
+	return Input::getInput()->getHWNDCursorPos(window->getHWND()).y / renderPixelRatio[1];
 }
 Vector2 Direct2DWindow::getMousePos()
 {
