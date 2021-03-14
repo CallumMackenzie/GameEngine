@@ -29,7 +29,6 @@ void Engine::stop()
 	memory::safe_delete(Input::input);
 	memory::safe_delete(Physics2D::physics2D);
 }
-
 void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
 	primeClass = new WindowClass(L"Ingenium WC", hInstance);
@@ -52,7 +51,6 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 	ingenium_lua::executeFunc(LUA_ENGINE_INIT);
 #endif
 }
-
 void Engine::onUpdate() {
 #if defined(SCRIPT_LUA)
 	ingenium_lua::executeFunc(LUA_ENGINE_UPDATE);
@@ -63,14 +61,12 @@ void Engine::onFixedUpdate() {
 	ingenium_lua::executeFunc(LUA_ENGINE_FIXED_UPDATE);
 #endif
 }
-
 void Engine::onClose() {
 #if defined(SCRIPT_LUA)
 	ingenium_lua::executeFunc(LUA_ENGINE_CLOSE);
 	ingenium_lua::stopLua();
 #endif
 }
-
 LRESULT CALLBACK Engine::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -203,7 +199,6 @@ namespace lua_funcs_2D
 			lua_pushboolean(lua, keyPressed);
 			return 1;
 		}
-
 		int showWindow(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 0)
@@ -222,8 +217,7 @@ namespace lua_funcs_2D
 
 			return 0;
 		}
-
-		int setCameraPos (lua_State* lua) {
+		int setCameraPos(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 2)
 				return luaL_error(lua, "Got %d arguments, expected 2: (number, number).", nargs);
@@ -319,7 +313,7 @@ namespace lua_funcs_2D
 			iClass.registerClass(lua);
 		}
 	}
-	namespace time 
+	namespace time
 	{
 		ingenium_lua::LuaClass<Direct2DWindow> iClass = ingenium_lua::LuaClass<Direct2DWindow>("Time");
 
@@ -486,7 +480,7 @@ namespace lua_funcs_2D
 				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
 			Vector2 v2 = *getSelfAsUData<Vector2>(lua, 1, iClass.metaName);
 			lua_pop(lua, 1);
-			
+
 			v2.normalize();
 			lua_pushnumber(lua, v2.x());
 			lua_pushnumber(lua, v2.y());
@@ -589,11 +583,11 @@ namespace lua_funcs_2D
 			lua_pop(lua, 2);
 
 			lua_pushinteger(lua, cd->direction);
-			
+
 			return 1;
 		}
 
-		void registerCollision2DData (lua_State* lua) {
+		void registerCollision2DData(lua_State* lua) {
 			using namespace ingenium_lua;
 
 			iClass.addMetaMethod(lua, lua_func("__gc", free));
@@ -887,7 +881,7 @@ namespace lua_funcs_2D
 			return 1;
 		}
 
-		void registerSpriteFrameData (lua_State* lua) {
+		void registerSpriteFrameData(lua_State* lua) {
 			using namespace ingenium_lua;
 
 			iClass.addMetaMethod(lua, lua_func("new", newFrameData));
@@ -910,7 +904,7 @@ namespace lua_funcs_2D
 		int toString(lua_State* lua) {
 			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
-			std::string str ("sprite(");
+			std::string str("sprite(");
 			str = str.append(sp->name).append(")");
 			lua_pushstring(lua, str.c_str());
 			return 1;
@@ -936,7 +930,7 @@ namespace lua_funcs_2D
 			sp->hitbox2D = *h2d;
 			return 0;
 		}
-		int setX (lua_State* lua) {
+		int setX(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 2)
 				return luaL_error(lua, "Got %d arguments, expected 2: (self, number).", nargs);
@@ -1246,6 +1240,89 @@ namespace lua_funcs_2D
 			iClass.registerClass(lua);
 		}
 	}
+	namespace line {
+		ingenium_lua::LuaClass<Line> iClass = ingenium_lua::LuaClass<Line>("Line");
+
+		int free(lua_State* lua) {
+			return ingenium_lua::free<Line>(lua);
+		}
+		int render(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 1)
+				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
+			Line* sp = getSelfAsUData<Line>(lua, 1, iClass.metaName);
+			Engine::getEngine()->drwn->addToRenderQueue(sp, Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1LINE);
+			return 0;
+		}
+
+		int newLine(lua_State* lua) {
+			// start, end -- 3
+			// start, end, size -- 4
+			// start, end, size, colour, transparecy -- 6
+
+			int nargs = lua_gettop(lua);
+			if ((nargs < 3 || nargs > 6))
+				return luaL_error(lua, "Got %d arguments, expected 3 - 6", nargs);
+
+			Line* line = nullptr;
+
+			switch (nargs) {
+			case 3:
+			{
+				Vector2* end = getSelfAsUData<Vector2>(lua, 3, vec2::iClass.metaName);
+				lua_pop(lua, 2);
+				Vector2* start = getSelfAsUData<Vector2>(lua, 2, vec2::iClass.metaName);
+				line = new Line(*start, *end);
+				lua_pop(lua, 2);
+			}
+			break;
+			case 4:
+			{
+				float size = lua_tonumber(lua, 4);
+				lua_pop(lua, 1);
+				Vector2* end = getSelfAsUData<Vector2>(lua, 3, vec2::iClass.metaName);
+				lua_pop(lua, 2);
+				Vector2* start = getSelfAsUData<Vector2>(lua, 2, vec2::iClass.metaName);
+				line = new Line(*start, *end);
+				line->lineSize = size;
+				lua_pop(lua, 2);
+			}
+			break;
+			case 5: case 6:
+			{
+				float alpha = nargs == 6 ? lua_tonumber(lua, 6) : 1;
+				unsigned long colour = lua_tointeger(lua, 5);
+				float size = lua_tonumber(lua, 4);
+				lua_pop(lua, nargs == 6 ? 3 : 2);
+				Vector2* end = getSelfAsUData<Vector2>(lua, 3, vec2::iClass.metaName);
+				lua_pop(lua, 2);
+				Vector2* start = getSelfAsUData<Vector2>(lua, 2, vec2::iClass.metaName);
+				line = new Line(*start, *end);
+				line->lineSize = size;
+				Engine::getEngine()->drwn->pRT->CreateSolidColorBrush(D2D1::ColorF(colour, alpha), &line->brush);
+				lua_pop(lua, 2);
+			}
+			break;
+			default:
+				break;
+			}
+
+			iClass.createInstance(lua, line);
+
+			return 1;
+		}
+
+		void registerLine(lua_State* lua) {
+			using namespace ingenium_lua;
+
+			iClass.addMetaMethod(lua, lua_func("new", newLine));
+			iClass.addMetaMethod(lua, lua_func("__gc", free));
+
+			iClass.addMethod(lua, lua_func("render", render));
+
+			iClass.registerClass(lua);
+		}
+	}
 }
 
 void Engine::loadToLua()
@@ -1261,5 +1338,6 @@ void Engine::loadToLua()
 	lua_funcs_2D::hitbox2D::registerHitbox2D(ingenium_lua::state);
 	lua_funcs_2D::sprite_frame_data::registerSpriteFrameData(ingenium_lua::state);
 	lua_funcs_2D::sprite::registerSprite(ingenium_lua::state);
+	lua_funcs_2D::line::registerLine(ingenium_lua::state);
 }
 #endif

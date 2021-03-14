@@ -150,6 +150,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Hitbox2D.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Shapes.cpp" />
     <ClCompile Include="LinkedList.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="Lua.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Hitbox2D.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Shapes.h" />
     <ClInclude Include="LinkedList.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Lua.h" />

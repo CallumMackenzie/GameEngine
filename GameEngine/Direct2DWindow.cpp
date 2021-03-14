@@ -7,6 +7,7 @@
 #include "C_WICImageFactory.h"
 #include "LinkedList.h"
 #include "Renderable.h"
+#include "Shapes.h"
 #include "Sprite.h"
 #include "Input.h"
 #include "Direct2DWindow.h"
@@ -123,26 +124,35 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 			{
 			case RenderLinkedList::TYPE_RENDER_ID2D1BITMAP:
 			{
-				Renderable<ID2D1Bitmap>* rObj = ((Renderable<ID2D1Bitmap>*)node->data);
-				if (rObj->renderElement == nullptr)
-					break;
-				RECT rct = getDesiredFrameRect(rObj->frameData, rObj->renderElement);
-				drawBitmap(rObj->renderElement, // Bitmap
-					rObj->frameData.frameWidth, // Width
-					rObj->frameData.frameHeight, // Height
-					rObj->position.x(), // Left
-					rObj->position.y(), // Top
-					rObj->rotation.x, rObj->rotation.y, rObj->rotation.z, // Rotation
-					rObj->transparency, // Transparency
-					D2D1::Point2F(rObj->rotation.centre[0] + rObj->position.x(), rObj->rotation.centre[1] + rObj->position.y()), // Center of rotation
-					rct, // Bitmap source rect
-					D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, // Interpolation mode
-					rObj->scale.x(), rObj->scale.y()); // Scale
+				{
+					Renderable<ID2D1Bitmap>* rObj = ((Renderable<ID2D1Bitmap>*)node->data);
+					if (rObj->renderElement == nullptr)
+						break;
+					RECT rct = getDesiredFrameRect(rObj->frameData, rObj->renderElement);
+					drawBitmap(rObj->renderElement, // Bitmap
+						rObj->frameData.frameWidth, // Width
+						rObj->frameData.frameHeight, // Height
+						rObj->position.x(), // Left
+						rObj->position.y(), // Top
+						rObj->rotation.x, rObj->rotation.y, rObj->rotation.z, // Rotation
+						rObj->transparency, // Transparency
+						D2D1::Point2F(rObj->rotation.centre[0] + rObj->position.x(), rObj->rotation.centre[1] + rObj->position.y()), // Center of rotation
+						rct, // Bitmap source rect
+						D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, // Interpolation mode
+						rObj->scale.x(), rObj->scale.y()); // Scale
+				}
 				break;
 			}
 			case RenderLinkedList::TYPE_RENDER_ID2D1LINE:
-				// TODO: Render line
-				break;
+			{
+				Line* rObj = ((Line*)node->data);
+				drawLine(rObj->position.x(), rObj->position.y(),
+					rObj->end.x(), rObj->end.y(),
+					(rObj->brush == nullptr) ? pBlackBrush : rObj->brush,
+					rObj->lineSize,
+					rObj->renderElement);
+			}
+			break;
 			case RenderLinkedList::TYPE_RENDER_ID2D1TEXT:
 				// TODO: Render text
 				break;
@@ -180,8 +190,8 @@ void Direct2DWindow::drawQueue(bool preservePrev)
 					D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, // Bitmap interpolation mode
 					rObj->scale.x(), rObj->scale.y() // Scale
 				);
-				break;
 			}
+			break;
 			default:
 				break;
 			}
@@ -234,7 +244,7 @@ void Direct2DWindow::drawEllipse(float elipseCenterX, float elipseCenterY, float
 	elipseCenterY += offset.y;
 	pRT->DrawEllipse(D2D1::Ellipse(
 		D2D1::Point2F(
-			elipseCenterX * zoom.width * renderPixelRatio[0], 
+			elipseCenterX * zoom.width * renderPixelRatio[0],
 			elipseCenterY * zoom.height * renderPixelRatio[1]),
 		elipseWidth * zoom.width * renderPixelRatio[0],
 		elipseHeight * zoom.height * renderPixelRatio[1]
@@ -242,9 +252,13 @@ void Direct2DWindow::drawEllipse(float elipseCenterX, float elipseCenterY, float
 }
 void Direct2DWindow::drawLine(float point1X, float point1Y, float point2X, float point2Y, ID2D1Brush* brush, float strokeWidth, ID2D1StrokeStyle* strokeStyle)
 {
+	point1X += offset.x;
+	point2X += offset.x;
+	point1Y += offset.y;
+	point2Y += offset.y;
 	pRT->DrawLine(
-		D2D1::Point2F(point1X * renderPixelRatio[0], point1Y * renderPixelRatio[1]), 
-		D2D1::Point2F(point2X * renderPixelRatio[0], point2Y * renderPixelRatio[1]),
+		D2D1::Point2F(point1X * zoom.width * renderPixelRatio[0], point1Y * zoom.height * renderPixelRatio[1]),
+		D2D1::Point2F(point2X * zoom.width * renderPixelRatio[0], point2Y * zoom.height * renderPixelRatio[1]),
 		brush,
 		strokeWidth,
 		strokeStyle);
@@ -270,7 +284,7 @@ float Direct2DWindow::getMouseY()
 {
 	return Input::getInput()->getHWNDCursorPos(window->getHWND()).y() / renderPixelRatio[1];
 }
-Vector2 Direct2DWindow::getMousePos() 
+Vector2 Direct2DWindow::getMousePos()
 {
 	Vector2 v2 = Input::getInput()->getHWNDCursorPos(window->getHWND());
 	v2.divide(renderPixelRatio[0], renderPixelRatio[1]);

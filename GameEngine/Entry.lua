@@ -1,7 +1,7 @@
 function init ()
 	D2D.show()
-	D2D.setCameraPos(-200, 50)
-	D2D.setCameraZoom(2, 2)
+	D2D.setCameraPos(0, 0)
+	D2D.setCameraZoom(1, 1)
 
 	sprt = Sprite:new("SPRITE_1", "./Planet1.png")
 	sprt:setSize(100, 100)
@@ -62,6 +62,7 @@ function onUpdate ()
 		runner:setX(-50)
 	end
 	runner:calculateFrame()
+	Line:new(Vector2:new(0, 0), Vector2:new(sprt:getX() + 50, sprt:getY() + 50), 10, 0xbd8af1, 0.5):render()
 	sprt:render()
 	runner:render()
 	D2D.render(false)

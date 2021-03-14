@@ -114,6 +114,9 @@
     <ClCompile Include="Lua.cpp">
       <Filter>Packaged Dependencies\Lua</Filter>
     </ClCompile>
+    <ClCompile Include="Shapes.cpp">
+      <Filter>Source Files\Base Logic\Game Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -199,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="StringCon.h">
       <Filter>Header Files\Base Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="Shapes.h">
+      <Filter>Header Files\Base Logic\Game Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

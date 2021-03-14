@@ -17,6 +17,7 @@
 #include "Rotation.h"
 #include "Physics2D.h"
 #include "Renderable.h"
+#include "Shapes.h"
 #include "Sprite.h"
 #include "Direct2DWindow.h"
 #include "Input.h"
