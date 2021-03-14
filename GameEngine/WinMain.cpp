@@ -45,6 +45,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLin
 
 		if (Engine::getEngine()->running) {
 			if (Time::getTime()->nextFixedFrameReady()) {
+				Debug::writeLn();
 				Engine::getEngine()->onFixedUpdate();
 			}
 			if (Time::getTime()->nextFrameReady()) {

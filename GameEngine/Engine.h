@@ -47,7 +47,6 @@ public:
 #endif
 
 public:
-
     WindowClass* primeClass = nullptr;
     Direct2DWindow* drwn = nullptr;
 

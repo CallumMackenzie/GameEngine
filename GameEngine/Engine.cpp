@@ -39,10 +39,13 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 	RootWindow* win = new RootWindow(hInstance, primeClass, L"Ingenium", CW_USEDEFAULT, CW_USEDEFAULT, 900, 1600);
 	win->style = WS_SYSMENU | WS_SIZEBOX;
 	win->create();
+	win->show();
 
 	drwn = new Direct2DWindow(win);
 
 	drwn->drawQueue(false);
+
+	Time::getTime()->setFixedFPS(30);
 
 #if defined(SCRIPT_LUA)
 	loadToLua();
@@ -59,6 +62,7 @@ void Engine::onUpdate() {
 void Engine::onFixedUpdate() {
 #if defined(SCRIPT_LUA)
 	ingenium_lua::executeFunc(LUA_ENGINE_FIXED_UPDATE);
+	luaL_dostring(ingenium_lua::state, "collectgarbage(\"collect\")");
 #endif
 }
 void Engine::onClose() {
@@ -327,6 +331,15 @@ namespace lua_funcs_2D
 			lua_pushnumber(lua, Time::getTime()->deltaTime);
 			return 1;
 		}
+		int getFixedDeltaTime(lua_State* lua) {
+			int nargs = lua_gettop(lua);
+			if (nargs != 0)
+				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
+		
+			lua_pushnumber(lua, Time::getTime()->fixedDeltaTime);
+
+			return 1;
+		}
 		int setFPS(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 1)
@@ -342,6 +355,7 @@ namespace lua_funcs_2D
 		void registerTime(lua_State* lua) {
 			using namespace ingenium_lua;
 
+			iClass.addMetaMethod(lua, lua_func("fixedDeltaTime", getFixedDeltaTime));
 			iClass.addMetaMethod(lua, lua_func("deltaTime", getDeltaTime));
 			iClass.addMetaMethod(lua, lua_func("setFPS", setFPS));
 
@@ -1261,7 +1275,7 @@ namespace lua_funcs_2D
 			// start, end -- 3
 			// start, end, size -- 4
 			// start, end, size, colour, transparecy -- 6
-
+			
 			int nargs = lua_gettop(lua);
 			if ((nargs < 3 || nargs > 6))
 				return luaL_error(lua, "Got %d arguments, expected 3 - 6", nargs);
@@ -1332,7 +1346,6 @@ void Engine::loadToLua()
 	if (!ingenium_lua::state) {
 		ingenium_lua::initLua();
 	}
-
 	lua_funcs_2D::d2d::registerDRWN(ingenium_lua::state);
 	lua_funcs_2D::time::registerTime(ingenium_lua::state);
 	lua_funcs_2D::vec2::registerVector2(ingenium_lua::state);
