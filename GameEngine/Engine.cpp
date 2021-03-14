@@ -913,7 +913,6 @@ namespace lua_funcs_2D
 		int free(lua_State* lua) {
 			return ingenium_lua::free<Sprite>(lua);
 		}
-
 		int toString(lua_State* lua) {
 			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
 			lua_pop(lua, 2);
