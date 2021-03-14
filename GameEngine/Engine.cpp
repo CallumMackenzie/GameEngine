@@ -538,7 +538,7 @@ namespace lua_funcs_2D
 #ifdef CONSTRUCTOR_METHOD_NAME
 #undef CONSTRUCTOR_METHOD_NAME
 #endif
-		}
+	}
 	namespace collision_data_2D {
 		ingenium_lua::LuaClass<Physics2D::CollisionData> iClass = ingenium_lua::LuaClass<Physics2D::CollisionData>("CollisionData2D");
 
@@ -827,7 +827,7 @@ namespace lua_funcs_2D
 #ifdef CONSTRUCTOR_METHOD_NAME
 #undef CONSTRUCTOR_METHOD_NAME
 #endif
-		}
+	}
 	namespace sprite_frame_data {
 		ingenium_lua::LuaClass<Sprite::FrameData> iClass = ingenium_lua::LuaClass<Sprite::FrameData>("SpriteFrameData");
 
@@ -1325,7 +1325,7 @@ namespace lua_funcs_2D
 			iClass.registerClass(lua);
 		}
 	}
-	}
+}
 
 void Engine::loadToLua()
 {

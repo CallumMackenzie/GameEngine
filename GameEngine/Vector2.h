@@ -61,5 +61,15 @@ struct Vector2
 
 	static float hypotenuse(Vector2 point);
 
+	Vector2& operator += (const Vector2& v1);
+	Vector2& operator -= (const Vector2& v1);
+	Vector2& operator *= (const Vector2& v1);
+	Vector2& operator /= (const Vector2& v1);
+
+	friend Vector2 operator + (Vector2 const& v1, Vector2 const& v2);
+	friend Vector2 operator - (Vector2 const& v1, Vector2 const& v2);
+	friend Vector2 operator * (Vector2 const& v1, Vector2 const& v2);
+	friend Vector2 operator / (Vector2 const& v1, Vector2 const& v2);
+
 	static Vector2* asPtr(Vector2 v);
 };
