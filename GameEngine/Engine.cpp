@@ -297,7 +297,7 @@ namespace lua_funcs_2D
 		void registerDRWN(lua_State* lua)
 		{
 			using namespace ingenium_lua;
-
+			
 			iClass.addMetaMethod(lua, lua_func("setSize", setDRWNSize));
 			iClass.addMetaMethod(lua, lua_func("render", renderDRWN));
 			iClass.addMetaMethod(lua, lua_func("getMouseX", getMouseXDRWN));
@@ -368,8 +368,10 @@ namespace lua_funcs_2D
 
 		constexpr int exargs = 1;
 
+		int free(lua_State* lua) {
+			return ingenium_lua::free<Vector2>(lua);
+		}
 		int newVector2(lua_State* lua);
-
 		int magnitude(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 1)
@@ -521,13 +523,8 @@ namespace lua_funcs_2D
 			return 1;
 		}
 
-		int free(lua_State* lua) {
-			return ingenium_lua::free<Vector2>(lua);
-		}
-
 		void registerVector2(lua_State* lua) {
 			using namespace ingenium_lua;
-			iClass.addMethod(lua, lua_func("new", newVector2));
 			iClass.addMetaMethod(lua, lua_func("new", newVector2));
 
 			iClass.addMetaMethod(lua, lua_func("__gc", free));

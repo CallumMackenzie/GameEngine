@@ -1,12 +1,12 @@
-blocks = {}
+-- blocks = {}
 
-for i = 1, 10 do
-	blocks[i] = Sprite:new("BLOCK", "D:/Images/Wood.png")
-	blocks[i]:setSize(32.5, 77)
-	blocks[i]:setHitbox2D(Hitbox2D:new(Vector2:new(), Vector2:new(32.5, 77)))
-	blocks[i]:setXY(750, i * 77)
-	blocks[i]:renderHitbox(false)
-end
+-- for i = 1, 10 do
+--	blocks[i] = Sprite:new("BLOCK", "D:/Images/Wood.png")
+--	blocks[i]:setSize(32.5, 77)
+--	blocks[i]:setHitbox2D(Hitbox2D:new(Vector2:new(), Vector2:new(32.5, 77)))
+--	blocks[i]:setXY(750, i * 77)
+--	blocks[i]:renderHitbox(false)
+-- end
 
 function init ()
 	-- D2D.show()
@@ -72,15 +72,15 @@ function onUpdate ()
 	if runner:getX() > 1610 then
 		runner:setX(-50)
 	end
-	for i = 1, 10 do
-		local coll = blocks[i]:getCollision(sprt)
-		if coll:getDirection() > 0 then
-			sprt:addXY(-coll:getHitVectorX(), -coll:getHitVectorY())
-		end
-		blocks[i]:render()
-	end
+	-- for i = 1, 10 do
+		-- local coll = blocks[i]:getCollision(sprt)
+		-- if coll:getDirection() > 0 then
+			-- sprt:addXY(-coll:getHitVectorX(), -coll:getHitVectorY())
+		-- end
+		-- blocks[i]:render()
+	-- end
 	runner:calculateFrame()
-	-- Line:new(Vector2:new(0, 0), Vector2:new(sprt:getX() + 50, sprt:getY() + 50), 10, 0xbd8af1, 0.5):render()
+	Line:new(Vector2:new(0, 0), Vector2:new(sprt:getX() + 50, sprt:getY() + 50), 10, 0xbd8af1, 0.5):render()
 	sprt:render()
 	runner:render()
 	D2D.render(false)
