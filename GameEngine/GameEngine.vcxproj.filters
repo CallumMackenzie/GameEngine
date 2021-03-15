@@ -206,6 +206,9 @@
     <ClInclude Include="Shapes.h">
       <Filter>Header Files\Base Logic\Game Objects</Filter>
     </ClInclude>
+    <ClInclude Include="IngeniumConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Entry.lua" />

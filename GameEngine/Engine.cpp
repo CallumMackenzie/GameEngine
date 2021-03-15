@@ -2,41 +2,92 @@
 
 // Callum Mackenzie
 
-Engine* Engine::engine;
+Ingenium2D* Ingenium2D::engine;
 
-Engine* Engine::getEngine()
+Ingenium2D* Ingenium2D::getEngine()
 {
 	if (engine == nullptr) {
-		engine = new Engine();
+		engine = new Ingenium2D();
 	}
 	return engine;
 }
-Engine::Engine()
+Ingenium2D::Ingenium2D()
 {
 	running = true;
 }
-Engine::~Engine() {
+Ingenium2D::~Ingenium2D() {
 	if (running) {
 		stop();
 	}
+#if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
+	Debug::destroyDebugWindow();
+#endif
 	memory::safe_delete<Direct2DWindow>(drwn);
 	memory::safe_delete<WindowClass>(primeClass);
 }
-void Engine::stop()
+void Ingenium2D::stop()
 {
 	running = false;
 	onClose();
 	memory::safe_delete(Input::input);
 	memory::safe_delete(Physics2D::physics2D);
 }
-void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
+void Ingenium2D::start(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
+	init(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+	MSG msg;
+	while (running)
+	{
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		if (Ingenium2D::getEngine()->running) {
+			if (Time::getTime()->nextFixedFrameReady()) {
+				onFixedUpdate();
+			}
+			if (Time::getTime()->nextFrameReady()) {
+				onUpdate();
+#if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
+				if (Debug::windowWriteReady()) {
+					Debug::oss << "FPS: " << (1000.f / Time::getTime()->deltaTime) << "\n";
+					Debug::writeToWindow();
+				}
+				Debug::oss.str("");
+				Debug::oss.clear();
+#endif
+			}
+		}
+	}
+}
+void Ingenium2D::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
+{
+#if defined(SCRIPT_LUA)
+	ingenium_lua::initLua();
+#endif
+#if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
+	Debug::createDebugWindow(hInstance);
+#endif
 	primeClass = new WindowClass(L"Ingenium WC", hInstance);
+	onCreate();
+
+#if defined(SCRIPT_LUA)
+	loadToLua();
+	ingenium_lua::loadFileA(windows::fileAbsolutePathA(LUA_ENGINE_ENTRY));
+	ingenium_lua::executeChunk();
+	ingenium_lua::executeFunc(LUA_ENGINE_INIT);
+#endif
+}
+void Ingenium2D::onCreate()
+{
+	Ingenium2D::engine = this;
 	primeClass->setWindowProc(DEFAULT_WND_PROC);
 	primeClass->wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	primeClass->registerClass();
 
-	RootWindow* win = new RootWindow(hInstance, primeClass, L"Ingenium", CW_USEDEFAULT, CW_USEDEFAULT, 900, 1600);
+	RootWindow* win = new RootWindow(primeClass->hInst, primeClass, L"Ingenium", CW_USEDEFAULT, CW_USEDEFAULT, 900, 1600);
 	win->style = WS_SYSMENU | WS_SIZEBOX;
 	win->create();
 	win->show();
@@ -46,43 +97,36 @@ void Engine::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, 
 	drwn->drawQueue(false);
 
 	Time::getTime()->setFixedFPS(30);
-
-#if defined(SCRIPT_LUA)
-	loadToLua();
-	ingenium_lua::loadFileA(windows::fileAbsolutePathA(LUA_ENGINE_ENTRY));
-	ingenium_lua::executeChunk();
-	ingenium_lua::executeFunc(LUA_ENGINE_INIT);
-#endif
 }
-void Engine::onUpdate() {
+void Ingenium2D::onUpdate() {
 #if defined(SCRIPT_LUA)
 	ingenium_lua::executeFunc(LUA_ENGINE_UPDATE);
 #endif
 }
-void Engine::onFixedUpdate() {
+void Ingenium2D::onFixedUpdate() {
 #if defined(SCRIPT_LUA)
 	ingenium_lua::executeFunc(LUA_ENGINE_FIXED_UPDATE);
 	luaL_dostring(ingenium_lua::state, "collectgarbage(\"collect\")");
 #endif
 }
-void Engine::onClose() {
+void Ingenium2D::onClose() {
 #if defined(SCRIPT_LUA)
 	ingenium_lua::executeFunc(LUA_ENGINE_CLOSE);
 	ingenium_lua::stopLua();
 #endif
 }
-LRESULT CALLBACK Engine::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Ingenium2D::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
 	case WM_SIZE:
-		if (Engine::getEngine()->drwn) {
-			Engine::getEngine()->drwn->resizePRT(LOWORD(lParam), HIWORD(lParam));
-			Engine::getEngine()->drwn->calculateRPR();
+		if (Ingenium2D::getEngine()->drwn) {
+			Ingenium2D::getEngine()->drwn->resizePRT(LOWORD(lParam), HIWORD(lParam));
+			Ingenium2D::getEngine()->drwn->calculateRPR();
 		}
 		break;
 	case WM_CLOSE:
-		Engine::getEngine()->stop();
+		Ingenium2D::getEngine()->stop();
 		PostQuitMessage(0);
 		break;
 	case WM_LBUTTONDOWN:
@@ -143,21 +187,21 @@ namespace lua_funcs_2D
 
 			lua_pop(lua, 2);
 
-			Engine::getEngine()->drwn->setSize(width, height);
+			Ingenium2D::getEngine()->drwn->setSize(width, height);
 			return 0;
 		}
 		int getMouseXDRWN(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 0)
 				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
-			lua_pushnumber(lua, Engine::getEngine()->drwn->getMouseX());
+			lua_pushnumber(lua, Ingenium2D::getEngine()->drwn->getMouseX());
 			return 1;
 		}
 		int getMouseYDRWN(lua_State* lua) {
 			int nargs = lua_gettop(lua);
 			if (nargs != 0)
 				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
-			lua_pushnumber(lua, Engine::getEngine()->drwn->getMouseY());
+			lua_pushnumber(lua, Ingenium2D::getEngine()->drwn->getMouseY());
 			return 1;
 		}
 		int printDRWN(lua_State* lua) {
@@ -174,9 +218,9 @@ namespace lua_funcs_2D
 			if (nargs != 1)
 				return luaL_error(lua, "Got %d arguments, expected 1: (boolean).", nargs);
 			bool clear = lua_toboolean(lua, 1);
-			Engine::getEngine()->drwn->beginRender();
-			Engine::getEngine()->drwn->drawQueue(clear);
-			Engine::getEngine()->drwn->endRender();
+			Ingenium2D::getEngine()->drwn->beginRender();
+			Ingenium2D::getEngine()->drwn->drawQueue(clear);
+			Ingenium2D::getEngine()->drwn->endRender();
 			lua_pop(lua, 1);
 			return 0;
 		}
@@ -184,7 +228,7 @@ namespace lua_funcs_2D
 			int nargs = lua_gettop(lua);
 			if (nargs != 0)
 				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
-			Engine::getEngine()->drwn->window->setFullscreen();
+			Ingenium2D::getEngine()->drwn->window->setFullscreen();
 			return 0;
 		}
 		int setDRWNClearColour(lua_State* lua) {
@@ -192,7 +236,7 @@ namespace lua_funcs_2D
 			if (nargs != 1)
 				return luaL_error(lua, "Got %d arguments, expected 1: (int).", nargs);
 			UINT32 colour = luaL_checkinteger(lua, 1);
-			Engine::getEngine()->drwn->clearColour = D2D1::ColorF(colour);
+			Ingenium2D::getEngine()->drwn->clearColour = D2D1::ColorF(colour);
 			return 0;
 		}
 		int isKeyPressed(lua_State* lua) {
@@ -210,7 +254,7 @@ namespace lua_funcs_2D
 			if (nargs != 0)
 				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
 
-			Engine::getEngine()->drwn->window->show();
+			Ingenium2D::getEngine()->drwn->window->show();
 
 			return 0;
 		}
@@ -219,7 +263,7 @@ namespace lua_funcs_2D
 			if (nargs != 0)
 				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
 
-			Engine::getEngine()->drwn->getWindow()->embedWallpaper();
+			Ingenium2D::getEngine()->drwn->getWindow()->embedWallpaper();
 
 			return 0;
 		}
@@ -228,7 +272,7 @@ namespace lua_funcs_2D
 			if (nargs != 2)
 				return luaL_error(lua, "Got %d arguments, expected 2: (number, number).", nargs);
 
-			Engine::getEngine()->drwn->offset = D2D1::Point2F(-lua_tonumber(lua, 1), -lua_tonumber(lua, 2));
+			Ingenium2D::getEngine()->drwn->offset = D2D1::Point2F(-lua_tonumber(lua, 1), -lua_tonumber(lua, 2));
 			lua_pop(lua, 2);
 
 			return 0;
@@ -238,7 +282,7 @@ namespace lua_funcs_2D
 			if (nargs != 1)
 				return luaL_error(lua, "Got %d arguments, expected 1: (number).", nargs);
 
-			lua_pushnumber(lua, Engine::getEngine()->drwn->offset.y);
+			lua_pushnumber(lua, Ingenium2D::getEngine()->drwn->offset.y);
 
 			return setCameraPos(lua);
 		}
@@ -249,7 +293,7 @@ namespace lua_funcs_2D
 
 			float y = lua_tonumber(lua, 1);
 			lua_pop(lua, 1);
-			lua_pushnumber(lua, Engine::getEngine()->drwn->offset.x);
+			lua_pushnumber(lua, Ingenium2D::getEngine()->drwn->offset.x);
 			lua_pushnumber(lua, y);
 
 			return setCameraPos(lua);
@@ -259,8 +303,8 @@ namespace lua_funcs_2D
 			if (nargs != 2)
 				return luaL_error(lua, "Got %d arguments, expected 2: (number, number).", nargs);
 
-			Engine::getEngine()->drwn->offset.x += lua_tonumber(lua, 1);
-			Engine::getEngine()->drwn->offset.y += lua_tonumber(lua, 2);
+			Ingenium2D::getEngine()->drwn->offset.x += lua_tonumber(lua, 1);
+			Ingenium2D::getEngine()->drwn->offset.y += lua_tonumber(lua, 2);
 			lua_pop(lua, 2);
 
 			return 0;
@@ -270,7 +314,7 @@ namespace lua_funcs_2D
 			if (nargs != 2)
 				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
 
-			lua_pushnumber(lua, Engine::getEngine()->drwn->offset.x);
+			lua_pushnumber(lua, Ingenium2D::getEngine()->drwn->offset.x);
 
 			return 1;
 		}
@@ -279,7 +323,7 @@ namespace lua_funcs_2D
 			if (nargs != 2)
 				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
 
-			lua_pushnumber(lua, Engine::getEngine()->drwn->offset.y);
+			lua_pushnumber(lua, Ingenium2D::getEngine()->drwn->offset.y);
 
 			return 1;
 		}
@@ -288,7 +332,7 @@ namespace lua_funcs_2D
 			if (nargs != 2)
 				return luaL_error(lua, "Got %d arguments, expected 2: (number, number).", nargs);
 
-			Engine::getEngine()->drwn->zoom = D2D1::SizeF(lua_tonumber(lua, 1), lua_tonumber(lua, 2));
+			Ingenium2D::getEngine()->drwn->zoom = D2D1::SizeF(lua_tonumber(lua, 1), lua_tonumber(lua, 2));
 			lua_pop(lua, 2);
 
 			return 0;
@@ -926,7 +970,7 @@ namespace lua_funcs_2D
 			if (nargs != 1)
 				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
 			Sprite* sp = getSelfAsUData<Sprite>(lua, 1, iClass.metaName);
-			Engine::getEngine()->drwn->addToRenderQueue(sp, Direct2DWindow::RenderLinkedList::TYPE_RENDER_SPRITE);
+			Ingenium2D::getEngine()->drwn->addToRenderQueue(sp, Direct2DWindow::RenderLinkedList::TYPE_RENDER_SPRITE);
 			return 0;
 		}
 		int setHitbox2D(lua_State* lua) {
@@ -1200,7 +1244,7 @@ namespace lua_funcs_2D
 				std::wstring path = string_conversion::widen(lua_tostring(lua, 3));
 				lua_pop(lua, 2);
 
-				sp = Sprite::createSpriteFromName(name, path.c_str(), fd, Engine::getEngine()->drwn->pRT);
+				sp = Sprite::createSpriteFromName(name, path.c_str(), fd, Ingenium2D::getEngine()->drwn->pRT);
 				break;
 			}
 			case 4:
@@ -1210,7 +1254,7 @@ namespace lua_funcs_2D
 				const char* name = lua_tostring(lua, 2);
 				std::wstring path = string_conversion::widen(lua_tostring(lua, 3));
 				lua_pop(lua, 2);
-				sp = Sprite::createSpriteFromName(name, path.c_str(), *fd, Engine::getEngine()->drwn->pRT);
+				sp = Sprite::createSpriteFromName(name, path.c_str(), *fd, Ingenium2D::getEngine()->drwn->pRT);
 				break;
 			}
 			default:
@@ -1263,7 +1307,7 @@ namespace lua_funcs_2D
 			if (nargs != 1)
 				return luaL_error(lua, "Got %d arguments, expected 1: (self).", nargs);
 			Line* sp = getSelfAsUData<Line>(lua, 1, iClass.metaName);
-			Engine::getEngine()->drwn->addToRenderQueue(sp, Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1LINE);
+			Ingenium2D::getEngine()->drwn->addToRenderQueue(sp, Direct2DWindow::RenderLinkedList::TYPE_RENDER_ID2D1LINE);
 			return 0;
 		}
 
@@ -1311,7 +1355,7 @@ namespace lua_funcs_2D
 				Vector2* start = getSelfAsUData<Vector2>(lua, 2, vec2::iClass.metaName);
 				line = new Line(*start, *end);
 				line->lineSize = size;
-				Engine::getEngine()->drwn->pRT->CreateSolidColorBrush(D2D1::ColorF(colour, alpha), &line->brush);
+				Ingenium2D::getEngine()->drwn->pRT->CreateSolidColorBrush(D2D1::ColorF(colour, alpha), &line->brush);
 				lua_pop(lua, 2);
 			}
 			break;
@@ -1337,7 +1381,7 @@ namespace lua_funcs_2D
 	}
 }
 
-void Engine::loadToLua()
+void Ingenium2D::loadToLua()
 {
 	if (!ingenium_lua::state) {
 		ingenium_lua::initLua();

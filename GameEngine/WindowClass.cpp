@@ -18,6 +18,8 @@ WindowClass::WindowClass(LPCWSTR name_, HINSTANCE hInstance)
     wc.lpszMenuName = nullptr;
     wc.lpszClassName = name;
     wc.hIconSm = nullptr;
+
+    hInst = hInstance;
 }
 bool WindowClass::setPredefined()
 {

@@ -201,9 +201,6 @@ Physics2D::CollisionData Physics2D::colliding(Hitbox2D hb1, Hitbox2D hb2, Vector
 				}
 				return CollisionData(hitDir, hitVec);
 			}
-
-
-
 		}
 	}
 	return CollisionData(COLLISION_NONE, DEFAULT_COLLISION_DIST);

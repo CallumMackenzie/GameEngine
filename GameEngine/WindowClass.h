@@ -11,6 +11,7 @@ extern "C" {
         void registerClass(); // Registers the class to be used in windows
 
         LPCWSTR name = nullptr; // The name of the window class used to identify it
+        HINSTANCE hInst = nullptr;
         WNDCLASSEX wc = { 0 }; // The WindowClass structure that is used to set the properties of it
         bool predef = false; // Whether this WindowClass is predefined or not
         bool registered = false; // Whether this class has been registered yet

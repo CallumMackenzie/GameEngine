@@ -1,75 +1,39 @@
-#include <stdlib.h>
+#include "Memory.h"
 
-#ifdef _DEBUG
-int memManagementTracker = 0;
+MEM_COUNTER
 
-void* operator new (size_t size)
-{
-	memManagementTracker++;
-	return malloc(size);
-}
-void operator delete(void* p)
-{
-	memManagementTracker--;
-	free(p);
-}
-#endif
-
-#include "ModWin.h"
 #include "Engine.h"
 
-// #define INGENIUM_WND_GUI 1
 // Callum Mackenzie
+
+struct Ingenium : Ingenium2D  
+{
+	void onCreate() 
+	{
+		Ingenium2D::engine = this;
+		primeClass->setWindowProc(DEFAULT_WND_PROC);
+		primeClass->wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		primeClass->registerClass();
+
+		RootWindow* win = new RootWindow(primeClass->hInst, primeClass, L"Ingenium", CW_USEDEFAULT, CW_USEDEFAULT, 900, 1600);
+		win->style = WS_SYSMENU | WS_SIZEBOX;
+		win->create();
+		win->show();
+
+		drwn = new Direct2DWindow(win);
+		drwn->drawQueue(false);
+
+		Time::getTime()->setFixedFPS(30);
+	};
+};
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
-#if defined(SCRIPT_LUA)
-	ingenium_lua::initLua();
-#endif
+	Ingenium* eg = new Ingenium();
+	eg->start(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+	delete eg;
 
-	Engine* e = Engine::getEngine();
-	e->init(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-
-#if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
-	Debug::createDebugWindow(hInstance);
-#endif
-
-	MSG msg;
-	while (Engine::getEngine()->running)
-	{
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		if (Engine::getEngine()->running) {
-			if (Time::getTime()->nextFixedFrameReady()) {
-				Engine::getEngine()->onFixedUpdate();
-			}
-			if (Time::getTime()->nextFrameReady()) {
-				Engine::getEngine()->onUpdate();
-#if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
-				if (Debug::windowWriteReady()) {
-					Debug::oss << "FPS: " << (1000.f / Time::getTime()->deltaTime) << "\n";
-					Debug::writeToWindow();
-				}
-				Debug::oss.str("");
-				Debug::oss.clear();
-#endif
-			}
-		}
-	}
-
-#if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
-	Debug::destroyDebugWindow();
-#endif
-	delete Engine::getEngine();
-
-#ifdef _DEBUG
-	Debug::oss << (memManagementTracker > 0 ? "Objects not deallocated: " : "Extra objects deleted: ") << memManagementTracker;
-#endif
-	Debug::writeLn();
+	printAllocationInfo();
 
 	return 0;
 }

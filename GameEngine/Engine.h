@@ -1,6 +1,6 @@
 #pragma once
 
-#define SCRIPT_LUA 1
+#include "IngeniumConfig.h"
 
 #include "Memory.h"
 #include "ModWin.h"
@@ -27,32 +27,38 @@
 
 using namespace ingenium2D;
 
-struct Engine
+struct Ingenium2D
 {
 public:
-    static Engine* getEngine(); // Returns the engine singleton, or creates one if it doesn't exist yet
+    static Ingenium2D* getEngine(); // Returns the engine singleton, or creates one if it doesn't exist yet
 
-public:
-    void stop(); // Stop the game engine, call deconstructors and perform closing operations.
+    virtual void stop(); // Stop the game engine, call deconstructors and perform closing operations.
+    virtual void start(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow);
+
     static LRESULT CALLBACK DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam); // Modified wnd_proc that handles input
-    void init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow); // Initializes the engine
-    void onUpdate();
-    void onFixedUpdate();
-    void onClose();
-    bool running = false; // Whether the engine is running or not
-    ~Engine(); // Engine deconstructor to clean up memory leaks
+    virtual void onCreate();
+    virtual void onUpdate();
+    virtual void onFixedUpdate();
+    virtual void onClose();
+    virtual ~Ingenium2D(); // Ingenium2D deconstructor to clean up memory leaks
 
+    bool running = false; // Whether the engine is running or not
+
+
+private:
+    void init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow); // Initializes the engine
 #ifdef SCRIPT_LUA
     void loadToLua();
+    void stopLua();
 #endif
 
 public:
     WindowClass* primeClass = nullptr;
     Direct2DWindow* drwn = nullptr;
 
-private:
-    static Engine* engine; // Engine singleton
+protected:
+    static Ingenium2D* engine; // Ingenium2D singleton
 
-private:
-    Engine(); // Engine constructor
+protected:
+    Ingenium2D(); // Ingenium2D constructor
 };
