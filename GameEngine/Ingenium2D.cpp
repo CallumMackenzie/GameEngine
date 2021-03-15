@@ -1,6 +1,8 @@
-#include "Engine.h"
+#include "Ingenium2D.h"
 
 // Callum Mackenzie
+
+using namespace ingenium2D;
 
 Ingenium2D* Ingenium2D::engine;
 

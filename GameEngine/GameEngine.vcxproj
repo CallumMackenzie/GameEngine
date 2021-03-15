@@ -146,9 +146,10 @@
   <ItemGroup>
     <ClCompile Include="C_WICImageFactory.cpp" />
     <ClCompile Include="Direct2DWindow.cpp" />
-    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Ingenium2D.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Hitbox2D.cpp" />
+    <ClCompile Include="Ingenium3D.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Shapes.cpp" />
     <ClCompile Include="LinkedList.cpp" />
@@ -169,9 +170,11 @@
     <ClInclude Include="C_WICImageFactory.h" />
     <ClInclude Include="Direct2D.h" />
     <ClInclude Include="Direct2DWindow.h" />
-    <ClInclude Include="Engine.h" />
+    <ClInclude Include="Ingenium.h" />
+    <ClInclude Include="Ingenium2D.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Hitbox2D.h" />
+    <ClInclude Include="Ingenium3D.h" />
     <ClInclude Include="IngeniumConfig.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Shapes.h" />

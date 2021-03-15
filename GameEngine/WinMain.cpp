@@ -2,7 +2,9 @@
 
 MEM_COUNTER
 
-#include "Engine.h"
+#include "Ingenium.h"
+
+using namespace ingenium2D;
 
 // Callum Mackenzie
 
