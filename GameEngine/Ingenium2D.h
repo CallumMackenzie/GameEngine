@@ -45,10 +45,10 @@ namespace ingenium2D
         bool running = false; // Whether the engine is running or not
 
 
-    private:
-        void init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow); // Initializes the engine
+    protected:
+        virtual void init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow); // Initializes the engine
 #ifdef SCRIPT_LUA
-        void loadToLua();
+        virtual void loadToLua();
 #endif
 
     public:
@@ -57,8 +57,6 @@ namespace ingenium2D
 
     protected:
         static Ingenium2D* engine; // Ingenium2D singleton
-
-    protected:
         Ingenium2D(); // Ingenium2D constructor
     };
 }

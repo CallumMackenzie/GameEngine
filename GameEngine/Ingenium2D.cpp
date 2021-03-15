@@ -47,10 +47,10 @@ void Ingenium2D::start(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdL
 		}
 
 		if (Ingenium2D::getEngine()->running) {
-			if (Time::getTime()->nextFixedFrameReady()) {
+			if (Time::nextFixedFrameReady()) {
 				onFixedUpdate();
 			}
-			if (Time::getTime()->nextFrameReady()) {
+			if (Time::nextFrameReady()) {
 				onUpdate();
 #if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
 				if (Debug::windowWriteReady()) {
@@ -98,7 +98,7 @@ void Ingenium2D::onCreate()
 
 	drwn->drawQueue(false);
 
-	Time::getTime()->setFixedFPS(30);
+	Time::setFixedFPS(30);
 }
 void Ingenium2D::onUpdate() {
 #if defined(SCRIPT_LUA)

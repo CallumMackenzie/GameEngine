@@ -3,27 +3,20 @@
 
 // Callum Mackenzie
 
-Time* Time::time;
+clock_t Time::lastClock;
+clock_t Time::lastFixedClock;
 
-Time* Time::getTime()
+int Time::timeSinceLastClock()
 {
-	if (time == nullptr) {
-		time = new Time();
-	}
-	return time;
+	return clock() - lastClock;
 }
 
-Time::Time()
+void Time::init()
 {
 	lastClock = clock();
 	lastFixedClock = clock();
 	setFPS(targetFramesPerSecond);
 	setFixedFPS(targetFixedFramesPerSecond);
-}
-
-int Time::timeSinceLastClock()
-{
-	return clock() - lastClock;
 }
 
 bool Time::nextFrameReady()

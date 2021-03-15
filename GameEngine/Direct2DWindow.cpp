@@ -263,6 +263,12 @@ void Direct2DWindow::drawLine(float point1X, float point1Y, float point2X, float
 		strokeWidth,
 		strokeStyle);
 }
+void ingenium2D::Direct2DWindow::drawTriangle(float point1X, float point1Y, float point2X, float point2Y, float point3X, float point3Y, ID2D1Brush* brush, float strokeWidth, ID2D1StrokeStyle* strokeStyle)
+{
+	drawLine(point1X, point1Y, point2X, point2Y, brush, strokeWidth, strokeStyle);
+	drawLine(point2X, point2Y, point3X, point3Y, brush, strokeWidth, strokeStyle);
+	drawLine(point3X, point3Y, point1X, point1Y, brush, strokeWidth, strokeStyle);
+}
 void Direct2DWindow::calculateRPR()
 {
 	RECT* rect = new RECT();
@@ -289,6 +295,30 @@ Vector2 Direct2DWindow::getMousePos()
 	Vector2 v2 = Input::getInput()->getHWNDCursorPos(window->getHWND());
 	v2.divide(renderPixelRatio[0], renderPixelRatio[1]);
 	return v2;
+}
+float ingenium2D::Direct2DWindow::screenWidth()
+{
+	return aspectRatio[0] * 100;
+}
+float ingenium2D::Direct2DWindow::screenHeight()
+{
+	return aspectRatio[1] * 100;
+}
+int ingenium2D::Direct2DWindow::screenWidthPixels()
+{
+	RECT* rect = new RECT();
+	GetWindowRect(getWindow()->getHWND(), rect);
+	float win_width = rect->right - rect->left;
+	memory::safe_delete(rect);
+	return win_width;
+}
+int ingenium2D::Direct2DWindow::screenHeightPixels()
+{
+	RECT* rect = new RECT();
+	GetWindowRect(getWindow()->getHWND(), rect);
+	float win_height = rect->bottom - rect->top;	
+	memory::safe_delete(rect);
+	return win_height;
 }
 RECT ingenium2D::Direct2DWindow::getDesiredFrameRect(Renderable<ID2D1Bitmap>::FrameData fd, ID2D1Bitmap* rElement)
 {

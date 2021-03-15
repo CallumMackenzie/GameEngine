@@ -5,31 +5,26 @@
 class Time
 {
 public:
-	static Time* getTime();
+	static void init();
 
-	Time();
-	bool nextFrameReady();
-	bool nextFixedFrameReady();
+	static bool nextFrameReady();
+	static bool nextFixedFrameReady();
 
-	int timeSinceLastClock();
-	void setFPS(float tFPS);
-	void setFixedFPS(float tFFPS);
+	static int timeSinceLastClock();
+	static void setFPS(float tFPS);
+	static void setFixedFPS(float tFFPS);
 
 public:
-	float targetFramesPerSecond = 200;
-	float targetDeltaTime = 0;
-	float deltaTime = 0;
-	const double maxFPS = 500;
-	const double minDeltaTime = 1.0 / maxFPS;
+	static inline float targetFramesPerSecond = 200;
+	static inline float targetDeltaTime = 0;
+	static inline float deltaTime = 0;
+	static inline const double maxFPS = 500;
+	static inline const double minDeltaTime = 1.0 / maxFPS;
 
-	float targetFixedFramesPerSecond = 40;
-	float targetFixedDeltaTime = 0;
-	float fixedDeltaTime = 0;
+	static inline float targetFixedFramesPerSecond = 40;
+	static inline float targetFixedDeltaTime = 0;
+	static inline float fixedDeltaTime = 0;
 
-private:
-	static Time* time;
-
-private:
-	clock_t lastClock;
-	clock_t lastFixedClock;
+	static clock_t lastClock;
+	static clock_t lastFixedClock;
 };

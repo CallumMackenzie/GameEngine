@@ -18,11 +18,6 @@ extern "C"
 #endif
 
 namespace ingenium_lua {
-#define LUA_ENGINE_ENTRY "./Entry.lua"
-#define LUA_ENGINE_INIT "init"
-#define LUA_ENGINE_UPDATE "onUpdate"
-#define LUA_ENGINE_FIXED_UPDATE "onFixedUpdate"
-#define LUA_ENGINE_CLOSE "onClose"
 
 	extern lua_State* state;
 

@@ -24,10 +24,18 @@ namespace ingenium2D
 		void drawRectangle(float x, float y, float width, float height, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
 		void drawEllipse(float elipseCenterX, float elipseCenterY, float elipseWidth, float elipseHeight, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
 		void drawLine(float point1X, float point1Y, float point2X, float point2Y, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
+		void drawTriangle(float point1X, float point1Y, float point2X, float point2Y, float point3X, float point3Y, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
+		
 		void calculateRPR();
 		float getMouseX();
 		float getMouseY();
 		Vector2 getMousePos();
+
+		float screenWidth();
+		float screenHeight();
+
+		int screenWidthPixels();
+		int screenHeightPixels();
 
 		template <typename T>
 		inline void addToRenderQueue(T element, int type) {
