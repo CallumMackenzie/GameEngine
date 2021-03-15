@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="3DData.cpp" />
     <ClCompile Include="C_WICImageFactory.cpp" />
     <ClCompile Include="Direct2DWindow.cpp" />
     <ClCompile Include="Ingenium2D.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3DData.h" />
     <ClInclude Include="C_WICImageFactory.h" />
     <ClInclude Include="Direct2D.h" />
     <ClInclude Include="Direct2DWindow.h" />

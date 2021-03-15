@@ -16,7 +16,7 @@ float Vector::qInvSqrt(float value)
 	return qInvSqrt(value, 2);
 }
 
-float Vector::qInvSqrt(float value, int passes)
+float Vector::qInvSqrt(float value, short passes)
 {
 	long i;
 	float x2, y;
@@ -39,5 +39,10 @@ float Vector::qInvSqrt(float value, int passes)
 
 float Vector::qSqrt(float value)
 {
-	return 1.f / qInvSqrt(value);
+	return qSqrt(value, 2);
+}
+
+float Vector::qSqrt(float value, short passes)
+{
+	return 1.f / qInvSqrt(value, passes);
 }
