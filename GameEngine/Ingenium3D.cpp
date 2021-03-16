@@ -1,5 +1,7 @@
 #include "Ingenium3D.h"
 
+#if RENDERER == RENDERER_DIRECT2D
+
 using namespace ingenium3D;
 
 Ingenium3D* Ingenium3D::engine3D;
@@ -421,3 +423,4 @@ void Ingenium3D::texturedTriangle(int x1, int y1, float u1, float v1, float w1, 
 		}
 	}
 }
+#endif

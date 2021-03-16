@@ -1,3 +1,7 @@
+
+#include "IngeniumConfig.h"
+
+#if RENDERER == RENDERER_DIRECT2D
 #include "ModWin.h"
 #include "Memory.h"
 #include "WindowClass.h"
@@ -409,3 +413,4 @@ RECT ingenium2D::Direct2DWindow::getDesiredFrameRect(Renderable<ID2D1Bitmap>::Fr
 	}
 	return rct;
 }
+#endif

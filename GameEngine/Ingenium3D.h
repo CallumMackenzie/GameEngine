@@ -4,6 +4,7 @@
 #include "Ingenium2D.h"
 #include "3DData.h"
 
+#if RENDERER == RENDERER_DIRECT2D
 namespace ingenium3D
 {
 	class Ingenium3D : public ingenium2D::Ingenium2D
@@ -30,3 +31,4 @@ namespace ingenium3D
 		Camera camera;
 	};
 }
+#endif

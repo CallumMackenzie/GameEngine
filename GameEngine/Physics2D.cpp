@@ -1,10 +1,11 @@
 #include <cmath>
+#include "IngeniumConfig.h"
 #include "Log.h"
 #include "Physics2D.h"
 
-using namespace ingenium2D;
+#define DEFAULT_COLLISION_DIST PHYSICS2D_DEFAULT_COLLISION_DIST
 
-#define DEFAULT_COLLISION_DIST Vector2()
+using namespace ingenium2D;
 
 Physics2D* Physics2D::getPhysics2D()
 {
@@ -29,7 +30,7 @@ Physics2D::CollisionData Physics2D::colliding(Hitbox2D hb1, Hitbox2D hb2, Vector
 
 	// CIRCLE - CIRCLE COLLISION
 	if (hb1.type == Hitbox2D::TYPE_CIRCLE && hb2.type == Hitbox2D::TYPE_CIRCLE) {
-		Vector2 posDifference = Vector2::subtract(hb1.circleCentre(), hb2.circleCentre());
+		Vector2 posDifference = hb1.circleCentre() - hb2.circleCentre();
 		float combinedRadii = hb1.circleRadius() + hb2.circleRadius();
 		float distance = Vector::qSqrt(posDifference.x * posDifference.x + posDifference.y * posDifference.y);
 		if (distance <= combinedRadii) {
@@ -45,8 +46,7 @@ Physics2D::CollisionData Physics2D::colliding(Hitbox2D hb1, Hitbox2D hb2, Vector
 				p = -p;
 				q = -q;
 			}
-			float pErrCorrect = 0;
-			return CollisionData(hitDirec, Vector2(q < 0 ? q - pErrCorrect : q + pErrCorrect, p < 0 ? p - pErrCorrect : p + pErrCorrect));
+			return CollisionData(hitDirec, Vector2(q, p));
 		}
 		return CollisionData(COLLISION_NONE, DEFAULT_COLLISION_DIST);
 	}

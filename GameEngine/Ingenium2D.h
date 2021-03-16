@@ -9,6 +9,7 @@
 #endif
 #include "WindowClass.h"
 #include "Window.h"
+#include "OpenGL.h"
 #include "Log.h"
 #include "StringCon.h"
 #include "LinkedList.h"
@@ -20,6 +21,7 @@
 #include "Shapes.h"
 #include "Sprite.h"
 #include "Direct2DWindow.h"
+#include "OpenGLWindow.h"
 #include "Input.h"
 #include "Time.h"
 
@@ -44,7 +46,6 @@ namespace ingenium2D
 
         bool running = false; // Whether the engine is running or not
 
-
     protected:
         virtual void init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow); // Initializes the engine
 #ifdef SCRIPT_LUA
@@ -53,9 +54,14 @@ namespace ingenium2D
 
     public:
         WindowClass* primeClass = nullptr;
+#if RENDERER == RENDERER_DIRECT2D
         Direct2DWindow* drwn = nullptr;
+#endif
+#if RENDERER == RENDERER_OPENGL
+        OpenGLWindow* drwn = nullptr;
+#endif
 
-    protected:
+    public:
         static Ingenium2D* engine; // Ingenium2D singleton
         Ingenium2D(); // Ingenium2D constructor
     };

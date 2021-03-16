@@ -18,7 +18,6 @@ function init ()
 	sprt:setHitbox2D(Hitbox2D:new(46, Vector2:new(50, 50)))
 	sprt:setXY(0, 0)
 	sprt:setRotationCenter(50, 50)
-	sprt:renderHitbox(false)
 
 	runner = Sprite:new("Runner", "./RunSpriteSheet.png", SpriteFrameData:new(12, false, 40, 64, 0.1))
 	runner:setHitbox2D(Hitbox2D:new(47, Vector2:new(50, 50)))
@@ -52,8 +51,8 @@ function init ()
 end
 
 function onFixedUpdate() 
-	local vec = Vector2:new(5 / Time.fixedDeltaTime(),  5 / Time.fixedDeltaTime())
-	addValue = addValue * deceleration * vec
+	-- local vec = Vector2:new(5 / Time.fixedDeltaTime(),  5 / Time.fixedDeltaTime())
+	addValue = addValue * deceleration
 end
 
 function onUpdate () 

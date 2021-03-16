@@ -1,9 +1,11 @@
 #pragma once
 
+#include "IngeniumConfig.h"
 // Callum Mackenzie
 
 // TODO : Make a linked list for the render queue
 
+#if RENDERER == RENDERER_DIRECT2D
 namespace ingenium2D
 {
 	class Direct2DWindow
@@ -81,3 +83,4 @@ namespace ingenium2D
 		RenderLinkedList* renderQueue = new RenderLinkedList(); // List of objects to render
 	};
 };
+#endif

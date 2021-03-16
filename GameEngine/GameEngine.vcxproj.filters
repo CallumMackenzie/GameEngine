@@ -43,17 +43,11 @@
     <Filter Include="Header Files\Ingenium General\Logic">
       <UniqueIdentifier>{8257d9bf-7ff7-42f3-9922-362a4dc6b5dc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Ingenium General\Windows/Direct2D">
-      <UniqueIdentifier>{86066fac-d74a-48f1-8ca6-536973b5cc87}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Ingenium General">
       <UniqueIdentifier>{25645d15-8b42-458d-8f54-8924ef1fa13f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Ingenium General\Base Functions">
       <UniqueIdentifier>{335f34d8-ce37-49a4-a768-75e998b5749c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Ingenium General\Windows/Direct2D">
-      <UniqueIdentifier>{2e40d05f-b629-47b5-827f-55dd011947f4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Ingenium2D">
       <UniqueIdentifier>{673d1cd0-6851-400f-ba8c-d9b2d5eb9f6a}</UniqueIdentifier>
@@ -79,22 +73,28 @@
     <Filter Include="Header Files\Ingenium3D\Position">
       <UniqueIdentifier>{7fc67286-5287-478e-8707-63b81b554ade}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Ingenium General\Window">
+      <UniqueIdentifier>{2e40d05f-b629-47b5-827f-55dd011947f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Ingenium General\Window">
+      <UniqueIdentifier>{86066fac-d74a-48f1-8ca6-536973b5cc87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Packaged Dependencies\OpenGL">
+      <UniqueIdentifier>{a4a410ff-ddba-42b9-a3a3-adc49d2d1949}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Direct2DWindow.cpp">
-      <Filter>Source Files\Ingenium General\Windows/Direct2D</Filter>
-    </ClCompile>
     <ClCompile Include="Window.cpp">
-      <Filter>Source Files\Ingenium General\Windows/Direct2D</Filter>
+      <Filter>Source Files\Ingenium General\Window</Filter>
     </ClCompile>
     <ClCompile Include="WindowClass.cpp">
-      <Filter>Source Files\Ingenium General\Windows/Direct2D</Filter>
+      <Filter>Source Files\Ingenium General\Window</Filter>
     </ClCompile>
     <ClCompile Include="C_WICImageFactory.cpp">
-      <Filter>Source Files\Ingenium General\Windows/Direct2D</Filter>
+      <Filter>Source Files\Ingenium General\Window</Filter>
     </ClCompile>
     <ClCompile Include="Sound.cpp">
       <Filter>Source Files\Ingenium General\Base Functions</Filter>
@@ -147,22 +147,28 @@
     <ClCompile Include="3DData.cpp">
       <Filter>Source Files\Ingenium3D\Position</Filter>
     </ClCompile>
+    <ClCompile Include="Direct2DWindow.cpp">
+      <Filter>Source Files\Ingenium General\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGLWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glad\glad.c">
+      <Filter>Packaged Dependencies\OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowClass.h">
-      <Filter>Header Files\Ingenium General\Windows/Direct2D</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct2DWindow.h">
-      <Filter>Header Files\Ingenium General\Windows/Direct2D</Filter>
+      <Filter>Header Files\Ingenium General\Window</Filter>
     </ClInclude>
     <ClInclude Include="Window.h">
-      <Filter>Header Files\Ingenium General\Windows/Direct2D</Filter>
+      <Filter>Header Files\Ingenium General\Window</Filter>
     </ClInclude>
     <ClInclude Include="Direct2D.h">
-      <Filter>Header Files\Ingenium General\Windows/Direct2D</Filter>
+      <Filter>Header Files\Ingenium General\Window</Filter>
     </ClInclude>
     <ClInclude Include="C_WICImageFactory.h">
-      <Filter>Header Files\Ingenium General\Windows/Direct2D</Filter>
+      <Filter>Header Files\Ingenium General\Window</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>Header Files\Ingenium General\Base Functions</Filter>
@@ -171,7 +177,7 @@
       <Filter>Header Files\Ingenium General\Base Functions</Filter>
     </ClInclude>
     <ClInclude Include="ModWin.h">
-      <Filter>Header Files\Ingenium General\Windows/Direct2D</Filter>
+      <Filter>Header Files\Ingenium General\Window</Filter>
     </ClInclude>
     <ClInclude Include="Sound.h">
       <Filter>Header Files\Ingenium General\Base Functions</Filter>
@@ -247,6 +253,30 @@
     </ClInclude>
     <ClInclude Include="3DData.h">
       <Filter>Header Files\Ingenium3D\Position</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL.h">
+      <Filter>Header Files\Ingenium General\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="GLFW\glfw3.h">
+      <Filter>Packaged Dependencies\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="GLFW\glfw3native.h">
+      <Filter>Packaged Dependencies\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="IngeniumConstants.h">
+      <Filter>Header Files\Ingenium General</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2DWindow.h">
+      <Filter>Header Files\Ingenium General\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGLWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\include\glad\glad.h">
+      <Filter>Packaged Dependencies\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\include\KHR\khrplatform.h">
+      <Filter>Packaged Dependencies\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

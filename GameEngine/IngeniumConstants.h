@@ -1,0 +1,5 @@
+#pragma once
+
+#define RENDERER_OPENGL 1
+#define RENDERER_DIRECT2D 2
+#define PHYSICS2D_DEFAULT_COLLISION_DIST Vector2(0, 0)

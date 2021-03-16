@@ -24,7 +24,7 @@ Ingenium2D::~Ingenium2D() {
 #if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
 	Debug::destroyDebugWindow();
 #endif
-	memory::safe_delete<Direct2DWindow>(drwn);
+	memory::safe_delete(drwn);
 	memory::safe_delete<WindowClass>(primeClass);
 }
 void Ingenium2D::stop()
@@ -37,20 +37,40 @@ void Ingenium2D::stop()
 void Ingenium2D::start(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
 	init(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+	if (drwn) {
+#if RENDERER == RENDERER_OPENGL
+		if (!drwn->initSuccess) {
+			return;
+		}
+#endif
+	}
+	else 
+		return;
+#if RENDERER == RENDERER_DIRECT2D
 	MSG msg;
+#endif
 	while (running)
 	{
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		if (Ingenium2D::getEngine()->running) 
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
+#if RENDERER == RENDERER_OPENGL
+			if (glfwWindowShouldClose(drwn->window))
+			{
+				running = false;
+				break;
+			}
+#endif
+#if RENDERER == RENDERER_DIRECT2D
+			if () {
 
-		if (Ingenium2D::getEngine()->running) {
+			}
+#endif
 			if (Time::nextFixedFrameReady()) {
 				onFixedUpdate();
 			}
 			if (Time::nextFrameReady()) {
+				glfwSwapBuffers(drwn->window);
+				glfwPollEvents();
 				onUpdate();
 #if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
 				if (Debug::windowWriteReady()) {
@@ -72,7 +92,11 @@ void Ingenium2D::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLi
 #if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
 	Debug::createDebugWindow(hInstance);
 #endif
+
+#if RENDERER == RENDERER_DIRECT2D
 	primeClass = new WindowClass(L"Ingenium WC", hInstance);
+#endif
+
 	onCreate();
 
 #if defined(SCRIPT_LUA)
@@ -85,6 +109,7 @@ void Ingenium2D::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLi
 void Ingenium2D::onCreate()
 {
 	Ingenium2D::engine = this;
+#if RENDERER == RENDERER_DIRECT2D
 	primeClass->setWindowProc(DEFAULT_WND_PROC);
 	primeClass->wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	primeClass->registerClass();
@@ -95,8 +120,14 @@ void Ingenium2D::onCreate()
 	win->show();
 
 	drwn = new Direct2DWindow(win);
-
 	drwn->drawQueue(false);
+#endif
+#if RENDERER == RENDERER_OPENGL
+	drwn = new OpenGLWindow(1600, 900);
+	if (!drwn->initSuccess) {
+		return;
+	}
+#endif
 
 	Time::setFixedFPS(30);
 }
@@ -117,14 +148,18 @@ void Ingenium2D::onClose() {
 	ingenium_lua::stopLua();
 #endif
 }
+#if RENDERER == RENDERER_DIRECT2D
 LRESULT CALLBACK Ingenium2D::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
 	case WM_SIZE:
 		if (Ingenium2D::getEngine()->drwn) {
+
+#if RENDERER == RENDERER_DIRECT2D
 			Ingenium2D::getEngine()->drwn->resizePRT(LOWORD(lParam), HIWORD(lParam));
 			Ingenium2D::getEngine()->drwn->calculateRPR();
+#endif
 		}
 		break;
 	case WM_CLOSE:
@@ -159,6 +194,7 @@ LRESULT CALLBACK Ingenium2D::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wPara
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 };
+#endif
 
 #if defined(SCRIPT_LUA)
 namespace lua_funcs_2D
@@ -178,7 +214,12 @@ namespace lua_funcs_2D
 	}
 	namespace d2d
 	{
+#if RENDERER == RENDERER_DIRECT2D
 		ingenium_lua::LuaClass<Direct2DWindow> iClass = ingenium_lua::LuaClass<Direct2DWindow>("D2D");
+#endif
+#if RENDERER == RENDERER_OPENGL
+		ingenium_lua::LuaClass<OpenGLWindow> iClass = ingenium_lua::LuaClass<OpenGLWindow>("D2D");
+#endif
 
 		int setDRWNSize(lua_State* lua) {
 			int nargs = lua_gettop(lua);
