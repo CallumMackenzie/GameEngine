@@ -1,5 +1,6 @@
 #pragma once
 #include <list>
+#include <algorithm>
 #include "Ingenium2D.h"
 #include "3DData.h"
 
@@ -17,9 +18,13 @@ namespace ingenium3D
 		void updateDepthBuffer();
 		void renderMesh(Mesh mesh);
 		void refreshProjectionMatrix();
-		void setFOV(float fov);
+		void setFOV(float fovDegrees);
+
+		void texturedTriangle(int x1, int y1, float u1, float v1, float w1, int x2, int y2, float u2, float v2, float w2, int x3, int y3, float u3, float v3, float w3);
 
 	public:
+		static ID2D1PathGeometry* pGTriangle;
+
 		float *depthBuffer = nullptr;
 		Matrix4x4 projectionMatrix;
 		Camera camera;

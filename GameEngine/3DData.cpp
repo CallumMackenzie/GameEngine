@@ -143,7 +143,7 @@ Matrix4x4 Matrix4x4::makeTranslation(float x, float y, float z)
 }
 Matrix4x4 Matrix4x4::makeProjectionMatrix(float fovDegrees, float aspectRatio, float near, float far)
 {
-	float fovRad = 1.0f / tanf(fovDegrees * 0.5f / 180.0f * 3.14159f);
+	float fovRad = 1.0f / tanf(Rotation::toRadians(fovDegrees * 0.5f));
 	Matrix4x4 matrix;
 	matrix.m[0][0] = aspectRatio * fovRad;
 	matrix.m[1][1] = fovRad;
@@ -187,7 +187,7 @@ Matrix4x4 Matrix4x4::qInverse()
 
 float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& in_tri, Triangle& out_tri1, Triangle& out_tri2)
 {
-	plane_n = plane_n.normalized();
+	plane_n.normalize();
 
 	auto dist = [&](Vector3D& p)
 	{

@@ -269,6 +269,58 @@ void ingenium2D::Direct2DWindow::drawTriangle(float point1X, float point1Y, floa
 	drawLine(point2X, point2Y, point3X, point3Y, brush, strokeWidth, strokeStyle);
 	drawLine(point3X, point3Y, point1X, point1Y, brush, strokeWidth, strokeStyle);
 }
+void ingenium2D::Direct2DWindow::fillTriangle(float point1X, float point1Y, float point2X, float point2Y, float point3X, float point3Y, ID2D1Brush* brush, float strokeWidth, ID2D1StrokeStyle* strokeStyle)
+{
+	point1X += offset.x;
+	point2X += offset.x;
+	point3X += offset.x;
+
+	point1Y += offset.y;
+	point2Y += offset.y;
+	point3Y += offset.y;
+
+	point1X *= zoom.width * renderPixelRatio[0];
+	point2X *= zoom.width * renderPixelRatio[0];
+	point3X *= zoom.width * renderPixelRatio[0];
+
+	point1Y *= zoom.height * renderPixelRatio[1];
+	point2Y *= zoom.height * renderPixelRatio[1];
+	point3Y *= zoom.height * renderPixelRatio[1];
+	ID2D1GeometrySink* pSink = NULL;
+	HRESULT hr = S_OK;
+	ID2D1PathGeometry* m_pPathGeometry;
+	// Create a path geometry.
+	if (SUCCEEDED(hr))
+	{
+		hr = pD2DFactory->CreatePathGeometry(&m_pPathGeometry);
+
+		if (SUCCEEDED(hr))
+		{
+			// Write to the path geometry using the geometry sink.
+			hr = m_pPathGeometry->Open(&pSink);
+
+			if (SUCCEEDED(hr))
+			{
+				pSink->BeginFigure(
+					D2D1::Point2F(point1X, point1Y),
+					D2D1_FIGURE_BEGIN_FILLED
+				);
+
+				pSink->AddLine(D2D1::Point2F(point2X, point2Y));
+
+
+				pSink->AddLine(D2D1::Point2F(point3X, point3Y));
+
+				pSink->EndFigure(D2D1_FIGURE_END_CLOSED);
+
+				hr = pSink->Close();
+			}
+			pSink->Release();
+			pRT->FillGeometry(m_pPathGeometry, brush);
+			m_pPathGeometry->Release();
+		}
+	}
+}
 void Direct2DWindow::calculateRPR()
 {
 	RECT* rect = new RECT();

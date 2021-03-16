@@ -25,7 +25,8 @@ namespace ingenium2D
 		void drawEllipse(float elipseCenterX, float elipseCenterY, float elipseWidth, float elipseHeight, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
 		void drawLine(float point1X, float point1Y, float point2X, float point2Y, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
 		void drawTriangle(float point1X, float point1Y, float point2X, float point2Y, float point3X, float point3Y, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
-		
+		void fillTriangle(float point1X, float point1Y, float point2X, float point2Y, float point3X, float point3Y, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
+
 		void calculateRPR();
 		float getMouseX();
 		float getMouseY();

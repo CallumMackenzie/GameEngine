@@ -63,7 +63,7 @@ struct Triangle
 {
 	Vector3D p[3] = { 0 }; // Points
 	Vector2D t[3] = { 0 }; // Texture
-	short col;
+	long col = 0x000000;
 
 	static float clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& in_tri, Triangle& out_tri1, Triangle& out_tri2);
 };
@@ -92,6 +92,7 @@ struct Mesh
 {
 	std::vector<Triangle> tris;
 	Vector3D rotation;
+	Vector3D position;
 	float scale = 1;
 
 	bool loadFromOBJ(std::string fileName, bool hasTexture = false);

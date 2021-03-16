@@ -14,6 +14,7 @@ using namespace ingenium3D;
 struct Ingenium : Ingenium3D
 {
 	Mesh cube;
+	Mesh testMesh;
 
 	void onCreate()
 	{
@@ -23,9 +24,11 @@ struct Ingenium : Ingenium3D
 		primeClass->wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 		primeClass->registerClass();
 
-		RootWindow* win = new RootWindow(primeClass->hInst, primeClass, L"Ingenium", CW_USEDEFAULT, CW_USEDEFAULT, 900, 1600);
+		RootWindow* win = new RootWindow(primeClass->hInst, primeClass, L"Ingenium", CW_USEDEFAULT, CW_USEDEFAULT, 950, 1600);
 		win->style = WS_SYSMENU | WS_SIZEBOX;
 		win->create();
+
+		// win->setFullscreen();
 		win->show();
 
 		drwn = new ingenium2D::Direct2DWindow(win);
@@ -37,17 +40,24 @@ struct Ingenium : Ingenium3D
 		Time::setFixedFPS(30);
 
 		cube.scale = 1;
-		camera.FOV = 80;
+		cube.position = { 0, 0, 10 };
+		camera.position = { 0, 0, -5 };
+		camera.FOV = 75;
 		if (!cube.loadFromOBJ("./cube.obj")) {
 			abort();
 		};
+
+		testMesh.loadFromOBJ("D:\\MAND.obj");
+		testMesh.position = { 0, 0, 0 };
+		testMesh.scale = 0.1;
 	};
 	void onUpdate() {
 		// Vector3D vec = { -0.001 * Time::deltaTime, 0.001 * Time::deltaTime, 0.001 * Time::deltaTime, 0 };
 		// cube.rotation = cube.rotation + vec;
 		float speed = 0;
-		float cameraMoveSpeed = 0.002;
+		float cameraMoveSpeed = Rotation::toRadians(0.1);
 		Vector3D foreward = camera.lookVector();
+		Vector3D height;
 		Vector3D move;
 		Vector3D rotate;
 		Input* in = Input::getInput();
@@ -59,10 +69,11 @@ struct Ingenium : Ingenium3D
 			move.x = 0.01;
 		if (in->getKeyState(65))
 			move.x = -0.01;
+
 		if (in->getKeyState(81))
-			move.y = 0.01;
+			height.y = 0.01;
 		if (in->getKeyState(69))
-			move.y = -0.01;
+			height.y = -0.01;
 
 		if (in->getKeyState(37))
 			rotate.y = -cameraMoveSpeed;
@@ -80,10 +91,11 @@ struct Ingenium : Ingenium3D
 		//	rotate.z = 0.005;
 
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime);
-		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime;
+		camera.position = camera.position + ((foreward * speed) + move + height) * Time::deltaTime;
 		drwn->beginRender();
 		drwn->pRT->Clear(drwn->clearColour);
 		renderMesh(cube);
+		renderMesh(testMesh);
 		drwn->endRender();
 	}
 };

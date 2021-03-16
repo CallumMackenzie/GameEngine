@@ -374,7 +374,7 @@ namespace lua_funcs_2D
 			if (nargs != 0)
 				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
 
-			lua_pushnumber(lua, Time::getTime()->deltaTime);
+			lua_pushnumber(lua, Time::deltaTime);
 			return 1;
 		}
 		int getFixedDeltaTime(lua_State* lua) {
@@ -382,7 +382,7 @@ namespace lua_funcs_2D
 			if (nargs != 0)
 				return luaL_error(lua, "Got %d arguments, expected 0.", nargs);
 		
-			lua_pushnumber(lua, Time::getTime()->fixedDeltaTime);
+			lua_pushnumber(lua, Time::fixedDeltaTime);
 
 			return 1;
 		}
@@ -393,7 +393,7 @@ namespace lua_funcs_2D
 
 			float newFPS = luaL_checknumber(lua, 1);
 			lua_pop(lua, 1);
-			Time::getTime()->setFPS(newFPS);
+			Time::setFPS(newFPS);
 
 			return 0;
 		}

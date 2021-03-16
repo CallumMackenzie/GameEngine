@@ -24,11 +24,10 @@ void Ingenium3D::renderMesh(Mesh mesh)
 	Matrix4x4 matRotX = Matrix4x4::makeRotationX(mesh.rotation.x);
 	Matrix4x4 matRotZ = Matrix4x4::makeRotationZ(mesh.rotation.z);
 
-	Matrix4x4 matTrans = Matrix4x4::makeTranslation(0.0f, 0.0f, 5.0f);
+	Matrix4x4 matTrans = Matrix4x4::makeTranslation(0.0f, 0.0f, 3.0f);
 
 	Matrix4x4 matWorld = Matrix4x4::makeIdentity();	// Form World Matrix
-	matWorld = matRotZ * matRotX * matRotY; // Transform by rotation
-	matWorld = matWorld * matTrans; // Transform by translation
+	matWorld = matRotX * matRotY * matRotZ * matTrans; // Transform by rotation and translation
 
 	// Create "Point At" Matrix for camera
 	Vector3D vUp = { 0, 1, 0 };
@@ -52,9 +51,9 @@ void Ingenium3D::renderMesh(Mesh mesh)
 		Triangle triProjected, triTransformed, triViewed;
 
 		// World Matrix Transform
-		triTransformed.p[0] = matWorld * (tri.p[0] * mesh.scale);
-		triTransformed.p[1] = matWorld * (tri.p[1] * mesh.scale);
-		triTransformed.p[2] = matWorld * (tri.p[2] * mesh.scale);
+		triTransformed.p[0] = matWorld * ((tri.p[0] * mesh.scale) + mesh.position);
+		triTransformed.p[1] = matWorld * ((tri.p[1] * mesh.scale) + mesh.position);
+		triTransformed.p[2] = matWorld * ((tri.p[2] * mesh.scale) + mesh.position);
 		triTransformed.t[0] = tri.t[0];
 		triTransformed.t[1] = tri.t[1];
 		triTransformed.t[2] = tri.t[2];
@@ -67,26 +66,28 @@ void Ingenium3D::renderMesh(Mesh mesh)
 		line2 = triTransformed.p[2] - triTransformed.p[0];
 
 		// Take cross product of lines to get normal to triangle surface
-		normal = Vector3D::crossProduct(line1, line2);
-
-		// You normally need to normalise a normal!
-		normal = normal.normalized();
+		normal = Vector3D::crossProduct(line1, line2).normalized();
 
 		// Get Ray from triangle to camera
 		Vector3D vCameraRay = triTransformed.p[0] - camera.position;
 
 		// If ray is aligned with normal, then triangle is visible
-		if (Vector3D::dotProduct(normal, vCameraRay) < 0.0f)
+		float aligned = Vector3D::dotProduct(normal, vCameraRay);
+		if (aligned < 0.0f)
 		{
 			// Illumination
 			Vector3D light_direction = { 0.0f, 1.0f, -1.0f };
-			light_direction = light_direction.normalized();
+			light_direction.normalize();
 
 			// How "aligned" are light direction and triangle surface normal?
-			float dp = std::max(0.1f, Vector3D::dotProduct(light_direction, normal));
+			float dp = std::max(camera.clipNear, Vector3D::dotProduct(light_direction, normal));
 
-			// Choose console colours as required (much easier with RGB)
-			triTransformed.col = tri.col;
+			// Choose console colours as required (much easier with RGB
+			short r = dp * 255;
+			short g = dp * 255;
+			short b = dp * 255;
+			long colour = (b << 16) + (g << 8) + r;
+			triTransformed.col = colour;
 
 			// Convert World Space --> View Space
 			triViewed.p[0] = matView * triTransformed.p[0];
@@ -101,7 +102,7 @@ void Ingenium3D::renderMesh(Mesh mesh)
 			// additional triangles. 
 			int nClippedTriangles = 0;
 			Triangle clipped[2];
-			nClippedTriangles = Triangle::clipAgainstPlane({ 0.0f, 0.0f, 0.1f }, { 0.0f, 0.0f, 1.0f }, triViewed, clipped[0], clipped[1]);
+			nClippedTriangles = Triangle::clipAgainstPlane({ 0.0f, 0.0f, camera.clipNear }, { 0.0f, 0.0f, 1.0f }, triViewed, clipped[0], clipped[1]);
 
 			// We may end up with multiple triangles form the clip, so project as
 			// required
@@ -163,6 +164,13 @@ void Ingenium3D::renderMesh(Mesh mesh)
 		}
 	}
 
+	std::sort(vecTrianglesToRaster.begin(), vecTrianglesToRaster.end(), [](Triangle& t1, Triangle& t2)
+	{
+		float z1 = (t1.p[0].z + t1.p[1].z + t1.p[2].z) / 3.0f;
+		float z2 = (t2.p[0].z + t2.p[1].z + t2.p[2].z) / 3.0f;
+		return z1 > z2;
+	});
+
 	for (int i = 0; i < drwn->screenWidth() * drwn->screenHeight(); i++)
 		depthBuffer[i] = 0.0f;
 
@@ -215,9 +223,8 @@ void Ingenium3D::renderMesh(Mesh mesh)
 		{
 			// TexturedTriangle(t.p[0].x, t.p[0].y, t.t[0].u, t.t[0].v, t.t[0].w, t.p[1].x, t.p[1].y, t.t[1].u, t.t[1].v, t.t[1].w, t.p[2].x, t.p[2].y, t.t[2].u, t.t[2].v, t.t[2].w, sprTex1);
 
-			// FillTriangle(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, t.sym, t.col);
-			// DrawTriangle(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, PIXEL_SOLID, FG_WHITE);
 			drwn->drawTriangle(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, drwn->pBlackBrush);
+			// texturedTriangle(t.p[0].x, t.p[0].y, t.t[0].u, t.t[0].v, t.t[0].w, t.p[1].x, t.p[1].y, t.t[1].u, t.t[1].v, t.t[1].w, t.p[2].x, t.p[2].y, t.t[2].u, t.t[2].v, t.t[2].w);
 		}
 	}
 }
@@ -249,3 +256,168 @@ LRESULT CALLBACK Ingenium3D::DEFAULT_3D_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wP
 	}
 	return DEFAULT_WND_PROC(hwnd, uMsg, wParam, lParam);
 };
+void Ingenium3D::texturedTriangle(int x1, int y1, float u1, float v1, float w1, int x2, int y2, float u2, float v2, float w2, int x3, int y3, float u3, float v3, float w3)
+{
+	if (y2 < y1)
+	{
+		std::swap(y1, y2);
+		std::swap(x1, x2);
+		std::swap(u1, u2);
+		std::swap(v1, v2);
+		std::swap(w1, w2);
+	}
+
+	if (y3 < y1)
+	{
+		std::swap(y1, y3);
+		std::swap(x1, x3);
+		std::swap(u1, u3);
+		std::swap(v1, v3);
+		std::swap(w1, w3);
+	}
+
+	if (y3 < y2)
+	{
+		std::swap(y2, y3);
+		std::swap(x2, x3);
+		std::swap(u2, u3);
+		std::swap(v2, v3);
+		std::swap(w2, w3);
+	}
+
+	int dy1 = y2 - y1;
+	int dx1 = x2 - x1;
+	float dv1 = v2 - v1;
+	float du1 = u2 - u1;
+	float dw1 = w2 - w1;
+
+	int dy2 = y3 - y1;
+	int dx2 = x3 - x1;
+	float dv2 = v3 - v1;
+	float du2 = u3 - u1;
+	float dw2 = w3 - w1;
+
+	float tex_u, tex_v, tex_w;
+
+	float dax_step = 0, dbx_step = 0,
+		du1_step = 0, dv1_step = 0,
+		du2_step = 0, dv2_step = 0,
+		dw1_step = 0, dw2_step = 0;
+
+	if (dy1) dax_step = dx1 / (float)abs(dy1);
+	if (dy2) dbx_step = dx2 / (float)abs(dy2);
+
+	if (dy1) du1_step = du1 / (float)abs(dy1);
+	if (dy1) dv1_step = dv1 / (float)abs(dy1);
+	if (dy1) dw1_step = dw1 / (float)abs(dy1);
+
+	if (dy2) du2_step = du2 / (float)abs(dy2);
+	if (dy2) dv2_step = dv2 / (float)abs(dy2);
+	if (dy2) dw2_step = dw2 / (float)abs(dy2);
+
+	if (dy1)
+	{
+		for (int i = y1; i <= y2; i++)
+		{
+			int ax = x1 + (float)(i - y1) * dax_step;
+			int bx = x1 + (float)(i - y1) * dbx_step;
+
+			float tex_su = u1 + (float)(i - y1) * du1_step;
+			float tex_sv = v1 + (float)(i - y1) * dv1_step;
+			float tex_sw = w1 + (float)(i - y1) * dw1_step;
+
+			float tex_eu = u1 + (float)(i - y1) * du2_step;
+			float tex_ev = v1 + (float)(i - y1) * dv2_step;
+			float tex_ew = w1 + (float)(i - y1) * dw2_step;
+
+			if (ax > bx)
+			{
+				std::swap(ax, bx);
+				std::swap(tex_su, tex_eu);
+				std::swap(tex_sv, tex_ev);
+				std::swap(tex_sw, tex_ew);
+			}
+
+			tex_u = tex_su;
+			tex_v = tex_sv;
+			tex_w = tex_sw;
+
+			float tstep = 1.0f / ((float)(bx - ax));
+			float t = 0.0f;
+
+			for (int j = ax; j < bx; j++)
+			{
+				tex_u = (1.0f - t) * tex_su + t * tex_eu;
+				tex_v = (1.0f - t) * tex_sv + t * tex_ev;
+				tex_w = (1.0f - t) * tex_sw + t * tex_ew;
+				if (tex_w > depthBuffer[i * (int)drwn->screenWidth() + j])
+				{
+					drwn->drawTriangle(x1, y1, x2, y2, x3, y3, drwn->pBlackBrush);
+					depthBuffer[i * (int)drwn->screenWidth() + j] = tex_w;
+				}
+				t += tstep;
+			}
+
+		}
+	}
+
+	dy1 = y3 - y2;
+	dx1 = x3 - x2;
+	dv1 = v3 - v2;
+	du1 = u3 - u2;
+	dw1 = w3 - w2;
+
+	if (dy1) dax_step = dx1 / (float)abs(dy1);
+	if (dy2) dbx_step = dx2 / (float)abs(dy2);
+
+	du1_step = 0, dv1_step = 0;
+	if (dy1) du1_step = du1 / (float)abs(dy1);
+	if (dy1) dv1_step = dv1 / (float)abs(dy1);
+	if (dy1) dw1_step = dw1 / (float)abs(dy1);
+
+	if (dy1)
+	{
+		for (int i = y2; i <= y3; i++)
+		{
+			int ax = x2 + (float)(i - y2) * dax_step;
+			int bx = x1 + (float)(i - y1) * dbx_step;
+
+			float tex_su = u2 + (float)(i - y2) * du1_step;
+			float tex_sv = v2 + (float)(i - y2) * dv1_step;
+			float tex_sw = w2 + (float)(i - y2) * dw1_step;
+
+			float tex_eu = u1 + (float)(i - y1) * du2_step;
+			float tex_ev = v1 + (float)(i - y1) * dv2_step;
+			float tex_ew = w1 + (float)(i - y1) * dw2_step;
+
+			if (ax > bx)
+			{
+				std::swap(ax, bx);
+				std::swap(tex_su, tex_eu);
+				std::swap(tex_sv, tex_ev);
+				std::swap(tex_sw, tex_ew);
+			}
+
+			tex_u = tex_su;
+			tex_v = tex_sv;
+			tex_w = tex_sw;
+
+			float tstep = 1.0f / ((float)(bx - ax));
+			float t = 0.0f;
+
+			for (int j = ax; j < bx; j++)
+			{
+				tex_u = (1.0f - t) * tex_su + t * tex_eu;
+				tex_v = (1.0f - t) * tex_sv + t * tex_ev;
+				tex_w = (1.0f - t) * tex_sw + t * tex_ew;
+
+				if (tex_w > depthBuffer[i * (int)drwn->screenWidth() + j])
+				{
+					drwn->drawTriangle(x1, y1, x2, y2, x3, y3, drwn->pBlackBrush);
+					depthBuffer[i * (int)drwn->screenWidth() + j] = tex_w;
+				}
+				t += tstep;
+			}
+		}
+	}
+}
