@@ -29,7 +29,7 @@ struct Ingenium : Ingenium3D
 		win->show();
 
 		drwn = new ingenium2D::Direct2DWindow(win);
-		drwn->clearColour = D2D1::ColorF::White;
+		drwn->setClearColour(0x9f68d9, 1);
 		drwn->drawQueue(false);
 
 		updateDepthBuffer();
@@ -38,7 +38,7 @@ struct Ingenium : Ingenium3D
 
 		cube.scale = 1;
 		camera.FOV = 80;
-		if (!cube.loadFromOBJ("./cube.obj")) {
+		if (!cube.loadFromOBJ("D:\\mandship.obj")) {
 			abort();
 		};
 	};

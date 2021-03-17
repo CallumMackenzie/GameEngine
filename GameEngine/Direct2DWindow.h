@@ -30,7 +30,7 @@ namespace ingenium2D
 		float getMouseX();
 		float getMouseY();
 		Vector2 getMousePos();
-
+		void setClearColour(long colour, float alpha);
 		float screenWidth();
 		float screenHeight();
 
