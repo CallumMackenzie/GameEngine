@@ -111,9 +111,22 @@ void Direct2DWindow::endRender()
 {
 	pRT->EndDraw();
 }
+void ingenium2D::Direct2DWindow::setClearColour(long colour, float alpha)
+{
+	int r = (colour & 0xFF0000) >> 16;
+	int g = (colour & 0x00FF00) >> 8;
+	int b = (colour & 0x0000FF);
+	clearColour = D2D1::ColorF((float)r / 255, (float)g / 255, (float)b / 255, alpha);
+}
+void ingenium2D::Direct2DWindow::clear()
+{
+	if (pRT) {
+		pRT->Clear(clearColour);
+	}
+}
 void Direct2DWindow::drawQueue(bool preservePrev)
 {
-	if (pRT != nullptr)
+	if (pRT)
 	{
 		if (!preservePrev)
 		{

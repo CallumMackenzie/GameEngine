@@ -25,7 +25,9 @@ Ingenium2D::~Ingenium2D() {
 	Debug::destroyDebugWindow();
 #endif
 	memory::safe_delete(drwn);
-	memory::safe_delete<WindowClass>(primeClass);
+#if RENDERER == RENDERER_DIRECT2D
+	memory::safe_delete(primeClass);
+#endif
 }
 void Ingenium2D::stop()
 {
@@ -33,6 +35,26 @@ void Ingenium2D::stop()
 	onClose();
 	memory::safe_delete(Input::input);
 	memory::safe_delete(Physics2D::physics2D);
+}
+void ingenium2D::Ingenium2D::createWindow(const char* name, int width, int height)
+{
+	Ingenium2D::engine = this;
+#if RENDERER == RENDERER_DIRECT2D
+	primeClass->setWindowProc(DEFAULT_WND_PROC);
+	primeClass->wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	primeClass->registerClass();
+
+	RootWindow* win = new RootWindow(primeClass->hInst, primeClass, L"Ingenium", CW_USEDEFAULT, CW_USEDEFAULT, height, width);
+	win->style = WS_SYSMENU | WS_SIZEBOX;
+	win->create();
+	win->show();
+
+	drwn = new Direct2DWindow(win);
+	drwn->clear();
+#endif
+#if RENDERER == RENDERER_OPENGL
+	drwn = new OpenGLWindow(width, height);
+#endif
 }
 void Ingenium2D::start(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
@@ -61,16 +83,19 @@ void Ingenium2D::start(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdL
 			}
 #endif
 #if RENDERER == RENDERER_DIRECT2D
-			if () {
-
+			if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
 			}
 #endif
 			if (Time::nextFixedFrameReady()) {
 				onFixedUpdate();
 			}
 			if (Time::nextFrameReady()) {
-				glfwSwapBuffers(drwn->window);
+#if RENDERER == RENDERER_OPENGL
 				glfwPollEvents();
+#endif
 				onUpdate();
 #if defined(_DEBUG) && defined(INGENIUM_WND_GUI)
 				if (Debug::windowWriteReady()) {
@@ -108,28 +133,6 @@ void Ingenium2D::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLi
 }
 void Ingenium2D::onCreate()
 {
-	Ingenium2D::engine = this;
-#if RENDERER == RENDERER_DIRECT2D
-	primeClass->setWindowProc(DEFAULT_WND_PROC);
-	primeClass->wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	primeClass->registerClass();
-
-	RootWindow* win = new RootWindow(primeClass->hInst, primeClass, L"Ingenium", CW_USEDEFAULT, CW_USEDEFAULT, 900, 1600);
-	win->style = WS_SYSMENU | WS_SIZEBOX;
-	win->create();
-	win->show();
-
-	drwn = new Direct2DWindow(win);
-	drwn->drawQueue(false);
-#endif
-#if RENDERER == RENDERER_OPENGL
-	drwn = new OpenGLWindow(1600, 900);
-	if (!drwn->initSuccess) {
-		return;
-	}
-#endif
-
-	Time::setFixedFPS(30);
 }
 void Ingenium2D::onUpdate() {
 #if defined(SCRIPT_LUA)
@@ -193,7 +196,7 @@ LRESULT CALLBACK Ingenium2D::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wPara
 		break;
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
-};
+}
 #endif
 
 #if defined(SCRIPT_LUA)

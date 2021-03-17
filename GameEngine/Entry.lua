@@ -8,7 +8,7 @@
 --	blocks[i]:renderHitbox(false)
 -- end
 
-function init ()
+function onCreate ()
 	-- D2D.show()
 	D2D.setCameraPos(0, 0)
 	D2D.setCameraZoom(1, 1)

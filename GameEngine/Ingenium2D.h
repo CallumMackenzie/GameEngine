@@ -38,6 +38,8 @@ namespace ingenium2D
         virtual void start(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow);
 
         static LRESULT CALLBACK DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam); // Modified wnd_proc that handles input
+        void createWindow(const char* name, int width, int height);
+
         virtual void onCreate();
         virtual void onUpdate();
         virtual void onFixedUpdate();
@@ -53,8 +55,8 @@ namespace ingenium2D
 #endif
 
     public:
-        WindowClass* primeClass = nullptr;
 #if RENDERER == RENDERER_DIRECT2D
+        WindowClass* primeClass = nullptr;
         Direct2DWindow* drwn = nullptr;
 #endif
 #if RENDERER == RENDERER_OPENGL

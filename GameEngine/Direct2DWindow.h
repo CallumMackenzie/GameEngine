@@ -29,6 +29,9 @@ namespace ingenium2D
 		void drawTriangle(float point1X, float point1Y, float point2X, float point2Y, float point3X, float point3Y, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
 		void fillTriangle(float point1X, float point1Y, float point2X, float point2Y, float point3X, float point3Y, ID2D1Brush* brush, float strokeWidth = 1.f, ID2D1StrokeStyle* strokeStyle = (ID2D1StrokeStyle*)0);
 
+		void setClearColour(long colour, float alpha);
+		void clear();
+
 		void calculateRPR();
 		float getMouseX();
 		float getMouseY();
@@ -61,7 +64,7 @@ namespace ingenium2D
 		ID2D1SolidColorBrush* pBlackBrush = nullptr; // Black colour brush
 		ID2D1HwndRenderTarget* pRT = nullptr; // The render surface for the RootWindow
 		ID2D1SolidColorBrush* varColPtr = nullptr; // A variable colour pointer
-		D2D1::ColorF clearColour = D2D1::ColorF::White; // The colour that the screen clears to
+		D2D1::ColorF clearColour = D2D1::ColorF::Black; // The colour that the screen clears to
 		D2D1_SIZE_F zoom = D2D1::SizeF(1, 1); // The zoom of the render pane
 		D2D1_POINT_2F offset = D2D1::Point2F(0, 0); // The offset of the render pane
 		D2D1_MATRIX_3X2_F skew = D2D1::Matrix3x2F::Skew(0, 0, D2D1::Point2F(0, 0));
