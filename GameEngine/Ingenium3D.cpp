@@ -173,8 +173,8 @@ void Ingenium3D::renderMesh(Mesh mesh)
 		return z1 > z2;
 	});
 
-	for (int i = 0; i < drwn->screenWidth() * drwn->screenHeight(); i++)
-		depthBuffer[i] = 0.0f;
+	//for (int i = 0; i < drwn->screenWidth() * drwn->screenHeight(); i++)
+	//	depthBuffer[i] = 0.0f;
 
 	for (auto& triToRaster : vecTrianglesToRaster)
 	{
