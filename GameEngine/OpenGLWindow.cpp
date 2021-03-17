@@ -44,6 +44,40 @@ void OpenGLWindow::endRender()
 	glfwSwapBuffers(window);
 }
 
+float OpenGLWindow::screenWidth()
+{
+	return 100 * aspectRatio[0];
+}
+
+float OpenGLWindow::screenHeight()
+{
+	return 100 * aspectRatio[1];
+}
+
+void OpenGLWindow::drawTriangle(float point1X, float point1Y, float point2X, float point2Y, float point3X, float point3Y)
+{
+	float tri[6] = {
+		point1X, point1Y,
+		point2X, point2Y,
+		point3X, point3Y
+	};
+
+	// float* buf = (float*) glMapBuffer(buffer, GL_ARRAY_BUFFER);
+	// *buf = *tri;
+
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(float), tri);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+Vector2D OpenGLWindow::worldScreenSpaceToScreenSpace(float wX, float wY)
+{
+	float xScaled = (wX + translation.x) * scale.x;
+	float yScaled = (wY + translation.y) * scale.y;
+	Vector2D normalSpace = { xScaled / (aspectRatio[0] * 100.0f), yScaled / (aspectRatio[1] * 100.0f) };
+	return { (normalSpace.x) * 2.0f - 1.0f, (normalSpace.y) * 2.0f - 1.0f };
+}
+
 void OpenGLWindow::setClearColour(long colour, float alpha)
 {
 	int r = (colour & 0xFF0000) >> 16;

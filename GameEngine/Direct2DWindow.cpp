@@ -90,6 +90,10 @@ RootWindow* Direct2DWindow::getWindow()
 {
 	return window;
 }
+Vector2D ingenium2D::Direct2DWindow::worldScreenSpaceToScreenSpace(float wX, float wY)
+{
+	return { (rotationCenter.x + offset.x) * zoom.width, (rotationCenter.y + offset.y) * zoom.height };
+}
 void Direct2DWindow::resizePRT(UINT width, UINT height)
 {
 	if (pRT) {

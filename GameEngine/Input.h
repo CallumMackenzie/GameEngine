@@ -2,6 +2,9 @@
 
 // Callum Mackenzie
 
+#include "IngeniumConfig.h"
+#include "OpenGL.h"
+
 class Input
 {
 public:

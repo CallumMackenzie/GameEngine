@@ -1,14 +1,14 @@
 #include "Ingenium3D.h"
 
-#if RENDERER == RENDERER_DIRECT2D
-
 using namespace ingenium3D;
 
 Ingenium3D* Ingenium3D::engine3D;
 
 void Ingenium3D::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
+#if RENDERER == RENDERER_DIRECT2D
 	primeClass = new WindowClass(L"Ingenium WC", hInstance);
+#endif
 	onCreate();
 	refreshProjectionMatrix();
 	updateDepthBuffer();
@@ -20,7 +20,7 @@ void Ingenium3D::updateDepthBuffer()
 		Ingenium3D::getEngine()->depthBuffer = new float[(float)drwn->screenWidth() * (float)drwn->screenHeight()]{ 0 };
 	}
 }
-void Ingenium3D::renderMesh(Mesh mesh)
+std::vector<Triangle> ingenium3D::Ingenium3D::getRasterizedMesh(Mesh mesh)
 {
 	Matrix4x4 matRotY = Matrix4x4::makeRotationY(mesh.rotation.y);
 	Matrix4x4 matRotX = Matrix4x4::makeRotationX(mesh.rotation.x);
@@ -167,24 +167,22 @@ void Ingenium3D::renderMesh(Mesh mesh)
 	}
 
 	std::sort(vecTrianglesToRaster.begin(), vecTrianglesToRaster.end(), [](Triangle& t1, Triangle& t2)
-	{
-		float z1 = (t1.p[0].z + t1.p[1].z + t1.p[2].z) / 3.0f;
-		float z2 = (t2.p[0].z + t2.p[1].z + t2.p[2].z) / 3.0f;
-		return z1 > z2;
-	});
+		{
+			float z1 = (t1.p[0].z + t1.p[1].z + t1.p[2].z) / 3.0f;
+			float z2 = (t2.p[0].z + t2.p[1].z + t2.p[2].z) / 3.0f;
+			return z1 > z2;
+		});
 
 	//for (int i = 0; i < drwn->screenWidth() * drwn->screenHeight(); i++)
 	//	depthBuffer[i] = 0.0f;
+	std::vector<Triangle> finTriangles;
 
 	for (auto& triToRaster : vecTrianglesToRaster)
 	{
-		// Clip triangles against all four screen edges, this could yield
-		// a bunch of triangles, so create a queue that we traverse to 
-		//  ensure we only test new triangles generated against planes
+
 		Triangle clipped[2];
 		std::list<Triangle> listTriangles;
 
-		// Add initial triangle
 		listTriangles.push_back(triToRaster);
 		int nNewTriangles = 1;
 
@@ -193,16 +191,9 @@ void Ingenium3D::renderMesh(Mesh mesh)
 			int nTrisToAdd = 0;
 			while (nNewTriangles > 0)
 			{
-				// Take triangle from front of queue
 				Triangle test = listTriangles.front();
 				listTriangles.pop_front();
 				nNewTriangles--;
-
-				// Clip it against a plane. We only need to test each 
-				// subsequent plane, against subsequent new triangles
-				// as all triangles after a plane clip are guaranteed
-				// to lie on the inside of the plane. I like how this
-				// comment is almost completely and utterly justified
 				switch (p)
 				{
 				case 0:	nTrisToAdd = Triangle::clipAgainstPlane({ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, test, clipped[0], clipped[1]); break;
@@ -211,23 +202,32 @@ void Ingenium3D::renderMesh(Mesh mesh)
 				case 3:	nTrisToAdd = Triangle::clipAgainstPlane({ (float)drwn->screenWidth() - 1, 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f }, test, clipped[0], clipped[1]); break;
 				}
 
-				// Clipping may yield a variable number of triangles, so
-				// add these new ones to the back of the queue for subsequent
-				// clipping against next planes
 				for (int w = 0; w < nTrisToAdd; w++)
 					listTriangles.push_back(clipped[w]);
 			}
 			nNewTriangles = listTriangles.size();
 		}
 
-		// Draw the transformed, viewed, clipped, projected, sorted, clipped triangles
 		for (auto& t : listTriangles)
 		{
-			// TexturedTriangle(t.p[0].x, t.p[0].y, t.t[0].u, t.t[0].v, t.t[0].w, t.p[1].x, t.p[1].y, t.t[1].u, t.t[1].v, t.t[1].w, t.p[2].x, t.p[2].y, t.t[2].u, t.t[2].v, t.t[2].w, sprTex1);
-
-			drwn->drawTriangle(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, drwn->pBlackBrush);
-			// texturedTriangle(t.p[0].x, t.p[0].y, t.t[0].u, t.t[0].v, t.t[0].w, t.p[1].x, t.p[1].y, t.t[1].u, t.t[1].v, t.t[1].w, t.p[2].x, t.p[2].y, t.t[2].u, t.t[2].v, t.t[2].w);
+			finTriangles.push_back(t);
 		}
+	}
+	return finTriangles;
+}
+void Ingenium3D::renderMesh(Mesh mesh)
+{
+	auto trngls = getRasterizedMesh(mesh);
+	for (auto t : trngls) {
+#if RENDERER == RENDERER_DIRECT2D
+		drwn->drawTriangle(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, drwn->pBlackBrush);
+#endif
+#if RENDERER == RENDERER_OPENGL
+		Vector2D p1 = drwn->worldScreenSpaceToScreenSpace(t.p[0].x, t.p[0].y);
+		Vector2D p2 = drwn->worldScreenSpaceToScreenSpace(t.p[1].x, t.p[1].y);
+		Vector2D p3 = drwn->worldScreenSpaceToScreenSpace(t.p[2].x, t.p[2].y);
+		drwn->drawTriangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+#endif
 	}
 }
 void Ingenium3D::refreshProjectionMatrix()
@@ -246,6 +246,7 @@ Ingenium3D* Ingenium3D::getEngine()
 	}
 	return Ingenium3D::engine3D;
 }
+#if RENDERER == RENDERER_DIRECT2D
 LRESULT CALLBACK Ingenium3D::DEFAULT_3D_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -258,6 +259,8 @@ LRESULT CALLBACK Ingenium3D::DEFAULT_3D_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wP
 	}
 	return DEFAULT_WND_PROC(hwnd, uMsg, wParam, lParam);
 };
+#endif
+/*
 void Ingenium3D::texturedTriangle(int x1, int y1, float u1, float v1, float w1, int x2, int y2, float u2, float v2, float w2, int x3, int y3, float u3, float v3, float w3)
 {
 	if (y2 < y1)
@@ -423,4 +426,4 @@ void Ingenium3D::texturedTriangle(int x1, int y1, float u1, float v1, float w1, 
 		}
 	}
 }
-#endif
+*/

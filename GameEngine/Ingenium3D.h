@@ -4,7 +4,6 @@
 #include "Ingenium2D.h"
 #include "3DData.h"
 
-#if RENDERER == RENDERER_DIRECT2D
 namespace ingenium3D
 {
 	class Ingenium3D : public ingenium2D::Ingenium2D
@@ -13,10 +12,13 @@ namespace ingenium3D
 		static Ingenium3D* engine3D;
 
 		static Ingenium3D* getEngine();
+#if RENDERER == RENDERER_DIRECT2D
 		static LRESULT CALLBACK DEFAULT_3D_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+#endif
 
 		virtual void init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow);
 		void updateDepthBuffer();
+		std::vector<Triangle> getRasterizedMesh(Mesh mesh);
 		void renderMesh(Mesh mesh);
 		void refreshProjectionMatrix();
 		void setFOV(float fovDegrees);
@@ -31,4 +33,3 @@ namespace ingenium3D
 		Camera camera;
 	};
 }
-#endif
