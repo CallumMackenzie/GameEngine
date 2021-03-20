@@ -38,6 +38,7 @@ struct OpenGLWindow
 	void drawTriangle(float point1X, float point1Y, float point2X, float point2Y, float point3X, float point3Y);
 
 	Vector2D worldScreenSpaceToScreenSpace(float wX, float wY);
+	void peekGLErrors();
 
 	void setClearColour(long colour, float alpha);
 	void clear();
@@ -46,4 +47,12 @@ struct OpenGLWindow
 
 	static unsigned int compileShader(const std::string& src, unsigned int glType);
 	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+	template< typename T >
+	static inline std::string intToHex(T i)
+	{
+		std::stringstream stream;
+		stream << "0x" << std::hex << i;
+		return stream.str();
+	}
 };

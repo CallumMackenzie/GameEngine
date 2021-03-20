@@ -23,13 +23,16 @@ namespace ingenium3D
 		void refreshProjectionMatrix();
 		void setFOV(float fovDegrees);
 
-		void texturedTriangle(int x1, int y1, float u1, float v1, float w1, int x2, int y2, float u2, float v2, float w2, int x3, int y3, float u3, float v3, float w3);
+		// void texturedTriangle(int x1, int y1, float u1, float v1, float w1, int x2, int y2, float u2, float v2, float w2, int x3, int y3, float u3, float v3, float w3);
+
+		void updateBufferMatrix(Mesh mesh);
 
 	public:
 		static ID2D1PathGeometry* pGTriangle;
 
 		float *depthBuffer = nullptr;
 		Matrix4x4 projectionMatrix;
+		Matrix4x4 bufferMatrix;
 		Camera camera;
 	};
 }

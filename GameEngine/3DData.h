@@ -65,6 +65,7 @@ struct Triangle
 	Vector2D t[3] = { 0 }; // Texture
 	long col = 0x000000;
 
+	std::string toString();
 	static float clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& in_tri, Triangle& out_tri1, Triangle& out_tri2);
 };
 
@@ -79,8 +80,10 @@ struct Matrix4x4
 	static Matrix4x4 makeRotationZ(float angleRadians);
 	static Matrix4x4 makeTranslation(float x, float y, float z);
 	static Matrix4x4 makePointedAt(Vector3D& pos, Vector3D& target, Vector3D& up);
+	static Matrix4x4 makeScale(float x, float y, float z);
 
 	Matrix4x4 qInverse ();
+	void flatten(float* arr);
 
 	friend Vector3D operator *(const Vector3D& vec, const Matrix4x4& mat);
 	friend Vector3D operator *(const Matrix4x4& mat, const Vector3D& vec);
@@ -93,7 +96,7 @@ struct Mesh
 	std::vector<Triangle> tris;
 	Vector3D rotation;
 	Vector3D position;
-	float scale = 1;
+	Vector3D scale = { 1, 1, 1, 1 };
 
 	bool loadFromOBJ(std::string fileName, bool hasTexture = false);
 };

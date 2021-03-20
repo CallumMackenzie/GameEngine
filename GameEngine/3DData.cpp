@@ -171,6 +171,14 @@ Matrix4x4 Matrix4x4::makePointedAt(Vector3D& pos, Vector3D& target, Vector3D& up
 	matrix.m[3][0] = pos.x;			matrix.m[3][1] = pos.y;			matrix.m[3][2] = pos.z;			matrix.m[3][3] = 1.0f;
 	return matrix;
 }
+Matrix4x4 Matrix4x4::makeScale(float x, float y, float z)
+{
+	Matrix4x4 matrix = makeIdentity();
+	matrix.m[0][0] = x;
+	matrix.m[1][1] = y;
+	matrix.m[2][2] = z;
+	return matrix;
+}
 Matrix4x4 Matrix4x4::qInverse()
 {
 
@@ -183,6 +191,25 @@ Matrix4x4 Matrix4x4::qInverse()
 	matrix.m[3][2] = -(m[3][0] * matrix.m[0][2] + m[3][1] * matrix.m[1][2] + m[3][2] * matrix.m[2][2]);
 	matrix.m[3][3] = 1.0f;
 	return matrix;
+}
+
+void Matrix4x4::flatten(float* arr)
+{
+	arr = new float[16];
+	int k = 0;
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++) {
+			arr[k] = m[i][j];
+			k++;
+		}
+}
+
+std::string Triangle::toString()
+{
+	using namespace std;
+	std::string s("");
+	s.append("{ x=" + to_string(p->x) + ", y=" + to_string(p->y) + ", z=" + to_string(p->z) + ", w=" + to_string(p->w)+ ", u=" + to_string(t->x) + ", v=" + to_string(t->v) + "}");
+	return s;
 }
 
 float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& in_tri, Triangle& out_tri1, Triangle& out_tri2)

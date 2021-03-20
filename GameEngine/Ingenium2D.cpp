@@ -36,7 +36,7 @@ void Ingenium2D::stop()
 	memory::safe_delete(Input::input);
 	memory::safe_delete(Physics2D::physics2D);
 }
-void ingenium2D::Ingenium2D::createWindow(const char* name, int width, int height)
+void Ingenium2D::createWindow(const char* name, int width, int height)
 {
 	Ingenium2D::engine = this;
 #if RENDERER == RENDERER_DIRECT2D
@@ -150,6 +150,18 @@ void Ingenium2D::onClose() {
 	ingenium_lua::executeFunc(LUA_ENGINE_CLOSE);
 	ingenium_lua::stopLua();
 #endif
+}
+std::string Ingenium2D::getFileAsString(std::string fPath)
+{
+	std::ifstream f;
+	std::stringstream ss;
+	std::string ln;
+	f.open(fPath);
+	while (!f.eof()) {
+		getline(f, ln);
+		ss << ln << "\n";
+	}
+	return ss.str();
 }
 #if RENDERER == RENDERER_DIRECT2D
 LRESULT CALLBACK Ingenium2D::DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

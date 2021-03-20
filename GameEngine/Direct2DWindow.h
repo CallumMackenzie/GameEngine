@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IngeniumConfig.h"
+#include "3DData.h"
 // Callum Mackenzie
 
 // TODO : Make a linked list for the render queue

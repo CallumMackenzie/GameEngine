@@ -40,7 +40,6 @@ void OpenGLWindow::beginRender()
 
 void OpenGLWindow::endRender()
 {
-
 	glfwSwapBuffers(window);
 }
 
@@ -76,6 +75,16 @@ Vector2D OpenGLWindow::worldScreenSpaceToScreenSpace(float wX, float wY)
 	float yScaled = (wY + translation.y) * scale.y;
 	Vector2D normalSpace = { xScaled / (aspectRatio[0] * 100.0f), yScaled / (aspectRatio[1] * 100.0f) };
 	return { (normalSpace.x) * 2.0f - 1.0f, (normalSpace.y) * 2.0f - 1.0f };
+}
+
+void OpenGLWindow::peekGLErrors()
+{
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		Debug::oss << "OpenGL Error: " << intToHex(err) << "\n";
+	}
+	Debug::write();
 }
 
 void OpenGLWindow::setClearColour(long colour, float alpha)
@@ -122,7 +131,7 @@ unsigned int OpenGLWindow::compileShader(const std::string& src, unsigned int gl
 		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &eLength);
 		char* message = (char*) alloca(eLength * sizeof(char));
 		glGetShaderInfoLog(id, eLength, &eLength, message);
-		Debug::oss << "Failed to compile " << (glType == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader: " << message;
+		Debug::oss << "Failed to compile " << " shader: " << message;
 		Debug::writeLn();
 		glDeleteShader(id);
 	}

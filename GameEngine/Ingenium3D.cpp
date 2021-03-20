@@ -20,16 +20,43 @@ void Ingenium3D::updateDepthBuffer()
 		Ingenium3D::getEngine()->depthBuffer = new float[(float)drwn->screenWidth() * (float)drwn->screenHeight()]{ 0 };
 	}
 }
+void ingenium3D::Ingenium3D::updateBufferMatrix(Mesh mesh)
+{
+	Matrix4x4 matRotY = Matrix4x4::makeRotationY(mesh.rotation.y);
+	Matrix4x4 matRotX = Matrix4x4::makeRotationX(mesh.rotation.x);
+	Matrix4x4 matRotZ = Matrix4x4::makeRotationZ(mesh.rotation.z);
+
+	Matrix4x4 matTrans = Matrix4x4::makeTranslation(mesh.position.x, mesh.position.y, mesh.position.z);
+	Matrix4x4 matScale = Matrix4x4::makeScale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
+
+	Matrix4x4 matWorld = Matrix4x4::makeIdentity();	// Form World Matrix
+	matWorld = matRotX * matRotY * matRotZ * matTrans * matScale; // Transform by rotation and translation
+
+	// Create "Point At" Matrix for camera
+	Vector3D vUp = { 0, 1, 0 };
+	Vector3D vTarget = { 0, 0, 1 };
+	Matrix4x4 matCameraRotY = Matrix4x4::makeRotationY(camera.rotation.y);
+	Matrix4x4 matCameraRotX = Matrix4x4::makeRotationX(camera.rotation.x);
+	Matrix4x4 matCameraRotZ = Matrix4x4::makeRotationZ(camera.rotation.z);
+	Vector3D camRot = vTarget * (matCameraRotX * matCameraRotY * matCameraRotZ);
+	vTarget = camera.position + camRot;
+	Matrix4x4 matCamera = Matrix4x4::makePointedAt(camera.position, vTarget, vUp);
+
+	// Make view matrix from camera
+	Matrix4x4 matView = matCamera.qInverse();
+	bufferMatrix = matView;
+}
 std::vector<Triangle> ingenium3D::Ingenium3D::getRasterizedMesh(Mesh mesh)
 {
 	Matrix4x4 matRotY = Matrix4x4::makeRotationY(mesh.rotation.y);
 	Matrix4x4 matRotX = Matrix4x4::makeRotationX(mesh.rotation.x);
 	Matrix4x4 matRotZ = Matrix4x4::makeRotationZ(mesh.rotation.z);
 
-	Matrix4x4 matTrans = Matrix4x4::makeTranslation(0.0f, 0.0f, 3.0f);
+	Matrix4x4 matTrans = Matrix4x4::makeTranslation(mesh.position.x, mesh.position.y, mesh.position.z);
+	Matrix4x4 matScale = Matrix4x4::makeScale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
 
 	Matrix4x4 matWorld = Matrix4x4::makeIdentity();	// Form World Matrix
-	matWorld = matRotX * matRotY * matRotZ * matTrans; // Transform by rotation and translation
+	matWorld = matRotX * matRotY * matRotZ * matTrans * matScale; // Transform by rotation and translation
 
 	// Create "Point At" Matrix for camera
 	Vector3D vUp = { 0, 1, 0 };
@@ -53,9 +80,9 @@ std::vector<Triangle> ingenium3D::Ingenium3D::getRasterizedMesh(Mesh mesh)
 		Triangle triProjected, triTransformed, triViewed;
 
 		// World Matrix Transform
-		triTransformed.p[0] = matWorld * ((tri.p[0] * mesh.scale) + mesh.position);
-		triTransformed.p[1] = matWorld * ((tri.p[1] * mesh.scale) + mesh.position);
-		triTransformed.p[2] = matWorld * ((tri.p[2] * mesh.scale) + mesh.position);
+		triTransformed.p[0] = matWorld * tri.p[0];
+		triTransformed.p[1] = matWorld * tri.p[1];
+		triTransformed.p[2] = matWorld * tri.p[2];
 		triTransformed.t[0] = tri.t[0];
 		triTransformed.t[1] = tri.t[1];
 		triTransformed.t[2] = tri.t[2];

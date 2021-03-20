@@ -1,7 +1,8 @@
 #pragma once
 
 #include "IngeniumConfig.h"
-
+#include <fstream>
+#include <sstream>
 #include "Memory.h"
 #include "ModWin.h"
 #if defined(SCRIPT_LUA)
@@ -45,6 +46,8 @@ namespace ingenium2D
         virtual void onFixedUpdate();
         virtual void onClose();
         virtual ~Ingenium2D(); // Ingenium2D deconstructor to clean up memory leaks
+
+        std::string getFileAsString(std::string fPath);
 
         bool running = false; // Whether the engine is running or not
 

@@ -13,63 +13,54 @@ using namespace ingenium3D;
 
 struct Game : Ingenium3D
 {
-	//float tris[6] = {
-	//-0.5, -0.5,
-	//0.0, 0.5,
-	//0.5, -0.5
-	//};
-	//unsigned int buffer;
+	unsigned int buffer;
 	Mesh m;
 	void onCreate()
 	{
 		createWindow("Ingenium", 1600, 900);
 		drwn->setClearColour(0x95d57c, 1.f);
 
-		GLuint vertexArrayID;
-		glGenVertexArrays(1, &vertexArrayID);
-		glBindVertexArray(vertexArrayID);
+		//GLuint vertexArrayID;
+		//glGenVertexArrays(1, &vertexArrayID);
+		//glBindVertexArray(vertexArrayID);
 
-		Vector2D p1 = drwn->worldScreenSpaceToScreenSpace(0, 0);
-		Vector2D p2 = drwn->worldScreenSpaceToScreenSpace(1600, 0);
-		Vector2D p3 = drwn->worldScreenSpaceToScreenSpace(800, 900);
+		m.loadFromOBJ("D:\\cube.obj");
+		m.scale = { 1, 1, 1, };
+		m.position = { 0, 0, 6, };
 
-		float tris[6] = { 
-			p1.x, p1.y,
-			p2.x, p2.y,
-			p3.x, p3.y
-		};
+		int size = m.tris.size() * 3;
+		Vector3D* dat = new Vector3D[size];
+		int j = 0;
+		for (int i = 0; i < m.tris.size(); i += 3) {
+			dat[i] = m.tris[i].p[0];
+			dat[i + 1] = m.tris[i].p[1];
+			dat[i + 2] = m.tris[i].p[2];
+		}
 
-		glGenBuffers(1, &drwn->buffer);
-		glBindBuffer(GL_ARRAY_BUFFER, drwn->buffer);
-		glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), tris, GL_DYNAMIC_DRAW);
+		glGenBuffers(1, &buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glBufferData(GL_ARRAY_BUFFER, m.tris.size() * sizeof(Triangle), dat, GL_DYNAMIC_DRAW);
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
-		std::string vShader = 
-			"#version 330 core\n"
-			"\n"
-			"layout(location = 0) in vec4 position;\n"
-			"void main()\n"
-			"{\n"
-			"	gl_Position = position;\n"
-			"}\n";
-		std::string fShader =
-			"#version 330 core\n"
-			"\n"
-			"layout(location = 0) out vec4 colour;\n"
-			"void main()\n"
-			"{\n"
-			"colour = vec4(0.0, 0.0, 0.0, 1.0);\n"
-			"}\n";
+		std::string vShader = getFileAsString("./shaders/2D.vert");
+		std::string fShader = getFileAsString("./shaders/def2D.frag");
 
 		unsigned int shader = drwn->createShader(vShader, fShader);
 		glUseProgram(shader);
-		m.loadFromOBJ("D:\\MAND.obj");
-		m.scale = 0.3;
-		m.position = { 0, 0, 6, 1 };
+
+		updateBufferMatrix(m);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "transMatrix"), 1, false, &bufferMatrix.m[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "projectionMatrix"), 1, false, &projectionMatrix.m[0][0]);
+
+
+		drwn->clear();
+		glDrawArrays(GL_TRIANGLES, 0, (m.tris.size() * 3));
+		drwn->endRender();
+		drwn->peekGLErrors();
 	};
-	void onUpdate() 
+	void onUpdate()
 	{
 		float speed = 0;
 		float cameraMoveSpeed = 0.002;
@@ -108,9 +99,14 @@ struct Game : Ingenium3D
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime);
 		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime;
 
+		updateBufferMatrix(m);
+
 		drwn->beginRender();
 		drwn->clear();
-		renderMesh(m);
+		// renderMesh(m);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glDrawArrays(GL_TRIANGLES, 0, m.tris.size() * 3);
+		drwn->peekGLErrors();
 		drwn->endRender();
 	}
 };
