@@ -13,52 +13,56 @@ using namespace ingenium3D;
 
 struct Game : Ingenium3D
 {
-	unsigned int buffer;
+	VertexArray* pts = nullptr;
+	unsigned int shader;
 	Mesh m;
+	Game() : Ingenium3D()
+	{
+	};
 	void onCreate()
 	{
+		engine3D = this;
+		engine = this;
 		createWindow("Ingenium", 1600, 900);
 		drwn->setClearColour(0x95d57c, 1.f);
 
-		//GLuint vertexArrayID;
-		//glGenVertexArrays(1, &vertexArrayID);
-		//glBindVertexArray(vertexArrayID);
-
 		m.loadFromOBJ("D:\\cube.obj");
 		m.scale = { 1, 1, 1, };
-		m.position = { 0, 0, 6, };
+		m.position = { 0, 0, 10, };
 
-		int size = m.tris.size() * 3;
-		Vector3D* dat = new Vector3D[size];
-		int j = 0;
-		for (int i = 0; i < m.tris.size(); i += 3) {
-			dat[i] = m.tris[i].p[0];
-			dat[i + 1] = m.tris[i].p[1];
-			dat[i + 2] = m.tris[i].p[2];
-		}
+		//float vtpts[] = {
+		//	800.0f,  0.0f,  0.0f,
+		//	1600.f, 900.f,  0.0f,
+		//	800.0f, 900.0f,  0.0f,
 
-		glGenBuffers(1, &buffer);
-		glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glBufferData(GL_ARRAY_BUFFER, m.tris.size() * sizeof(Triangle), dat, GL_DYNAMIC_DRAW);
+		//	0.0f,  0.0f,  0.0f,    
+		//	800.f, 900.f,  0.0f,   
+		//	0.0f, 900.0f,  0.0f
+		//};
 
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		//pts = new VertexArray(vtpts, 18);
+		m.toVertexArray(&pts);
 
-		std::string vShader = getFileAsString("./shaders/2D.vert");
+		std::string vShader = getFileAsString("./shaders/3D.vert");
 		std::string fShader = getFileAsString("./shaders/def2D.frag");
 
-		unsigned int shader = drwn->createShader(vShader, fShader);
+		shader = drwn->createShader(vShader, fShader);
 		glUseProgram(shader);
 
-		updateBufferMatrix(m);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "transMatrix"), 1, false, &bufferMatrix.m[0][0]);
+		camera.FOV = 80;
+		refreshProjectionMatrix();
+		refreshViewMatrix(m);
+		refreshTranslationMatrix(m);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "transMatrix"), 1, false, &translationMatrix.m[0][0]);
 		glUniformMatrix4fv(glGetUniformLocation(shader, "projectionMatrix"), 1, false, &projectionMatrix.m[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "viewMatrix"), 1, false, &viewMatrix.m[0][0]);
+		glUniform2f(glGetUniformLocation(shader, "aspectRatio"), drwn->aspectRatio[0], drwn->aspectRatio[1]);
 
-
+		drwn->beginRender();
 		drwn->clear();
-		glDrawArrays(GL_TRIANGLES, 0, (m.tris.size() * 3));
-		drwn->endRender();
+		pts->draw();
 		drwn->peekGLErrors();
+		drwn->endRender();
 	};
 	void onUpdate()
 	{
@@ -99,13 +103,17 @@ struct Game : Ingenium3D
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime);
 		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime;
 
-		updateBufferMatrix(m);
+		refreshProjectionMatrix();
+		refreshViewMatrix(m);
+		refreshTranslationMatrix(m);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "projectionMatrix"), 1, false, &projectionMatrix.m[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "transMatrix"), 1, false, &translationMatrix.m[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "viewMatrix"), 1, false, &viewMatrix.m[0][0]);
 
 		drwn->beginRender();
 		drwn->clear();
 		// renderMesh(m);
-		glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glDrawArrays(GL_TRIANGLES, 0, m.tris.size() * 3);
+		pts->draw();
 		drwn->peekGLErrors();
 		drwn->endRender();
 	}
@@ -113,9 +121,8 @@ struct Game : Ingenium3D
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
-	Game* eg = new Game();
-	eg->start(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-	delete eg;
+	Game eg = Game();
+	eg.start(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 
 #ifdef _DEBUG
 	printAllocationInfo();

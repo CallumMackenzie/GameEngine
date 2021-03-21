@@ -20,7 +20,7 @@ void Ingenium3D::updateDepthBuffer()
 		Ingenium3D::getEngine()->depthBuffer = new float[(float)drwn->screenWidth() * (float)drwn->screenHeight()]{ 0 };
 	}
 }
-void ingenium3D::Ingenium3D::updateBufferMatrix(Mesh mesh)
+void Ingenium3D::refreshTranslationMatrix(Mesh mesh)
 {
 	Matrix4x4 matRotY = Matrix4x4::makeRotationY(mesh.rotation.y);
 	Matrix4x4 matRotX = Matrix4x4::makeRotationX(mesh.rotation.x);
@@ -31,7 +31,10 @@ void ingenium3D::Ingenium3D::updateBufferMatrix(Mesh mesh)
 
 	Matrix4x4 matWorld = Matrix4x4::makeIdentity();	// Form World Matrix
 	matWorld = matRotX * matRotY * matRotZ * matTrans * matScale; // Transform by rotation and translation
-
+	translationMatrix = matWorld;
+}
+void Ingenium3D::refreshViewMatrix(Mesh m)
+{
 	// Create "Point At" Matrix for camera
 	Vector3D vUp = { 0, 1, 0 };
 	Vector3D vTarget = { 0, 0, 1 };
@@ -43,20 +46,13 @@ void ingenium3D::Ingenium3D::updateBufferMatrix(Mesh mesh)
 	Matrix4x4 matCamera = Matrix4x4::makePointedAt(camera.position, vTarget, vUp);
 
 	// Make view matrix from camera
-	Matrix4x4 matView = matCamera.qInverse();
-	bufferMatrix = matView;
+	viewMatrix = matCamera.qInverse();
+	// viewMatrix = matCamera;
 }
-std::vector<Triangle> ingenium3D::Ingenium3D::getRasterizedMesh(Mesh mesh)
+std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 {
-	Matrix4x4 matRotY = Matrix4x4::makeRotationY(mesh.rotation.y);
-	Matrix4x4 matRotX = Matrix4x4::makeRotationX(mesh.rotation.x);
-	Matrix4x4 matRotZ = Matrix4x4::makeRotationZ(mesh.rotation.z);
-
-	Matrix4x4 matTrans = Matrix4x4::makeTranslation(mesh.position.x, mesh.position.y, mesh.position.z);
-	Matrix4x4 matScale = Matrix4x4::makeScale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
-
-	Matrix4x4 matWorld = Matrix4x4::makeIdentity();	// Form World Matrix
-	matWorld = matRotX * matRotY * matRotZ * matTrans * matScale; // Transform by rotation and translation
+	refreshTranslationMatrix(mesh);
+	Matrix4x4 matWorld = translationMatrix;
 
 	// Create "Point At" Matrix for camera
 	Vector3D vUp = { 0, 1, 0 };
@@ -265,6 +261,9 @@ void Ingenium3D::setFOV(float fov)
 {
 	camera.FOV = fov;
 	refreshProjectionMatrix();
+}
+Ingenium3D::Ingenium3D() : Ingenium2D()
+{
 }
 Ingenium3D* Ingenium3D::getEngine()
 {

@@ -74,6 +74,15 @@ float Vector3D::length()
 {
 	return Vector::qSqrt(dotProduct(*this, *this), 1);
 }
+float* Vector3D::toFloatArray()
+{
+	float* arr = new float[4];
+	arr[0] = x;
+	arr[1] = y;
+	arr[2] = z;
+	arr[3] = w;
+	return arr;
+}
 void Vector3D::normalize()
 {
 	float l = length();
@@ -141,14 +150,14 @@ Matrix4x4 Matrix4x4::makeTranslation(float x, float y, float z)
 	matrix.m[3][2] = z;
 	return matrix;
 }
-Matrix4x4 Matrix4x4::makeProjectionMatrix(float fovDegrees, float aspectRatio, float near, float far)
+Matrix4x4 Matrix4x4::makeProjectionMatrix(float fovDegrees, float aspectRatio, float near_, float far_)
 {
 	float fovRad = 1.0f / tanf(Rotation::toRadians(fovDegrees * 0.5f));
 	Matrix4x4 matrix;
 	matrix.m[0][0] = aspectRatio * fovRad;
 	matrix.m[1][1] = fovRad;
-	matrix.m[2][2] = far / (far - near);
-	matrix.m[3][2] = (-far * near) / (far - near);
+	matrix.m[2][2] = far_ / (far_ - near_);
+	matrix.m[3][2] = (-far_ * near_) / (far_ - near_);
 	matrix.m[2][3] = 1.0f;
 	matrix.m[3][3] = 0.0f;
 	return matrix;
@@ -208,7 +217,7 @@ std::string Triangle::toString()
 {
 	using namespace std;
 	std::string s("");
-	s.append("{ x=" + to_string(p->x) + ", y=" + to_string(p->y) + ", z=" + to_string(p->z) + ", w=" + to_string(p->w)+ ", u=" + to_string(t->x) + ", v=" + to_string(t->v) + "}");
+	s.append("{ x=" + to_string(p->x) + ", y=" + to_string(p->y) + ", z=" + to_string(p->z) + ", w=" + to_string(p->w) + ", u=" + to_string(t->x) + ", v=" + to_string(t->v) + "}");
 	return s;
 }
 
@@ -373,6 +382,22 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 	return true;
 }
 
+void Mesh::toVertexArray(VertexArray** ptr)
+{
+	std::vector<float> data;
+
+	for (int i = 0; i < tris.size(); i++)
+		for (int j = 0; j < 3; j++) {
+			float* arr = tris[i].p[j].toFloatArray();
+			for (int k = 0; k < 3; k++) {
+				data.push_back(arr[k]);
+			}
+			delete arr;
+		}
+
+	*ptr = new VertexArray(data.data(), tris.size() * 9, 0, GL_STATIC_DRAW);
+}
+
 Vector3D Camera::lookVector()
 {
 	Vector3D target = { 0, 0, 1 };
@@ -380,4 +405,40 @@ Vector3D Camera::lookVector()
 	Matrix4x4 mRotation = Matrix4x4::makeRotationX(rotation.x) * Matrix4x4::makeRotationY(rotation.y) * Matrix4x4::makeRotationZ(rotation.z);
 	target = (target * mRotation);
 	return target;
+}
+
+VertexArray::~VertexArray()
+{
+	if (mVBO != GL_NONE)
+	{
+		glDeleteBuffers(1, &mVBO);
+	}
+	if (mVAO != GL_NONE)
+	{
+		glDeleteVertexArrays(1, &mVAO);
+	}
+}
+
+VertexArray::VertexArray(float* vertPositions, int vertPositionsCount, unsigned int step, unsigned int drawMode)
+{
+	mVertexCount = vertPositionsCount / 3;
+
+	glGenBuffers(1, &mVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, vertPositionsCount * sizeof(float), vertPositions, drawMode);
+
+	glGenVertexArrays(1, &mVAO);
+	glBindVertexArray(mVAO);
+
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, step, NULL);
+}
+
+void VertexArray::draw()
+{
+	glBindVertexArray(mVAO);
+	glDrawArrays(GL_TRIANGLES, 0, mVertexCount);
 }

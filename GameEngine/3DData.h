@@ -7,6 +7,7 @@
 #include "IngeniumConfig.h"
 #include "Vector.h"
 #include "Rotation.h"
+#include "OpenGL.h"
 
 struct Vector3D;
 struct Vector2D;
@@ -14,6 +15,17 @@ struct Triangle;
 struct Matrix4x4;
 struct Mesh;
 struct Camera;
+
+struct VertexArray
+{
+	VertexArray(float* vertPositions, int vertPositionsCount, unsigned int step = 0, unsigned int drawMode = GL_STATIC_DRAW);
+	~VertexArray();
+	void draw();
+
+	unsigned int mVertexCount;
+	unsigned int mVBO = GL_NONE;
+	unsigned int mVAO = GL_NONE;
+};
 
 struct Vector3D
 {
@@ -32,6 +44,7 @@ struct Vector3D
 	static float dotProduct(Vector3D& v1, Vector3D& v2);
 	static Vector3D crossProduct(Vector3D& v1, Vector3D& v2);
 
+	float* toFloatArray();
 	float length();
 	void normalize();
 	Vector3D normalized();
@@ -73,7 +86,7 @@ struct Matrix4x4
 {
 	float m[4][4] = { 0 };
 
-	static Matrix4x4 makeProjectionMatrix(float fovDegrees, float aspectRatio, float near, float far);
+	static Matrix4x4 makeProjectionMatrix(float fovDegrees, float aspectRatio, float near_, float far_);
 	static Matrix4x4 makeIdentity();
 	static Matrix4x4 makeRotationX(float angleRadians);
 	static Matrix4x4 makeRotationY(float angleRadians);
@@ -97,6 +110,8 @@ struct Mesh
 	Vector3D rotation;
 	Vector3D position;
 	Vector3D scale = { 1, 1, 1, 1 };
+
+	void toVertexArray(VertexArray** ptr);
 
 	bool loadFromOBJ(std::string fileName, bool hasTexture = false);
 };
