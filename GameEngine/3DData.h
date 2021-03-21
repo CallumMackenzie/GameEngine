@@ -112,6 +112,7 @@ struct Mesh
 	Vector3D scale = { 1, 1, 1, 1 };
 
 	void toVertexArray(VertexArray** ptr);
+	Matrix4x4 makeWorldMatrix();
 
 	bool loadFromOBJ(std::string fileName, bool hasTexture = false);
 };
@@ -125,4 +126,5 @@ struct Camera {
 	float clipFar = 1000.f;
 
 	Vector3D lookVector();
+	Matrix4x4 makeCameraMatrix();
 };

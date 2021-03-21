@@ -13,6 +13,22 @@ void Ingenium3D::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLi
 	refreshProjectionMatrix();
 	updateDepthBuffer();
 }
+Matrix4x4 Ingenium3D::makeRasterMatrix(Mesh mesh)
+{
+	Matrix4x4 ret;
+
+	Matrix4x4 matWorld = mesh.makeWorldMatrix();
+	Matrix4x4 matCamera = camera.makeCameraMatrix();
+	Matrix4x4 matView = matCamera.qInverse();
+
+	ret = matWorld * matView * projectionMatrix;
+
+	return ret;
+}
+void Ingenium3D::refreshProjectionMatrix()
+{
+	projectionMatrix = Matrix4x4::makeProjectionMatrix(camera.FOV, drwn->aspectRatio[1] / drwn->aspectRatio[0], camera.clipNear, camera.clipFar);
+}
 void Ingenium3D::updateDepthBuffer()
 {
 	if (drwn) {
@@ -20,54 +36,12 @@ void Ingenium3D::updateDepthBuffer()
 		Ingenium3D::getEngine()->depthBuffer = new float[(float)drwn->screenWidth() * (float)drwn->screenHeight()]{ 0 };
 	}
 }
-void Ingenium3D::refreshTranslationMatrix(Mesh mesh)
-{
-	Matrix4x4 matRotY = Matrix4x4::makeRotationY(mesh.rotation.y);
-	Matrix4x4 matRotX = Matrix4x4::makeRotationX(mesh.rotation.x);
-	Matrix4x4 matRotZ = Matrix4x4::makeRotationZ(mesh.rotation.z);
-
-	Matrix4x4 matTrans = Matrix4x4::makeTranslation(mesh.position.x, mesh.position.y, mesh.position.z);
-	Matrix4x4 matScale = Matrix4x4::makeScale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
-
-	Matrix4x4 matWorld = Matrix4x4::makeIdentity();	// Form World Matrix
-	matWorld = matRotX * matRotY * matRotZ * matTrans * matScale; // Transform by rotation and translation
-	translationMatrix = matWorld;
-}
-void Ingenium3D::refreshViewMatrix(Mesh m)
-{
-	// Create "Point At" Matrix for camera
-	Vector3D vUp = { 0, 1, 0 };
-	Vector3D vTarget = { 0, 0, 1 };
-	Matrix4x4 matCameraRotY = Matrix4x4::makeRotationY(camera.rotation.y);
-	Matrix4x4 matCameraRotX = Matrix4x4::makeRotationX(camera.rotation.x);
-	Matrix4x4 matCameraRotZ = Matrix4x4::makeRotationZ(camera.rotation.z);
-	Vector3D camRot = vTarget * (matCameraRotX * matCameraRotY * matCameraRotZ);
-	vTarget = camera.position + camRot;
-	Matrix4x4 matCamera = Matrix4x4::makePointedAt(camera.position, vTarget, vUp);
-
-	// Make view matrix from camera
-	viewMatrix = matCamera.qInverse();
-	// viewMatrix = matCamera;
-}
 std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 {
-	refreshTranslationMatrix(mesh);
-	Matrix4x4 matWorld = translationMatrix;
-
-	// Create "Point At" Matrix for camera
-	Vector3D vUp = { 0, 1, 0 };
-	Vector3D vTarget = { 0, 0, 1 };
-	Matrix4x4 matCameraRotY = Matrix4x4::makeRotationY(camera.rotation.y);
-	Matrix4x4 matCameraRotX = Matrix4x4::makeRotationX(camera.rotation.x);
-	Matrix4x4 matCameraRotZ = Matrix4x4::makeRotationZ(camera.rotation.z);
-	Vector3D camRot = vTarget * (matCameraRotX * matCameraRotY * matCameraRotZ);
-	vTarget = camera.position + camRot;
-	Matrix4x4 matCamera = Matrix4x4::makePointedAt(camera.position, vTarget, vUp);
-
-	// Make view matrix from camera
+	Matrix4x4 matWorld = mesh.makeWorldMatrix();
+	Matrix4x4 matCamera = camera.makeCameraMatrix();
 	Matrix4x4 matView = matCamera.qInverse();
 
-	// Store triagles for rastering later
 	std::vector<Triangle> vecTrianglesToRaster;
 
 	// Draw Triangles
@@ -238,6 +212,30 @@ std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 	}
 	return finTriangles;
 }
+void Ingenium3D::renderMeshSimple(Mesh mesh) 
+{
+	Matrix4x4 mtrx = makeRasterMatrix(mesh);
+	Vector3D vOffsetView = { 1,1,0 };
+
+	for (auto t : mesh.tris) {
+		for (int i = 0; i < 3; i++) {
+			t.p[i] = t.p[i] * mtrx;
+			t.p[i] = t.p[i] / t.p[i].w;
+			t.p[i].x *= -1;
+			t.p[i].y *= -1;
+			t.p[i] = t.p[i] + vOffsetView;
+			t.p[i].x *= 0.5 * drwn->screenWidth();
+			t.p[i].y *= 0.5 * drwn->screenHeight();
+		}
+
+#if RENDERER == RENDERER_DIRECT2D
+		Vector2D p1 = drwn->worldScreenSpaceToScreenSpace(t.p[0].x, t.p[0].y);
+		Vector2D p2 = drwn->worldScreenSpaceToScreenSpace(t.p[1].x, t.p[1].y);
+		Vector2D p3 = drwn->worldScreenSpaceToScreenSpace(t.p[2].x, t.p[2].y);
+		drwn->drawTriangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, drwn->pBlackBrush);
+#endif
+	}
+};
 void Ingenium3D::renderMesh(Mesh mesh)
 {
 	auto trngls = getRasterizedMesh(mesh);
@@ -252,10 +250,6 @@ void Ingenium3D::renderMesh(Mesh mesh)
 		drwn->drawTriangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
 #endif
 	}
-}
-void Ingenium3D::refreshProjectionMatrix()
-{
-	projectionMatrix = Matrix4x4::makeProjectionMatrix(camera.FOV, drwn->aspectRatio[1] / drwn->aspectRatio[0], camera.clipNear, camera.clipFar);
 }
 void Ingenium3D::setFOV(float fov)
 {

@@ -382,6 +382,17 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 	return true;
 }
 
+Matrix4x4 Mesh::makeWorldMatrix()
+{
+	Matrix4x4 matRotY = Matrix4x4::makeRotationY(rotation.y);
+	Matrix4x4 matRotX = Matrix4x4::makeRotationX(rotation.x);
+	Matrix4x4 matRotZ = Matrix4x4::makeRotationZ(rotation.z);
+	Matrix4x4 matTrans = Matrix4x4::makeTranslation(position.x, position.y, position.z);
+	Matrix4x4 matScale = Matrix4x4::makeScale(scale.x, scale.y, scale.z);
+	Matrix4x4 matWorld = matRotX * matRotY * matRotZ * matTrans * matScale;
+	return matWorld;
+}
+
 void Mesh::toVertexArray(VertexArray** ptr)
 {
 	std::vector<float> data;
@@ -405,6 +416,19 @@ Vector3D Camera::lookVector()
 	Matrix4x4 mRotation = Matrix4x4::makeRotationX(rotation.x) * Matrix4x4::makeRotationY(rotation.y) * Matrix4x4::makeRotationZ(rotation.z);
 	target = (target * mRotation);
 	return target;
+}
+
+Matrix4x4 Camera::makeCameraMatrix()
+{
+	Vector3D vUp = { 0, 1, 0 };
+	Vector3D vTarget = { 0, 0, 1 };
+	Matrix4x4 matCameraRotY = Matrix4x4::makeRotationY(rotation.y);
+	Matrix4x4 matCameraRotX = Matrix4x4::makeRotationX(rotation.x);
+	Matrix4x4 matCameraRotZ = Matrix4x4::makeRotationZ(rotation.z);
+	Vector3D camRot = vTarget * (matCameraRotX * matCameraRotY * matCameraRotZ);
+	vTarget = position + camRot;
+	Matrix4x4 matCamera = Matrix4x4::makePointedAt(position, vTarget, vUp);
+	return matCamera;
 }
 
 VertexArray::~VertexArray()

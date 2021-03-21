@@ -30,32 +30,18 @@ struct Game : Ingenium3D
 		m.scale = { 1, 1, 1, };
 		m.position = { 0, 0, 10, };
 
-		//float vtpts[] = {
-		//	800.0f,  0.0f,  0.0f,
-		//	1600.f, 900.f,  0.0f,
-		//	800.0f, 900.0f,  0.0f,
-
-		//	0.0f,  0.0f,  0.0f,    
-		//	800.f, 900.f,  0.0f,   
-		//	0.0f, 900.0f,  0.0f
-		//};
-
-		//pts = new VertexArray(vtpts, 18);
 		m.toVertexArray(&pts);
 
 		std::string vShader = getFileAsString("./shaders/3D.vert");
-		std::string fShader = getFileAsString("./shaders/def2D.frag");
+		std::string fShader = getFileAsString("./shaders/def3D.frag");
 
 		shader = drwn->createShader(vShader, fShader);
 		glUseProgram(shader);
 
 		camera.FOV = 80;
 		refreshProjectionMatrix();
-		refreshViewMatrix(m);
-		refreshTranslationMatrix(m);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "transMatrix"), 1, false, &translationMatrix.m[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "projectionMatrix"), 1, false, &projectionMatrix.m[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "viewMatrix"), 1, false, &viewMatrix.m[0][0]);
+		Matrix4x4 mat = makeRasterMatrix(m);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "renderMatrix"), 1, false, &mat.m[0][0]);
 		glUniform2f(glGetUniformLocation(shader, "aspectRatio"), drwn->aspectRatio[0], drwn->aspectRatio[1]);
 
 		drwn->beginRender();
@@ -104,15 +90,12 @@ struct Game : Ingenium3D
 		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime;
 
 		refreshProjectionMatrix();
-		refreshViewMatrix(m);
-		refreshTranslationMatrix(m);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "projectionMatrix"), 1, false, &projectionMatrix.m[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "transMatrix"), 1, false, &translationMatrix.m[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "viewMatrix"), 1, false, &viewMatrix.m[0][0]);
+		Matrix4x4 mat = makeRasterMatrix(m);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "renderMatrix"), 1, false, &mat.m[0][0]);
 
 		drwn->beginRender();
 		drwn->clear();
-		// renderMesh(m);
+		//renderMeshSimple(m);
 		pts->draw();
 		drwn->peekGLErrors();
 		drwn->endRender();
