@@ -83,13 +83,11 @@ std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 			short g = dp * 255;
 			short b = dp * 255;
 			long colour = (b << 16) + (g << 8) + r;
-			triTransformed.col = colour;
 
 			// Convert World Space --> View Space
 			triViewed.p1 = matView * triTransformed.p1;
 			triViewed.p2 = matView * triTransformed.p2;
 			triViewed.p3 = matView * triTransformed.p3;
-			triViewed.col = triTransformed.col;
 			triViewed.t1 = triTransformed.t1;
 			triViewed.t2 = triTransformed.t2;
 			triViewed.t3 = triTransformed.t3;
@@ -108,7 +106,6 @@ std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 				triProjected.p1 = projectionMatrix * clipped[n].p1;
 				triProjected.p2 = projectionMatrix * clipped[n].p2;
 				triProjected.p3 = projectionMatrix * clipped[n].p3;
-				triProjected.col = clipped[n].col;
 				triProjected.t1 = clipped[n].t1;
 				triProjected.t2 = clipped[n].t2;
 				triProjected.t3 = clipped[n].t3;
@@ -211,6 +208,7 @@ std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 }
 void Ingenium3D::renderMeshSimple(Mesh mesh) 
 {
+#if RENDERER == RENDERER_DIRECT2D
 	Matrix4x4 mtrx = makeTransProjMatrix(mesh);
 	Vector3D vOffsetView = { 1,1,0 };
 
@@ -239,13 +237,17 @@ void Ingenium3D::renderMeshSimple(Mesh mesh)
 		t.p3.x *= 0.5 * drwn->screenWidth();
 		t.p3.y *= 0.5 * drwn->screenHeight();
 
-#if RENDERER == RENDERER_DIRECT2D
 		Vector2D p1 = drwn->worldScreenSpaceToScreenSpace(t.p1.x, t.p1.y);
 		Vector2D p2 = drwn->worldScreenSpaceToScreenSpace(t.p2.x, t.p2.y);
 		Vector2D p3 = drwn->worldScreenSpaceToScreenSpace(t.p3.x, t.p3.y);
 		drwn->drawTriangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, drwn->pBlackBrush);
-#endif
 	}
+#endif
+#if RENDERER == RENDERER_OPENGL
+	mesh.load();
+	glBindVertexArray(mesh.mVAO);
+	glDrawArrays(GL_TRIANGLES, 0, mesh.tris.size());
+#endif
 };
 void Ingenium3D::renderMesh(Mesh mesh)
 {

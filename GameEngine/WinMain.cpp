@@ -13,7 +13,6 @@ using namespace ingenium3D;
 
 struct Game : Ingenium3D
 {
-	VertexArray* pts = nullptr;
 	unsigned int shader;
 	Mesh m;
 	void onCreate()
@@ -32,19 +31,20 @@ struct Game : Ingenium3D
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 
-		m.toVertexArray(&pts);
-
 		std::string vShader = getFileAsString("./shaders/3D.vert");
 		std::string fShader = getFileAsString("./shaders/def3D.frag");
 
 		shader = drwn->createShader(vShader, fShader);
 		glUseProgram(shader);
 
-		camera.FOV = 1;
+		camera.FOV = 80;
 		refreshProjectionMatrix();
 		Matrix4x4 mat = makeTransProjMatrix(m);
 		glUniformMatrix4fv(glGetUniformLocation(shader, "modelViewMatrix"), 1, false, &mat.m[0][0]);
 		glUniform2f(glGetUniformLocation(shader, "aspectRatio"), drwn->aspectRatio[0], drwn->aspectRatio[1]);
+
+		Debug::oss << "Vec2D: " << sizeof(Vector2D) << "   float: " << sizeof(float) << "   Vec3D: " << sizeof(Vector3D);
+		Debug::writeLn();
 #endif
 	};
 	void onUpdate()
@@ -91,19 +91,14 @@ struct Game : Ingenium3D
 		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime;
 
 		refreshProjectionMatrix();
-#if RENDERER == RENDERER_OPENGL
-#endif
 		drwn->beginRender();
 		drwn->clear();
-#if RENDERER == RENDERER_DIRECT2D
-		renderMeshSimple(m);
-#endif
 #if RENDERER == RENDERER_OPENGL
 		Matrix4x4 mat = makeTransProjMatrix(m);
 		glUniformMatrix4fv(glGetUniformLocation(shader, "modelViewMatrix"), 1, false, &mat.m[0][0]);
-		pts->draw();
 		drwn->peekGLErrors();
 #endif
+		renderMeshSimple(m);
 		drwn->endRender();
 	}
 };

@@ -57,7 +57,6 @@ Vector3D Vector3D::planeIntersect(Vector3D& plane_p, Vector3D& plane_n, Vector3D
 	Vector3D lineToIntersect = lineStartToEnd * t;
 	return lineStart + lineToIntersect;
 }
-
 float Vector3D::dotProduct(Vector3D& v1, Vector3D& v2)
 {
 	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
@@ -201,7 +200,6 @@ Matrix4x4 Matrix4x4::qInverse()
 	matrix.m[3][3] = 1.0f;
 	return matrix;
 }
-
 void Matrix4x4::flatten(float* arr)
 {
 	arr = new float[16];
@@ -260,7 +258,6 @@ float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& i
 
 	if (nInsidePointCount == 1 && nOutsidePointCount == 2)
 	{
-		out_tri1.col = in_tri.col;
 
 		out_tri1.p1 = *inside_points[0];
 		out_tri1.t1 = *inside_tex[0];
@@ -281,9 +278,6 @@ float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& i
 
 	if (nInsidePointCount == 2 && nOutsidePointCount == 1)
 	{
-		out_tri1.col = in_tri.col;
-
-		out_tri2.col = in_tri.col;
 
 		out_tri1.p1 = *inside_points[0];
 		out_tri1.p2 = *inside_points[1];
@@ -383,7 +377,6 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 	}
 	return true;
 }
-
 Matrix4x4 Mesh::makeWorldMatrix()
 {
 	Matrix4x4 matRotY = Matrix4x4::makeRotationY(rotation.y);
@@ -394,7 +387,6 @@ Matrix4x4 Mesh::makeWorldMatrix()
 	Matrix4x4 matWorld = matRotX * matRotY * matRotZ * matTrans * matScale;
 	return matWorld;
 }
-
 void Mesh::toVertexArray(VertexArray** ptr)
 {
 	std::vector<float> data;
@@ -416,6 +408,36 @@ void Mesh::toVertexArray(VertexArray** ptr)
 
 	*ptr = new VertexArray(data.data(), tris.size() * 9, 0, GL_STATIC_DRAW);
 }
+void Mesh::load() {
+	if (!loaded) {
+#if RENDERER == RENDERER_OPENGL
+		glGenBuffers(1, &mVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+
+		void* start = &tris[0];
+		void* end = &tris[tris.size() - 1];
+		void* p1 = &tris[0].p1;
+		void* t1 = &tris[0].t1;
+		void* p2 = &tris[0].p2;
+		void* t2 = &tris[0].t2;
+		void* p3 = &tris[0].p3;
+		void* t3 = &tris[0].t3;
+		Debug::oss << "Start: " << start << "\n" << "End: " << end << "\np1: " << p1 << "\nt1: " << t1 << "\np2: " << p2 << "\nt2: " << t2 << "\np3: " << p3 << "\nt3: " << t3;
+		Debug::writeLn();
+
+		glBufferData(GL_ARRAY_BUFFER, tris.size() * sizeof(Triangle), start, GL_DYNAMIC_DRAW);
+
+		glGenVertexArrays(1, &mVAO);
+		glBindVertexArray(mVAO);
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vector2D), NULL);
+#endif
+	}
+	loaded = true;
+}
 
 Vector3D Camera::lookVector()
 {
@@ -425,7 +447,6 @@ Vector3D Camera::lookVector()
 	target = (target * mRotation);
 	return target;
 }
-
 Matrix4x4 Camera::makeCameraMatrix()
 {
 	Vector3D vUp = { 0, 1, 0 };
@@ -450,7 +471,6 @@ VertexArray::~VertexArray()
 		glDeleteVertexArrays(1, &mVAO);
 	}
 }
-
 VertexArray::VertexArray(float* vertPositions, int vertPositionsCount, unsigned int step, unsigned int drawMode)
 {
 	mVertexCount = vertPositionsCount / 3;
@@ -468,7 +488,6 @@ VertexArray::VertexArray(float* vertPositions, int vertPositionsCount, unsigned 
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, step, NULL);
 }
-
 void VertexArray::draw()
 {
 	glBindVertexArray(mVAO);

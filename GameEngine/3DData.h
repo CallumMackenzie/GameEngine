@@ -8,6 +8,7 @@
 #include "Vector.h"
 #include "Rotation.h"
 #include "OpenGL.h"
+#include "Log.h"
 
 struct Vector3D;
 struct Vector2D;
@@ -81,7 +82,6 @@ struct Triangle
 	Vector2D t2;
 	Vector3D p3;
 	Vector2D t3;
-	long col = 0x000000;
 
 	static float clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& in_tri, Triangle& out_tri1, Triangle& out_tri2);
 };
@@ -115,6 +115,14 @@ struct Mesh
 	Vector3D position;
 	Vector3D scale = { 1, 1, 1 };
 
+	bool loaded = false;
+
+#if RENDERER == RENDERER_OPENGL
+	unsigned int mVBO = GL_NONE;
+	unsigned int mVAO = GL_NONE;
+#endif
+
+	void load();
 	void toVertexArray(VertexArray** ptr);
 	Matrix4x4 makeWorldMatrix();
 
