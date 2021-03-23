@@ -207,6 +207,7 @@
     <ClInclude Include="IngeniumConfig.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="OpenGLWindow.h" />
+    <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="Shapes.h" />
     <ClInclude Include="LinkedList.h" />
     <ClInclude Include="Log.h" />

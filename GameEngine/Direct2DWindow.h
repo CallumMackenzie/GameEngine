@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IngeniumConfig.h"
+#include "RenderWindow.h"
 #include "3DData.h"
 // Callum Mackenzie
 
@@ -9,7 +10,7 @@
 #if RENDERER == RENDERER_DIRECT2D
 namespace ingenium2D
 {
-	class Direct2DWindow
+	class Direct2DWindow : public RenderWindow
 	{
 	public:
 		Direct2DWindow(RootWindow* window_);
@@ -75,7 +76,6 @@ namespace ingenium2D
 		IDWriteTextFormat* m_pTextFormat = nullptr;
 
 		float renderPixelRatio[2] = { 1, 1 };
-		float aspectRatio[2] = { 16, 9 };
 
 		struct RenderLinkedList : DynamicLinkedList
 		{

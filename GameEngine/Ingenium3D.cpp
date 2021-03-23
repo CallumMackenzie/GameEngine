@@ -13,16 +13,13 @@ void Ingenium3D::init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLi
 	refreshProjectionMatrix();
 	updateDepthBuffer();
 }
-Matrix4x4 Ingenium3D::makeRasterMatrix(Mesh mesh)
+Matrix4x4 Ingenium3D::makeTransProjMatrix(Mesh mesh)
 {
 	Matrix4x4 ret;
-
 	Matrix4x4 matWorld = mesh.makeWorldMatrix();
 	Matrix4x4 matCamera = camera.makeCameraMatrix();
 	Matrix4x4 matView = matCamera.qInverse();
-
 	ret = matWorld * matView * projectionMatrix;
-
 	return ret;
 }
 void Ingenium3D::refreshProjectionMatrix()
@@ -214,7 +211,7 @@ std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 }
 void Ingenium3D::renderMeshSimple(Mesh mesh) 
 {
-	Matrix4x4 mtrx = makeRasterMatrix(mesh);
+	Matrix4x4 mtrx = makeTransProjMatrix(mesh);
 	Vector3D vOffsetView = { 1,1,0 };
 
 	for (auto t : mesh.tris) {

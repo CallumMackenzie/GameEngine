@@ -278,6 +278,9 @@
     <ClInclude Include="glad\include\KHR\khrplatform.h">
       <Filter>Packaged Dependencies\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="RenderWindow.h">
+      <Filter>Header Files\Ingenium General\Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Entry.lua" />

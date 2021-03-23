@@ -15,12 +15,12 @@
 #include "Input.h"
 #include "Direct2DWindow.h"
 #include "3DData.h"
+#include "RenderWindow.h"
 
-struct OpenGLWindow
+struct OpenGLWindow : RenderWindow
 {
 	GLFWwindow* window = nullptr;
 	bool initSuccess = true;
-	float aspectRatio[2] = { 16, 9 };
 	unsigned int buffer;
 
 	Vector2D scale = { 1, 1 };

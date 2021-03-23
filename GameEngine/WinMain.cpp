@@ -16,20 +16,18 @@ struct Game : Ingenium3D
 	VertexArray* pts = nullptr;
 	unsigned int shader;
 	Mesh m;
-	Game() : Ingenium3D()
-	{
-	};
 	void onCreate()
 	{
 		engine3D = this;
 		engine = this;
-		createWindow("Ingenium", 1600, 900);
+		createWindow("Ingenium", 900, 900);
 		drwn->setClearColour(0x95d57c, 1.f);
 
 		m.loadFromOBJ("D:\\cube.obj");
 		m.scale = { 1, 1, 1, };
 		m.position = { 0, 0, 10, };
 
+#if RENDERER == RENDERER_OPENGL
 		m.toVertexArray(&pts);
 
 		std::string vShader = getFileAsString("./shaders/3D.vert");
@@ -40,14 +38,16 @@ struct Game : Ingenium3D
 
 		camera.FOV = 80;
 		refreshProjectionMatrix();
-		Matrix4x4 mat = makeRasterMatrix(m);
+		Matrix4x4 mat = makeTransProjMatrix(m);
 		glUniformMatrix4fv(glGetUniformLocation(shader, "renderMatrix"), 1, false, &mat.m[0][0]);
 		glUniform2f(glGetUniformLocation(shader, "aspectRatio"), drwn->aspectRatio[0], drwn->aspectRatio[1]);
+#endif
 
 		drwn->beginRender();
 		drwn->clear();
+#if RENDERER == RENDERER_OPENGL
 		pts->draw();
-		drwn->peekGLErrors();
+#endif
 		drwn->endRender();
 	};
 	void onUpdate()
@@ -90,14 +90,19 @@ struct Game : Ingenium3D
 		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime;
 
 		refreshProjectionMatrix();
-		Matrix4x4 mat = makeRasterMatrix(m);
+#if RENDERER == RENDERER_OPENGL
+		Matrix4x4 mat = makeTransProjMatrix(m);
 		glUniformMatrix4fv(glGetUniformLocation(shader, "renderMatrix"), 1, false, &mat.m[0][0]);
-
+#endif
 		drwn->beginRender();
 		drwn->clear();
-		//renderMeshSimple(m);
+#if RENDERER == RENDERER_DIRECT2D
+		renderMeshSimple(m);
+#endif
+#if RENDERER == RENDERER_OPENGL
 		pts->draw();
 		drwn->peekGLErrors();
+#endif
 		drwn->endRender();
 	}
 };

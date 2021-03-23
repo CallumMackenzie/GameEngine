@@ -24,7 +24,7 @@ namespace ingenium3D
 		void renderMesh(Mesh mesh);
 		void renderMeshSimple(Mesh mesh);
 
-		Matrix4x4 makeRasterMatrix(Mesh m);
+		Matrix4x4 makeTransProjMatrix(Mesh m);
 
 		void refreshProjectionMatrix();
 		void setFOV(float fovDegrees);
