@@ -47,25 +47,25 @@ std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 		Triangle triProjected, triTransformed, triViewed;
 
 		// World Matrix Transform
-		triTransformed.p[0] = matWorld * tri.p[0];
-		triTransformed.p[1] = matWorld * tri.p[1];
-		triTransformed.p[2] = matWorld * tri.p[2];
-		triTransformed.t[0] = tri.t[0];
-		triTransformed.t[1] = tri.t[1];
-		triTransformed.t[2] = tri.t[2];
+		triTransformed.p1 = matWorld * tri.p1;
+		triTransformed.p2 = matWorld * tri.p2;
+		triTransformed.p3 = matWorld * tri.p3;
+		triTransformed.t1 = tri.t1;
+		triTransformed.t2 = tri.t2;
+		triTransformed.t3 = tri.t3;
 
 		// Calculate triangle Normal
 		Vector3D normal, line1, line2;
 
 		// Get lines either side of triangle
-		line1 = triTransformed.p[1] - triTransformed.p[0];
-		line2 = triTransformed.p[2] - triTransformed.p[0];
+		line1 = triTransformed.p2 - triTransformed.p1;
+		line2 = triTransformed.p3 - triTransformed.p1;
 
 		// Take cross product of lines to get normal to triangle surface
 		normal = Vector3D::crossProduct(line1, line2).normalized();
 
 		// Get Ray from triangle to camera
-		Vector3D vCameraRay = triTransformed.p[0] - camera.position;
+		Vector3D vCameraRay = triTransformed.p1 - camera.position;
 
 		// If ray is aligned with normal, then triangle is visible
 		float aligned = Vector3D::dotProduct(normal, vCameraRay);
@@ -86,13 +86,13 @@ std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 			triTransformed.col = colour;
 
 			// Convert World Space --> View Space
-			triViewed.p[0] = matView * triTransformed.p[0];
-			triViewed.p[1] = matView * triTransformed.p[1];
-			triViewed.p[2] = matView * triTransformed.p[2];
+			triViewed.p1 = matView * triTransformed.p1;
+			triViewed.p2 = matView * triTransformed.p2;
+			triViewed.p3 = matView * triTransformed.p3;
 			triViewed.col = triTransformed.col;
-			triViewed.t[0] = triTransformed.t[0];
-			triViewed.t[1] = triTransformed.t[1];
-			triViewed.t[2] = triTransformed.t[2];
+			triViewed.t1 = triTransformed.t1;
+			triViewed.t2 = triTransformed.t2;
+			triViewed.t3 = triTransformed.t3;
 
 			// Clip Viewed Triangle against near plane, this could form two additional
 			// additional triangles. 
@@ -105,54 +105,54 @@ std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 			for (int n = 0; n < nClippedTriangles; n++)
 			{
 				// Project triangles from 3D --> 2D
-				triProjected.p[0] = projectionMatrix * clipped[n].p[0];
-				triProjected.p[1] = projectionMatrix * clipped[n].p[1];
-				triProjected.p[2] = projectionMatrix * clipped[n].p[2];
+				triProjected.p1 = projectionMatrix * clipped[n].p1;
+				triProjected.p2 = projectionMatrix * clipped[n].p2;
+				triProjected.p3 = projectionMatrix * clipped[n].p3;
 				triProjected.col = clipped[n].col;
-				triProjected.t[0] = clipped[n].t[0];
-				triProjected.t[1] = clipped[n].t[1];
-				triProjected.t[2] = clipped[n].t[2];
+				triProjected.t1 = clipped[n].t1;
+				triProjected.t2 = clipped[n].t2;
+				triProjected.t3 = clipped[n].t3;
 
 
-				triProjected.t[0].u = triProjected.t[0].u / triProjected.p[0].w;
-				triProjected.t[1].u = triProjected.t[1].u / triProjected.p[1].w;
-				triProjected.t[2].u = triProjected.t[2].u / triProjected.p[2].w;
+				triProjected.t1.u = triProjected.t1.u / triProjected.p1.w;
+				triProjected.t2.u = triProjected.t2.u / triProjected.p2.w;
+				triProjected.t3.u = triProjected.t3.u / triProjected.p3.w;
 
-				triProjected.t[0].v = triProjected.t[0].v / triProjected.p[0].w;
-				triProjected.t[1].v = triProjected.t[1].v / triProjected.p[1].w;
-				triProjected.t[2].v = triProjected.t[2].v / triProjected.p[2].w;
+				triProjected.t1.v = triProjected.t1.v / triProjected.p1.w;
+				triProjected.t2.v = triProjected.t2.v / triProjected.p2.w;
+				triProjected.t3.v = triProjected.t3.v / triProjected.p3.w;
 
-				triProjected.t[0].w = 1.0f / triProjected.p[0].w;
-				triProjected.t[1].w = 1.0f / triProjected.p[1].w;
-				triProjected.t[2].w = 1.0f / triProjected.p[2].w;
+				triProjected.t1.w = 1.0f / triProjected.p1.w;
+				triProjected.t2.w = 1.0f / triProjected.p2.w;
+				triProjected.t3.w = 1.0f / triProjected.p3.w;
 
 
 				// Scale into view, we moved the normalising into cartesian space
 				// out of the matrix.vector function from the previous videos, so
 				// do this manually
-				triProjected.p[0] = triProjected.p[0] / triProjected.p[0].w;
-				triProjected.p[1] = triProjected.p[1] / triProjected.p[1].w;
-				triProjected.p[2] = triProjected.p[2] / triProjected.p[2].w;
+				triProjected.p1 = triProjected.p1 / triProjected.p1.w;
+				triProjected.p2 = triProjected.p2 / triProjected.p2.w;
+				triProjected.p3 = triProjected.p3 / triProjected.p3.w;
 
 				// X/Y are inverted so put them back
-				triProjected.p[0].x *= -1.0f;
-				triProjected.p[1].x *= -1.0f;
-				triProjected.p[2].x *= -1.0f;
-				triProjected.p[0].y *= -1.0f;
-				triProjected.p[1].y *= -1.0f;
-				triProjected.p[2].y *= -1.0f;
+				triProjected.p1.x *= -1.0f;
+				triProjected.p2.x *= -1.0f;
+				triProjected.p3.x *= -1.0f;
+				triProjected.p1.y *= -1.0f;
+				triProjected.p2.y *= -1.0f;
+				triProjected.p3.y *= -1.0f;
 
 				// Offset verts into visible normalised space
 				Vector3D vOffsetView = { 1,1,0 };
-				triProjected.p[0] = triProjected.p[0] + vOffsetView;
-				triProjected.p[1] = triProjected.p[1] + vOffsetView;
-				triProjected.p[2] = triProjected.p[2] + vOffsetView;
-				triProjected.p[0].x *= 0.5f * drwn->screenWidth();
-				triProjected.p[0].y *= 0.5f * drwn->screenHeight();
-				triProjected.p[1].x *= 0.5f * drwn->screenWidth();
-				triProjected.p[1].y *= 0.5f * drwn->screenHeight();
-				triProjected.p[2].x *= 0.5f * drwn->screenWidth();
-				triProjected.p[2].y *= 0.5f * drwn->screenHeight();
+				triProjected.p1 = triProjected.p1 + vOffsetView;
+				triProjected.p2 = triProjected.p2 + vOffsetView;
+				triProjected.p3 = triProjected.p3 + vOffsetView;
+				triProjected.p1.x *= 0.5f * drwn->screenWidth();
+				triProjected.p1.y *= 0.5f * drwn->screenHeight();
+				triProjected.p2.x *= 0.5f * drwn->screenWidth();
+				triProjected.p2.y *= 0.5f * drwn->screenHeight();
+				triProjected.p3.x *= 0.5f * drwn->screenWidth();
+				triProjected.p3.y *= 0.5f * drwn->screenHeight();
 
 				// Store triangle for sorting
 				vecTrianglesToRaster.push_back(triProjected);
@@ -162,8 +162,8 @@ std::vector<Triangle> Ingenium3D::getRasterizedMesh(Mesh mesh)
 
 	std::sort(vecTrianglesToRaster.begin(), vecTrianglesToRaster.end(), [](Triangle& t1, Triangle& t2)
 		{
-			float z1 = (t1.p[0].z + t1.p[1].z + t1.p[2].z) / 3.0f;
-			float z2 = (t2.p[0].z + t2.p[1].z + t2.p[2].z) / 3.0f;
+			float z1 = (t1.p1.z + t1.p2.z + t1.p3.z) / 3.0f;
+			float z2 = (t2.p1.z + t2.p2.z + t2.p3.z) / 3.0f;
 			return z1 > z2;
 		});
 
@@ -215,20 +215,34 @@ void Ingenium3D::renderMeshSimple(Mesh mesh)
 	Vector3D vOffsetView = { 1,1,0 };
 
 	for (auto t : mesh.tris) {
-		for (int i = 0; i < 3; i++) {
-			t.p[i] = t.p[i] * mtrx;
-			t.p[i] = t.p[i] / t.p[i].w;
-			t.p[i].x *= -1;
-			t.p[i].y *= -1;
-			t.p[i] = t.p[i] + vOffsetView;
-			t.p[i].x *= 0.5 * drwn->screenWidth();
-			t.p[i].y *= 0.5 * drwn->screenHeight();
-		}
+		t.p1 = t.p1 * mtrx;
+		t.p1 = t.p1 / t.p1.w;
+		t.p1.x *= -1;
+		t.p1.y *= -1;
+		t.p1 = t.p1 + vOffsetView;
+		t.p1.x *= 0.5 * drwn->screenWidth();
+		t.p1.y *= 0.5 * drwn->screenHeight();
+
+		t.p2 = t.p2 * mtrx;
+		t.p2 = t.p2 / t.p2.w;
+		t.p2.x *= -1;
+		t.p2.y *= -1;
+		t.p2 = t.p2 + vOffsetView;
+		t.p2.x *= 0.5 * drwn->screenWidth();
+		t.p2.y *= 0.5 * drwn->screenHeight();
+
+		t.p3 = t.p3 * mtrx;
+		t.p3 = t.p3 / t.p3.w;
+		t.p3.x *= -1;
+		t.p3.y *= -1;
+		t.p3 = t.p3 + vOffsetView;
+		t.p3.x *= 0.5 * drwn->screenWidth();
+		t.p3.y *= 0.5 * drwn->screenHeight();
 
 #if RENDERER == RENDERER_DIRECT2D
-		Vector2D p1 = drwn->worldScreenSpaceToScreenSpace(t.p[0].x, t.p[0].y);
-		Vector2D p2 = drwn->worldScreenSpaceToScreenSpace(t.p[1].x, t.p[1].y);
-		Vector2D p3 = drwn->worldScreenSpaceToScreenSpace(t.p[2].x, t.p[2].y);
+		Vector2D p1 = drwn->worldScreenSpaceToScreenSpace(t.p1.x, t.p1.y);
+		Vector2D p2 = drwn->worldScreenSpaceToScreenSpace(t.p2.x, t.p2.y);
+		Vector2D p3 = drwn->worldScreenSpaceToScreenSpace(t.p3.x, t.p3.y);
 		drwn->drawTriangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, drwn->pBlackBrush);
 #endif
 	}
@@ -238,12 +252,12 @@ void Ingenium3D::renderMesh(Mesh mesh)
 	auto trngls = getRasterizedMesh(mesh);
 	for (auto t : trngls) {
 #if RENDERER == RENDERER_DIRECT2D
-		drwn->drawTriangle(t.p[0].x, t.p[0].y, t.p[1].x, t.p[1].y, t.p[2].x, t.p[2].y, drwn->pBlackBrush);
+		drwn->drawTriangle(t.p1.x, t.p1.y, t.p2.x, t.p2.y, t.p3.x, t.p3.y, drwn->pBlackBrush);
 #endif
 #if RENDERER == RENDERER_OPENGL
-		Vector2D p1 = drwn->worldScreenSpaceToScreenSpace(t.p[0].x, t.p[0].y);
-		Vector2D p2 = drwn->worldScreenSpaceToScreenSpace(t.p[1].x, t.p[1].y);
-		Vector2D p3 = drwn->worldScreenSpaceToScreenSpace(t.p[2].x, t.p[2].y);
+		Vector2D p1 = drwn->worldScreenSpaceToScreenSpace(t.p1.x, t.p1.y);
+		Vector2D p2 = drwn->worldScreenSpaceToScreenSpace(t.p2.x, t.p2.y);
+		Vector2D p3 = drwn->worldScreenSpaceToScreenSpace(t.p3.x, t.p3.y);
 		drwn->drawTriangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
 #endif
 	}

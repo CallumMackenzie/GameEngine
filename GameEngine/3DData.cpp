@@ -213,14 +213,6 @@ void Matrix4x4::flatten(float* arr)
 		}
 }
 
-std::string Triangle::toString()
-{
-	using namespace std;
-	std::string s("");
-	s.append("{ x=" + to_string(p->x) + ", y=" + to_string(p->y) + ", z=" + to_string(p->z) + ", w=" + to_string(p->w) + ", u=" + to_string(t->x) + ", v=" + to_string(t->v) + "}");
-	return s;
-}
-
 float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& in_tri, Triangle& out_tri1, Triangle& out_tri2)
 {
 	plane_n.normalize();
@@ -236,25 +228,25 @@ float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& i
 	Vector2D* inside_tex[3]; int nInsideTexCount = 0;
 	Vector2D* outside_tex[3]; int nOutsideTexCount = 0;
 
-	float d0 = dist(in_tri.p[0]);
-	float d1 = dist(in_tri.p[1]);
-	float d2 = dist(in_tri.p[2]);
+	float d0 = dist(in_tri.p1);
+	float d1 = dist(in_tri.p2);
+	float d2 = dist(in_tri.p3);
 
-	if (d0 >= 0) { inside_points[nInsidePointCount++] = &in_tri.p[0]; inside_tex[nInsideTexCount++] = &in_tri.t[0]; }
+	if (d0 >= 0) { inside_points[nInsidePointCount++] = &in_tri.p1; inside_tex[nInsideTexCount++] = &in_tri.t1; }
 	else {
-		outside_points[nOutsidePointCount++] = &in_tri.p[0]; outside_tex[nOutsideTexCount++] = &in_tri.t[0];
+		outside_points[nOutsidePointCount++] = &in_tri.p1; outside_tex[nOutsideTexCount++] = &in_tri.t1;
 	}
 	if (d1 >= 0) {
-		inside_points[nInsidePointCount++] = &in_tri.p[1]; inside_tex[nInsideTexCount++] = &in_tri.t[1];
+		inside_points[nInsidePointCount++] = &in_tri.p2; inside_tex[nInsideTexCount++] = &in_tri.t2;
 	}
 	else {
-		outside_points[nOutsidePointCount++] = &in_tri.p[1];  outside_tex[nOutsideTexCount++] = &in_tri.t[1];
+		outside_points[nOutsidePointCount++] = &in_tri.p2;  outside_tex[nOutsideTexCount++] = &in_tri.t2;
 	}
 	if (d2 >= 0) {
-		inside_points[nInsidePointCount++] = &in_tri.p[2]; inside_tex[nInsideTexCount++] = &in_tri.t[2];
+		inside_points[nInsidePointCount++] = &in_tri.p3; inside_tex[nInsideTexCount++] = &in_tri.t3;
 	}
 	else {
-		outside_points[nOutsidePointCount++] = &in_tri.p[2];  outside_tex[nOutsideTexCount++] = &in_tri.t[2];
+		outside_points[nOutsidePointCount++] = &in_tri.p3;  outside_tex[nOutsideTexCount++] = &in_tri.t3;
 	}
 
 	if (nInsidePointCount == 0)
@@ -270,19 +262,19 @@ float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& i
 	{
 		out_tri1.col = in_tri.col;
 
-		out_tri1.p[0] = *inside_points[0];
-		out_tri1.t[0] = *inside_tex[0];
+		out_tri1.p1 = *inside_points[0];
+		out_tri1.t1 = *inside_tex[0];
 
 		float t;
-		out_tri1.p[1] = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[0], t);
-		out_tri1.t[1].u = t * (outside_tex[0]->u - inside_tex[0]->u) + inside_tex[0]->u;
-		out_tri1.t[1].v = t * (outside_tex[0]->v - inside_tex[0]->v) + inside_tex[0]->v;
-		out_tri1.t[1].w = t * (outside_tex[0]->w - inside_tex[0]->w) + inside_tex[0]->w;
+		out_tri1.p2 = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[0], t);
+		out_tri1.t2.u = t * (outside_tex[0]->u - inside_tex[0]->u) + inside_tex[0]->u;
+		out_tri1.t2.v = t * (outside_tex[0]->v - inside_tex[0]->v) + inside_tex[0]->v;
+		out_tri1.t2.w = t * (outside_tex[0]->w - inside_tex[0]->w) + inside_tex[0]->w;
 
-		out_tri1.p[2] = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[1], t);
-		out_tri1.t[2].u = t * (outside_tex[1]->u - inside_tex[0]->u) + inside_tex[0]->u;
-		out_tri1.t[2].v = t * (outside_tex[1]->v - inside_tex[0]->v) + inside_tex[0]->v;
-		out_tri1.t[2].w = t * (outside_tex[1]->w - inside_tex[0]->w) + inside_tex[0]->w;
+		out_tri1.p3 = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[1], t);
+		out_tri1.t3.u = t * (outside_tex[1]->u - inside_tex[0]->u) + inside_tex[0]->u;
+		out_tri1.t3.v = t * (outside_tex[1]->v - inside_tex[0]->v) + inside_tex[0]->v;
+		out_tri1.t3.w = t * (outside_tex[1]->w - inside_tex[0]->w) + inside_tex[0]->w;
 
 		return 1;
 	}
@@ -293,25 +285,25 @@ float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& i
 
 		out_tri2.col = in_tri.col;
 
-		out_tri1.p[0] = *inside_points[0];
-		out_tri1.p[1] = *inside_points[1];
-		out_tri1.t[0] = *inside_tex[0];
-		out_tri1.t[1] = *inside_tex[1];
+		out_tri1.p1 = *inside_points[0];
+		out_tri1.p2 = *inside_points[1];
+		out_tri1.t1 = *inside_tex[0];
+		out_tri1.t2 = *inside_tex[1];
 
 		float t;
-		out_tri1.p[2] = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[0], t);
-		out_tri1.t[2].u = t * (outside_tex[0]->u - inside_tex[0]->u) + inside_tex[0]->u;
-		out_tri1.t[2].v = t * (outside_tex[0]->v - inside_tex[0]->v) + inside_tex[0]->v;
-		out_tri1.t[2].w = t * (outside_tex[0]->w - inside_tex[0]->w) + inside_tex[0]->w;
+		out_tri1.p3 = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[0], t);
+		out_tri1.t3.u = t * (outside_tex[0]->u - inside_tex[0]->u) + inside_tex[0]->u;
+		out_tri1.t3.v = t * (outside_tex[0]->v - inside_tex[0]->v) + inside_tex[0]->v;
+		out_tri1.t3.w = t * (outside_tex[0]->w - inside_tex[0]->w) + inside_tex[0]->w;
 
-		out_tri2.p[0] = *inside_points[1];
-		out_tri2.t[0] = *inside_tex[1];
-		out_tri2.p[1] = out_tri1.p[2];
-		out_tri2.t[1] = out_tri1.t[2];
-		out_tri2.p[2] = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[1], *outside_points[0], t);
-		out_tri2.t[2].u = t * (outside_tex[0]->u - inside_tex[1]->u) + inside_tex[1]->u;
-		out_tri2.t[2].v = t * (outside_tex[0]->v - inside_tex[1]->v) + inside_tex[1]->v;
-		out_tri2.t[2].w = t * (outside_tex[0]->w - inside_tex[1]->w) + inside_tex[1]->w;
+		out_tri2.p1 = *inside_points[1];
+		out_tri2.t1 = *inside_tex[1];
+		out_tri2.p2 = out_tri1.p3;
+		out_tri2.t2 = out_tri1.t3;
+		out_tri2.p3 = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[1], *outside_points[0], t);
+		out_tri2.t3.u = t * (outside_tex[0]->u - inside_tex[1]->u) + inside_tex[1]->u;
+		out_tri2.t3.v = t * (outside_tex[0]->v - inside_tex[1]->v) + inside_tex[1]->v;
+		out_tri2.t3.w = t * (outside_tex[0]->w - inside_tex[1]->w) + inside_tex[1]->w;
 		return 2; // Return two newly formed triangles which form a quad
 	}
 }
@@ -352,7 +344,10 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 				int v1 = face[0] - 1;
 				int v2 = face[1] - 1;
 				int v3 = face[2] - 1;
-				Triangle fTri = { verts[v1 < 0 ? 0 : v1], verts[v2 < 0 ? 0 : v2], verts[v3 < 0 ? 0 : v3] };
+				Triangle fTri;
+				fTri.p1 = verts[v1 < 0 ? 0 : v1];
+				fTri.p2 = verts[v2 < 0 ? 0 : v2];
+				fTri.p3 = verts[v3 < 0 ? 0 : v3];
 				tris.push_back(fTri);
 			}
 		}
@@ -374,8 +369,15 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 
 				tokens[nTokenCount].pop_back();
 
-				tris.push_back({ verts[stoi(tokens[0]) - 1], verts[stoi(tokens[2]) - 1], verts[stoi(tokens[4]) - 1],
-					texs[stoi(tokens[1]) - 1], texs[stoi(tokens[3]) - 1], texs[stoi(tokens[5]) - 1] });
+				Triangle push;
+				push.p1 = verts[stoi(tokens[0]) - 1];
+				push.p2 = verts[stoi(tokens[2]) - 1];
+				push.p3 = verts[stoi(tokens[4]) - 1];
+				push.t1 = texs[stoi(tokens[1]) - 1];
+				push.t2 = texs[stoi(tokens[3]) - 1];
+				push.t3 = texs[stoi(tokens[5]) - 1];
+
+				tris.push_back(push);
 			}
 		}
 	}
@@ -397,14 +399,20 @@ void Mesh::toVertexArray(VertexArray** ptr)
 {
 	std::vector<float> data;
 
-	for (int i = 0; i < tris.size(); i++)
-		for (int j = 0; j < 3; j++) {
-			float* arr = tris[i].p[j].toFloatArray();
-			for (int k = 0; k < 3; k++) {
-				data.push_back(arr[k]);
-			}
-			delete arr;
-		}
+	for (int i = 0; i < tris.size(); i++) {
+		float* arr = tris[i].p1.toFloatArray();
+		for (int k = 0; k < 3; k++)
+			data.push_back(arr[k]);
+		delete arr;
+		arr = tris[i].p2.toFloatArray();
+		for (int k = 0; k < 3; k++)
+			data.push_back(arr[k]);
+		delete arr;
+		arr = tris[i].p3.toFloatArray();
+		for (int k = 0; k < 3; k++)
+			data.push_back(arr[k]);
+		delete arr;
+	}
 
 	*ptr = new VertexArray(data.data(), tris.size() * 9, 0, GL_STATIC_DRAW);
 }

@@ -20,14 +20,18 @@ struct Game : Ingenium3D
 	{
 		engine3D = this;
 		engine = this;
-		createWindow("Ingenium", 900, 900);
+		createWindow("Ingenium", 1600, 900);
 		drwn->setClearColour(0x95d57c, 1.f);
 
-		m.loadFromOBJ("D:\\cube.obj");
-		m.scale = { 1, 1, 1, };
-		m.position = { 0, 0, 10, };
+		m.loadFromOBJ("D:\\MAND.obj");
+		m.scale = { 0.2, 0.2, 0.2 };
+		m.position = { 0, 0, 10 };
 
 #if RENDERER == RENDERER_OPENGL
+		glDisable(GL_CULL_FACE);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+
 		m.toVertexArray(&pts);
 
 		std::string vShader = getFileAsString("./shaders/3D.vert");
@@ -36,19 +40,12 @@ struct Game : Ingenium3D
 		shader = drwn->createShader(vShader, fShader);
 		glUseProgram(shader);
 
-		camera.FOV = 80;
+		camera.FOV = 1;
 		refreshProjectionMatrix();
 		Matrix4x4 mat = makeTransProjMatrix(m);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "renderMatrix"), 1, false, &mat.m[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "modelViewMatrix"), 1, false, &mat.m[0][0]);
 		glUniform2f(glGetUniformLocation(shader, "aspectRatio"), drwn->aspectRatio[0], drwn->aspectRatio[1]);
 #endif
-
-		drwn->beginRender();
-		drwn->clear();
-#if RENDERER == RENDERER_OPENGL
-		pts->draw();
-#endif
-		drwn->endRender();
 	};
 	void onUpdate()
 	{
@@ -81,6 +78,10 @@ struct Game : Ingenium3D
 		if (in->getKeyState(40))
 			rotate.x = cameraMoveSpeed;
 
+		if (in->getKeyState(32)) {
+			m.position.x -= 0.5 * Time::deltaTime;
+		}
+
 		//if (in->getKeyState(88))
 		//	rotate.z = -0.005;
 		//if (in->getKeyState(67))
@@ -91,8 +92,6 @@ struct Game : Ingenium3D
 
 		refreshProjectionMatrix();
 #if RENDERER == RENDERER_OPENGL
-		Matrix4x4 mat = makeTransProjMatrix(m);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "renderMatrix"), 1, false, &mat.m[0][0]);
 #endif
 		drwn->beginRender();
 		drwn->clear();
@@ -100,6 +99,8 @@ struct Game : Ingenium3D
 		renderMeshSimple(m);
 #endif
 #if RENDERER == RENDERER_OPENGL
+		Matrix4x4 mat = makeTransProjMatrix(m);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "modelViewMatrix"), 1, false, &mat.m[0][0]);
 		pts->draw();
 		drwn->peekGLErrors();
 #endif
