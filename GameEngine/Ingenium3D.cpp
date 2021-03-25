@@ -244,9 +244,10 @@ void Ingenium3D::renderMeshSimple(Mesh mesh)
 	}
 #endif
 #if RENDERER == RENDERER_OPENGL
-	mesh.load();
-	glBindVertexArray(mesh.mVAO);
-	glDrawArrays(GL_TRIANGLES, 0, mesh.tris.size());
+	if (mesh.loaded) {
+		glBindVertexArray(mesh.mVAO);
+		glDrawArrays(GL_TRIANGLES, 0, mesh.tris.size() * 3);
+	}
 #endif
 };
 void Ingenium3D::renderMesh(Mesh mesh)

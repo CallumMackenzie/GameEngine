@@ -91,6 +91,7 @@ void OpenGLWindow::peekGLErrors()
 
 void OpenGLWindow::setClearColour(long colour, float alpha)
 {
+	glClearDepth(1.0f);
 	int r = (colour & 0xFF0000) >> 16;
 	int g = (colour & 0x00FF00) >> 8;
 	int b = (colour & 0x0000FF);
@@ -99,46 +100,8 @@ void OpenGLWindow::setClearColour(long colour, float alpha)
 
 void OpenGLWindow::clear()
 {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClear(GL_COLOR_BUFFER_BIT);
-}
-
-
-int OpenGLWindow::createShader(std::string vertexShader, std::string fragmentShader)
-{
-	unsigned int program = glCreateProgram();
-	unsigned int vs = compileShader(vertexShader, GL_VERTEX_SHADER);
-	unsigned int fs = compileShader(fragmentShader, GL_FRAGMENT_SHADER);
-
-	glAttachShader(program, vs);
-	glAttachShader(program, fs);
-	glLinkProgram(program);
-	glValidateProgram(program);
-
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-	return program;
-}
-
-unsigned int OpenGLWindow::compileShader(const std::string& src, unsigned int glType)
-{
-	unsigned int id = glCreateShader(glType);
-	const char* srcCStr = src.c_str();
-	glShaderSource(id, 1, &srcCStr, nullptr);
-	glCompileShader(id);
-
-	int result;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-	if (result == GL_FALSE) {
-		int eLength;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &eLength);
-		char* message = (char*) alloca(eLength * sizeof(char));
-		glGetShaderInfoLog(id, eLength, &eLength, message);
-		Debug::oss << "Failed to compile " << " shader: " << message;
-		Debug::writeLn();
-		glDeleteShader(id);
-	}
-
-	return id;
 }
 
 void OpenGLWindow::framebuffer_size_callback(GLFWwindow* window, int width, int height)

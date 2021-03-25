@@ -211,6 +211,14 @@ void Matrix4x4::flatten(float* arr)
 		}
 }
 
+Matrix4x4 Matrix4x4::makeRotationAroundPoint(float xRad, float yRad, float zRad, Vector3D rotPoint)
+{
+	Matrix4x4 mat = makeTranslation(-rotPoint.x, -rotPoint.y, -rotPoint.z);
+	mat = mat * makeRotationX(xRad) * makeRotationY(yRad) * makeRotationZ(zRad);
+	mat = mat * makeTranslation(rotPoint.x, rotPoint.y, rotPoint.z);
+	return mat;
+}
+
 float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& in_tri, Triangle& out_tri1, Triangle& out_tri2)
 {
 	plane_n.normalize();
@@ -379,12 +387,10 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 }
 Matrix4x4 Mesh::makeWorldMatrix()
 {
-	Matrix4x4 matRotY = Matrix4x4::makeRotationY(rotation.y);
-	Matrix4x4 matRotX = Matrix4x4::makeRotationX(rotation.x);
-	Matrix4x4 matRotZ = Matrix4x4::makeRotationZ(rotation.z);
+	Matrix4x4 matRot = Matrix4x4::makeRotationAroundPoint(rotation.x, rotation.y, rotation.z, rotationCenter);
 	Matrix4x4 matTrans = Matrix4x4::makeTranslation(position.x, position.y, position.z);
 	Matrix4x4 matScale = Matrix4x4::makeScale(scale.x, scale.y, scale.z);
-	Matrix4x4 matWorld = matRotX * matRotY * matRotZ * matTrans * matScale;
+	Matrix4x4 matWorld = matRot * matTrans * matScale;
 	return matWorld;
 }
 void Mesh::toVertexArray(VertexArray** ptr)
@@ -414,29 +420,63 @@ void Mesh::load() {
 		glGenBuffers(1, &mVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, mVBO);
 
-		void* start = &tris[0];
-		void* end = &tris[tris.size() - 1];
-		void* p1 = &tris[0].p1;
-		void* t1 = &tris[0].t1;
-		void* p2 = &tris[0].p2;
-		void* t2 = &tris[0].t2;
-		void* p3 = &tris[0].p3;
-		void* t3 = &tris[0].t3;
-		Debug::oss << "Start: " << start << "\n" << "End: " << end << "\np1: " << p1 << "\nt1: " << t1 << "\np2: " << p2 << "\nt2: " << t2 << "\np3: " << p3 << "\nt3: " << t3;
-		Debug::writeLn();
-
-		glBufferData(GL_ARRAY_BUFFER, tris.size() * sizeof(Triangle), start, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, tris.size() * sizeof(Triangle), &tris[0], GL_DYNAMIC_DRAW);
 
 		glGenVertexArrays(1, &mVAO);
 		glBindVertexArray(mVAO);
 
-		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vector2D) + sizeof(Vector3D), NULL);
+		glEnableVertexAttribArray(0);
 
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vector2D), NULL);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector2D) + sizeof(Vector3D), (void*)(sizeof(Vector3D)));
+		glEnableVertexAttribArray(1);
 #endif
 	}
 	loaded = true;
+}
+void Mesh::setTexture(std::string texturePath)
+{
+	unsigned char header[54];
+	unsigned int dataPos; 
+	unsigned int width, height;
+	unsigned int imageSize;
+	unsigned char* data;
+
+	FILE* file;
+	fopen_s(&file, texturePath.c_str(), "rb");
+	if (!file) {
+		Debug::oss << "Texture loading could not be completed: File could not be opened.";
+		Debug::writeLn();
+		return;
+	}
+	if (fread(header, 1, 54, file) != 54) {
+		Debug::oss <<  "Not a valid BMP file";
+		Debug::writeLn();
+		return;
+	}
+
+	if (header[0] != 'B' || header[1] != 'M') {
+		printf("Not a correct BMP file\n");
+		return;
+	}
+	dataPos = *(int*)&(header[0x0A]);
+	imageSize = *(int*)&(header[0x22]);
+	width = *(int*)&(header[0x12]);
+	height = *(int*)&(header[0x16]);
+	if (imageSize == 0)    
+		imageSize = width * height * 3;
+	if (dataPos == 0)      
+		dataPos = 54;
+	data = new unsigned char[imageSize];
+	fread(data, 1, imageSize, file);
+	fclose(file);
+
+	glGenTextures(1, &mTexture);
+	glBindTexture(GL_TEXTURE_2D, mTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
 Vector3D Camera::lookVector()
@@ -492,4 +532,74 @@ void VertexArray::draw()
 {
 	glBindVertexArray(mVAO);
 	glDrawArrays(GL_TRIANGLES, 0, mVertexCount);
+}
+
+Shader::Shader(std::string vertexShader, std::string fragmentShader)
+{
+	unsigned int program = glCreateProgram();
+	unsigned int vs = compileShader(getFileAsString(vertexShader), GL_VERTEX_SHADER);
+	unsigned int fs = compileShader(getFileAsString(fragmentShader), GL_FRAGMENT_SHADER);
+
+	glAttachShader(program, vs);
+	glAttachShader(program, fs);
+	glLinkProgram(program);
+	glValidateProgram(program);
+
+	glDeleteShader(vs);
+	glDeleteShader(fs);
+
+	mShader = program;
+}
+std::string Shader::getFileAsString(std::string path)
+{
+	std::ifstream f;
+	std::stringstream ss;
+	std::string ln;
+	f.open(path);
+	while (!f.eof()) {
+		getline(f, ln);
+		ss << ln << "\n";
+	}
+	return ss.str();
+}
+void Shader::use()
+{
+	glUseProgram(mShader);
+}
+void Shader::setUniform1I(const char* name, int value)
+{
+	glUniform1i(glGetUniformLocation(mShader, name), value);
+}
+void Shader::setUniform2F(const char* name, float v1, float v2)
+{
+	glUniform2f(glGetUniformLocation(mShader, name), v1, v2);
+}
+void Shader::setUniformMatrix4x4(const char* name, Matrix4x4 mat)
+{
+	glUniformMatrix4fv(glGetUniformLocation(mShader, name), 1, false, &mat.m[0][0]);
+}
+int Shader::compileShader(const std::string& src, unsigned int glType)
+{
+	unsigned int id = glCreateShader(glType);
+	const char* srcCStr = src.c_str();
+	glShaderSource(id, 1, &srcCStr, nullptr);
+	glCompileShader(id);
+
+	int result;
+	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+	if (result == GL_FALSE) {
+		int eLength;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &eLength);
+		char* message = (char*)alloca(eLength * sizeof(char));
+		glGetShaderInfoLog(id, eLength, &eLength, message);
+		Debug::oss << "Failed to compile " << " shader: " << message;
+		Debug::writeLn();
+		glDeleteShader(id);
+	}
+
+	return id;
+}
+void Shader::setUniformFloat(const char* name, float value)
+{
+	glUniform1f(glGetUniformLocation(mShader, name), value);
 }

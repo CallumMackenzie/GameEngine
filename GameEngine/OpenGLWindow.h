@@ -43,9 +43,6 @@ struct OpenGLWindow : RenderWindow
 	void setClearColour(long colour, float alpha);
 	void clear();
 
-	int createShader(std::string vertexShader, std::string fragmentShader);
-
-	static unsigned int compileShader(const std::string& src, unsigned int glType);
 	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 	template< typename T >

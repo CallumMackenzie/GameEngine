@@ -1,12 +1,18 @@
 #version 330 core
 
-layout (location = 0) out vec4 color;
+layout (location = 0) out vec3 color;
+uniform sampler2D textureSampler;
+uniform bool hasTexture;
+uniform float time;
+
+in vec3 UV;
 
 void main () 
 {
-    if (gl_FrontFacing) {
-        color = vec4(1.0, 0.0, 1.0, 1.0);
+    if (hasTexture) {
+        color = texture(textureSampler, UV.xy).rgb;
     } else {
-        color = vec4(0.0, 0.0, 0.0, 1.0);
+        vec2 st = vec2(gl_FragCoord.x / 1600.0, gl_FragCoord.y / 900.0);
+        color = UV * vec3(st, sin(time) * (st.x + st.y) / 2);
     }
 }

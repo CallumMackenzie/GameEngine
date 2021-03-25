@@ -16,6 +16,7 @@ struct Triangle;
 struct Matrix4x4;
 struct Mesh;
 struct Camera;
+struct Shader;
 
 struct VertexArray
 {
@@ -65,12 +66,14 @@ struct Vector3D
 struct Vector2D
 {
 	union {
-		float x, u, width = 0;
+		float x, u, width, r = 0;
 	};
 	union {
-		float y, v, height = 0;
+		float y, v, height, g = 0;
 	};
-	float w = 0;
+	union {
+		float w, b = 0;
+	};
 };
 
 struct Triangle
@@ -95,6 +98,9 @@ struct Matrix4x4
 	static Matrix4x4 makeRotationX(float angleRadians);
 	static Matrix4x4 makeRotationY(float angleRadians);
 	static Matrix4x4 makeRotationZ(float angleRadians);
+
+	static Matrix4x4 makeRotationAroundPoint(float xRad, float yRad, float zRad, Vector3D rotPointLocal);
+
 	static Matrix4x4 makeTranslation(float x, float y, float z);
 	static Matrix4x4 makePointedAt(Vector3D& pos, Vector3D& target, Vector3D& up);
 	static Matrix4x4 makeScale(float x, float y, float z);
@@ -112,6 +118,7 @@ struct Mesh
 {
 	std::vector<Triangle> tris;
 	Vector3D rotation;
+	Vector3D rotationCenter;
 	Vector3D position;
 	Vector3D scale = { 1, 1, 1 };
 
@@ -120,9 +127,12 @@ struct Mesh
 #if RENDERER == RENDERER_OPENGL
 	unsigned int mVBO = GL_NONE;
 	unsigned int mVAO = GL_NONE;
+	unsigned int mTexture = GL_NONE;
+	unsigned int mTVBO = GL_NONE;
 #endif
 
 	void load();
+	void setTexture(std::string texturePath);
 	void toVertexArray(VertexArray** ptr);
 	Matrix4x4 makeWorldMatrix();
 
@@ -139,4 +149,18 @@ struct Camera {
 
 	Vector3D lookVector();
 	Matrix4x4 makeCameraMatrix();
+};
+
+struct Shader {
+	static int compileShader(const std::string& src, unsigned int glType);
+	static std::string getFileAsString(std::string path);
+
+	unsigned int mShader;
+
+	Shader(std::string vertexShader, std::string fragmentShader);
+	void use();
+	void setUniformMatrix4x4(const char* name, Matrix4x4 mat);
+	void setUniform2F(const char* name, float v1, float v2);
+	void setUniform1I(const char* name, int value);
+	void setUniformFloat(const char* name, float value);
 };

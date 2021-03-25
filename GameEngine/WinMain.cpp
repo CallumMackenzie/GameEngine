@@ -13,7 +13,7 @@ using namespace ingenium3D;
 
 struct Game : Ingenium3D
 {
-	unsigned int shader;
+	Shader* shader;
 	Mesh m;
 	void onCreate()
 	{
@@ -23,28 +23,37 @@ struct Game : Ingenium3D
 		drwn->setClearColour(0x95d57c, 1.f);
 
 		m.loadFromOBJ("D:\\MAND.obj");
-		m.scale = { 0.2, 0.2, 0.2 };
-		m.position = { 0, 0, 10 };
+		m.scale = { 1, 1, 1 };
+		m.rotationCenter = { 1, 1, 1 };
+		m.position = { 0, 0, 5 };
+		m.setTexture("D:\\Images\\71OpO-3gUfL.bmp");
+		for (int i = 0; i < m.tris.size(); i++) {
+			m.tris[i].t1 = { 1, 0, 0 };
+			m.tris[i].t2 = { 0, 1, 0 };
+			m.tris[i].t3 = { 0, 0, 1 };
+		}
+		m.load();
 
 #if RENDERER == RENDERER_OPENGL
 		glDisable(GL_CULL_FACE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
+		glDepthFunc(GL_LEQUAL);
+		glDepthRange(0.0f, 1.0f);
 
-		std::string vShader = getFileAsString("./shaders/3D.vert");
-		std::string fShader = getFileAsString("./shaders/def3D.frag");
-
-		shader = drwn->createShader(vShader, fShader);
-		glUseProgram(shader);
+		shader = new Shader("./shaders/3D.vert", "./shaders/def3D.frag");
+		shader->use();
 
 		camera.FOV = 80;
-		refreshProjectionMatrix();
-		Matrix4x4 mat = makeTransProjMatrix(m);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "modelViewMatrix"), 1, false, &mat.m[0][0]);
-		glUniform2f(glGetUniformLocation(shader, "aspectRatio"), drwn->aspectRatio[0], drwn->aspectRatio[1]);
+		shader->setUniformMatrix4x4("modelViewMatrix", makeTransProjMatrix(m));
+		shader->setUniform1I("hasTexture", false);
 
-		Debug::oss << "Vec2D: " << sizeof(Vector2D) << "   float: " << sizeof(float) << "   Vec3D: " << sizeof(Vector3D);
-		Debug::writeLn();
+		//glUniform1i(glGetUniformLocation(shader, "textureSampler"), 0);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, m.mTexture);
 #endif
 	};
 	void onUpdate()
@@ -90,16 +99,22 @@ struct Game : Ingenium3D
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime);
 		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime;
 
+		Vector3D rot = { 0.001, 0.002, 0.0013 };
+		// m.rotation = m.rotation + (rot * Time::deltaTime);
+
 		refreshProjectionMatrix();
 		drwn->beginRender();
 		drwn->clear();
 #if RENDERER == RENDERER_OPENGL
-		Matrix4x4 mat = makeTransProjMatrix(m);
-		glUniformMatrix4fv(glGetUniformLocation(shader, "modelViewMatrix"), 1, false, &mat.m[0][0]);
+		shader->setUniformFloat("time", glfwGetTime());
+		shader->setUniformMatrix4x4("modelViewMatrix", makeTransProjMatrix(m));
 		drwn->peekGLErrors();
 #endif
 		renderMeshSimple(m);
 		drwn->endRender();
+	}
+	void onClose() {
+		memory::safe_delete(shader);
 	}
 };
 
