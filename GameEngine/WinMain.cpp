@@ -14,17 +14,18 @@ using namespace ingenium3D;
 struct Game : Ingenium3D
 {
 	Shader* shader;
+	Vector3D positions[10];
 	Mesh m;
 	void onCreate()
 	{
 		engine3D = this;
 		engine = this;
 		createWindow("Ingenium", 1600, 900);
-		drwn->setClearColour(0x95d57c, 1.f);
+		drwn->setClearColour(0x0f0f0f, 1.f);
 
-		m.loadFromOBJ("D:\\MAND.obj");
+		m.loadFromOBJ("D:\\cube.obj");
 		m.scale = { 1, 1, 1 };
-		m.rotationCenter = { 1, 1, 1 };
+		m.rotationCenter = { -1, 0, 1 };
 		m.position = { 0, 0, 5 };
 		m.setTexture("D:\\Images\\71OpO-3gUfL.bmp");
 		for (int i = 0; i < m.tris.size(); i++) {
@@ -38,18 +39,21 @@ struct Game : Ingenium3D
 		glDisable(GL_CULL_FACE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
-		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 		glDepthFunc(GL_LEQUAL);
 		glDepthRange(0.0f, 1.0f);
 
+		drwn->peekGLErrors();
+
 		shader = new Shader("./shaders/3D.vert", "./shaders/def3D.frag");
 		shader->use();
+		drwn->peekGLErrors();
 
 		camera.FOV = 80;
 		shader->setUniformMatrix4x4("modelViewMatrix", makeTransProjMatrix(m));
-		shader->setUniform1I("hasTexture", false);
+		shader->setUniform1I("hasTexture", true);
+		drwn->peekGLErrors();
 
 		//glUniform1i(glGetUniformLocation(shader, "textureSampler"), 0);
 		//glActiveTexture(GL_TEXTURE0);
@@ -87,10 +91,6 @@ struct Game : Ingenium3D
 		if (in->getKeyState(40))
 			rotate.x = cameraMoveSpeed;
 
-		if (in->getKeyState(32)) {
-			m.position.x -= 0.5 * Time::deltaTime;
-		}
-
 		//if (in->getKeyState(88))
 		//	rotate.z = -0.005;
 		//if (in->getKeyState(67))
@@ -99,17 +99,15 @@ struct Game : Ingenium3D
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime);
 		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime;
 
-		Vector3D rot = { 0.001, 0.002, 0.0013 };
-		// m.rotation = m.rotation + (rot * Time::deltaTime);
+		Vector3D rot = { 0.001, 0.0015, 0.002 };
+		m.rotation = m.rotation + (rot * Time::deltaTime);
 
 		refreshProjectionMatrix();
 		drwn->beginRender();
 		drwn->clear();
-#if RENDERER == RENDERER_OPENGL
 		shader->setUniformFloat("time", glfwGetTime());
 		shader->setUniformMatrix4x4("modelViewMatrix", makeTransProjMatrix(m));
 		drwn->peekGLErrors();
-#endif
 		renderMeshSimple(m);
 		drwn->endRender();
 	}

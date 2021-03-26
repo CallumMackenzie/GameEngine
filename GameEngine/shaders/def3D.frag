@@ -13,6 +13,6 @@ void main ()
         color = texture(textureSampler, UV.xy).rgb;
     } else {
         vec2 st = vec2(gl_FragCoord.x / 1600.0, gl_FragCoord.y / 900.0);
-        color = UV * vec3(st, sin(time) * (st.x + st.y) / 2);
+        color = UV * vec3(st, (st.x + st.y) / 2);
     }
 }

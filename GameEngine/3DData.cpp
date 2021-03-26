@@ -210,12 +210,12 @@ void Matrix4x4::flatten(float* arr)
 			k++;
 		}
 }
-
 Matrix4x4 Matrix4x4::makeRotationAroundPoint(float xRad, float yRad, float zRad, Vector3D rotPoint)
 {
-	Matrix4x4 mat = makeTranslation(-rotPoint.x, -rotPoint.y, -rotPoint.z);
-	mat = mat * makeRotationX(xRad) * makeRotationY(yRad) * makeRotationZ(zRad);
-	mat = mat * makeTranslation(rotPoint.x, rotPoint.y, rotPoint.z);
+	Matrix4x4 mat = (
+		makeTranslation(rotPoint.x, rotPoint.y, rotPoint.z) * 
+		makeRotationX(xRad) * makeRotationY(yRad) * makeRotationZ(zRad)) * 
+		makeTranslation(-rotPoint.x, -rotPoint.y, -rotPoint.z);
 	return mat;
 }
 
@@ -474,7 +474,7 @@ void Mesh::setTexture(std::string texturePath)
 
 	glGenTextures(1, &mTexture);
 	glBindTexture(GL_TEXTURE_2D, mTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
