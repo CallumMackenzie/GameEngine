@@ -234,25 +234,25 @@ float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& i
 	Vector2D* inside_tex[3]; int nInsideTexCount = 0;
 	Vector2D* outside_tex[3]; int nOutsideTexCount = 0;
 
-	float d0 = dist(in_tri.p1);
-	float d1 = dist(in_tri.p2);
-	float d2 = dist(in_tri.p3);
+	float d0 = dist(in_tri.v[0].p);
+	float d1 = dist(in_tri.v[1].p);
+	float d2 = dist(in_tri.v[2].p);
 
-	if (d0 >= 0) { inside_points[nInsidePointCount++] = &in_tri.p1; inside_tex[nInsideTexCount++] = &in_tri.t1; }
+	if (d0 >= 0) { inside_points[nInsidePointCount++] = &in_tri.v[0].p; inside_tex[nInsideTexCount++] = &in_tri.v[0].t; }
 	else {
-		outside_points[nOutsidePointCount++] = &in_tri.p1; outside_tex[nOutsideTexCount++] = &in_tri.t1;
+		outside_points[nOutsidePointCount++] = &in_tri.v[0].p; outside_tex[nOutsideTexCount++] = &in_tri.v[0].t;
 	}
 	if (d1 >= 0) {
-		inside_points[nInsidePointCount++] = &in_tri.p2; inside_tex[nInsideTexCount++] = &in_tri.t2;
+		inside_points[nInsidePointCount++] = &in_tri.v[1].p; inside_tex[nInsideTexCount++] = &in_tri.v[1].t;
 	}
 	else {
-		outside_points[nOutsidePointCount++] = &in_tri.p2;  outside_tex[nOutsideTexCount++] = &in_tri.t2;
+		outside_points[nOutsidePointCount++] = &in_tri.v[1].p;  outside_tex[nOutsideTexCount++] = &in_tri.v[1].t;
 	}
 	if (d2 >= 0) {
-		inside_points[nInsidePointCount++] = &in_tri.p3; inside_tex[nInsideTexCount++] = &in_tri.t3;
+		inside_points[nInsidePointCount++] = &in_tri.v[2].p; inside_tex[nInsideTexCount++] = &in_tri.v[2].t;
 	}
 	else {
-		outside_points[nOutsidePointCount++] = &in_tri.p3;  outside_tex[nOutsideTexCount++] = &in_tri.t3;
+		outside_points[nOutsidePointCount++] = &in_tri.v[2].p;  outside_tex[nOutsideTexCount++] = &in_tri.v[2].t;
 	}
 
 	if (nInsidePointCount == 0)
@@ -267,19 +267,19 @@ float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& i
 	if (nInsidePointCount == 1 && nOutsidePointCount == 2)
 	{
 
-		out_tri1.p1 = *inside_points[0];
-		out_tri1.t1 = *inside_tex[0];
+		out_tri1.v[0].p = *inside_points[0];
+		out_tri1.v[0].t = *inside_tex[0];
 
 		float t;
-		out_tri1.p2 = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[0], t);
-		out_tri1.t2.u = t * (outside_tex[0]->u - inside_tex[0]->u) + inside_tex[0]->u;
-		out_tri1.t2.v = t * (outside_tex[0]->v - inside_tex[0]->v) + inside_tex[0]->v;
-		out_tri1.t2.w = t * (outside_tex[0]->w - inside_tex[0]->w) + inside_tex[0]->w;
+		out_tri1.v[1].p = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[0], t);
+		out_tri1.v[1].t.u = t * (outside_tex[0]->u - inside_tex[0]->u) + inside_tex[0]->u;
+		out_tri1.v[1].t.v = t * (outside_tex[0]->v - inside_tex[0]->v) + inside_tex[0]->v;
+		out_tri1.v[1].t.w = t * (outside_tex[0]->w - inside_tex[0]->w) + inside_tex[0]->w;
 
-		out_tri1.p3 = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[1], t);
-		out_tri1.t3.u = t * (outside_tex[1]->u - inside_tex[0]->u) + inside_tex[0]->u;
-		out_tri1.t3.v = t * (outside_tex[1]->v - inside_tex[0]->v) + inside_tex[0]->v;
-		out_tri1.t3.w = t * (outside_tex[1]->w - inside_tex[0]->w) + inside_tex[0]->w;
+		out_tri1.v[2].p = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[1], t);
+		out_tri1.v[2].t.u = t * (outside_tex[1]->u - inside_tex[0]->u) + inside_tex[0]->u;
+		out_tri1.v[2].t.v = t * (outside_tex[1]->v - inside_tex[0]->v) + inside_tex[0]->v;
+		out_tri1.v[2].t.w = t * (outside_tex[1]->w - inside_tex[0]->w) + inside_tex[0]->w;
 
 		return 1;
 	}
@@ -287,25 +287,25 @@ float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& i
 	if (nInsidePointCount == 2 && nOutsidePointCount == 1)
 	{
 
-		out_tri1.p1 = *inside_points[0];
-		out_tri1.p2 = *inside_points[1];
-		out_tri1.t1 = *inside_tex[0];
-		out_tri1.t2 = *inside_tex[1];
+		out_tri1.v[0].p = *inside_points[0];
+		out_tri1.v[1].p = *inside_points[1];
+		out_tri1.v[0].t = *inside_tex[0];
+		out_tri1.v[1].t = *inside_tex[1];
 
 		float t;
-		out_tri1.p3 = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[0], t);
-		out_tri1.t3.u = t * (outside_tex[0]->u - inside_tex[0]->u) + inside_tex[0]->u;
-		out_tri1.t3.v = t * (outside_tex[0]->v - inside_tex[0]->v) + inside_tex[0]->v;
-		out_tri1.t3.w = t * (outside_tex[0]->w - inside_tex[0]->w) + inside_tex[0]->w;
+		out_tri1.v[2].p = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[0], t);
+		out_tri1.v[2].t.u = t * (outside_tex[0]->u - inside_tex[0]->u) + inside_tex[0]->u;
+		out_tri1.v[2].t.v = t * (outside_tex[0]->v - inside_tex[0]->v) + inside_tex[0]->v;
+		out_tri1.v[2].t.w = t * (outside_tex[0]->w - inside_tex[0]->w) + inside_tex[0]->w;
 
-		out_tri2.p1 = *inside_points[1];
-		out_tri2.t1 = *inside_tex[1];
-		out_tri2.p2 = out_tri1.p3;
-		out_tri2.t2 = out_tri1.t3;
-		out_tri2.p3 = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[1], *outside_points[0], t);
-		out_tri2.t3.u = t * (outside_tex[0]->u - inside_tex[1]->u) + inside_tex[1]->u;
-		out_tri2.t3.v = t * (outside_tex[0]->v - inside_tex[1]->v) + inside_tex[1]->v;
-		out_tri2.t3.w = t * (outside_tex[0]->w - inside_tex[1]->w) + inside_tex[1]->w;
+		out_tri2.v[0].p = *inside_points[1];
+		out_tri2.v[0].t = *inside_tex[1];
+		out_tri2.v[1].p = out_tri1.v[2].p;
+		out_tri2.v[1].t = out_tri1.v[2].t;
+		out_tri2.v[2].p = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[1], *outside_points[0], t);
+		out_tri2.v[2].t.u = t * (outside_tex[0]->u - inside_tex[1]->u) + inside_tex[1]->u;
+		out_tri2.v[2].t.v = t * (outside_tex[0]->v - inside_tex[1]->v) + inside_tex[1]->v;
+		out_tri2.v[2].t.w = t * (outside_tex[0]->w - inside_tex[1]->w) + inside_tex[1]->w;
 		return 2; // Return two newly formed triangles which form a quad
 	}
 }
@@ -347,9 +347,9 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 				int v2 = face[1] - 1;
 				int v3 = face[2] - 1;
 				Triangle fTri;
-				fTri.p1 = verts[v1 < 0 ? 0 : v1];
-				fTri.p2 = verts[v2 < 0 ? 0 : v2];
-				fTri.p3 = verts[v3 < 0 ? 0 : v3];
+				fTri.v[0].p = verts[v1 < 0 ? 0 : v1];
+				fTri.v[1].p = verts[v2 < 0 ? 0 : v2];
+				fTri.v[2].p = verts[v3 < 0 ? 0 : v3];
 				tris.push_back(fTri);
 			}
 		}
@@ -372,12 +372,12 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 				tokens[nTokenCount].pop_back();
 
 				Triangle push;
-				push.p1 = verts[stoi(tokens[0]) - 1];
-				push.p2 = verts[stoi(tokens[2]) - 1];
-				push.p3 = verts[stoi(tokens[4]) - 1];
-				push.t1 = texs[stoi(tokens[1]) - 1];
-				push.t2 = texs[stoi(tokens[3]) - 1];
-				push.t3 = texs[stoi(tokens[5]) - 1];
+				push.v[0].p = verts[stoi(tokens[0]) - 1];
+				push.v[1].p = verts[stoi(tokens[2]) - 1];
+				push.v[2].p = verts[stoi(tokens[4]) - 1];
+				push.v[0].t = texs[stoi(tokens[1]) - 1];
+				push.v[1].t = texs[stoi(tokens[3]) - 1];
+				push.v[2].t = texs[stoi(tokens[5]) - 1];
 
 				tris.push_back(push);
 			}
@@ -398,15 +398,15 @@ void Mesh::toVertexArray(VertexArray** ptr)
 	std::vector<float> data;
 
 	for (int i = 0; i < tris.size(); i++) {
-		float* arr = tris[i].p1.toFloatArray();
+		float* arr = tris[i].v[0].p.toFloatArray();
 		for (int k = 0; k < 3; k++)
 			data.push_back(arr[k]);
 		delete arr;
-		arr = tris[i].p2.toFloatArray();
+		arr = tris[i].v[1].p.toFloatArray();
 		for (int k = 0; k < 3; k++)
 			data.push_back(arr[k]);
 		delete arr;
-		arr = tris[i].p3.toFloatArray();
+		arr = tris[i].v[2].p.toFloatArray();
 		for (int k = 0; k < 3; k++)
 			data.push_back(arr[k]);
 		delete arr;
@@ -437,46 +437,40 @@ void Mesh::load() {
 }
 void Mesh::setTexture(std::string texturePath)
 {
-	unsigned char header[54];
-	unsigned int dataPos; 
-	unsigned int width, height;
-	unsigned int imageSize;
-	unsigned char* data;
+	ilInit();
+	iluInit();
+	ilutInit();
+	ilutRenderer(ILUT_OPENGL);
+	ilClearColour(255, 255, 255, 000);
+	// char* path = new char[texturePath.length() + 1];
+	// strcpy_s(path, texturePath.length() + 1, texturePath.c_str());
+	// mTexture = ilutGLLoadImage(path);
+	// delete[] path;
 
-	FILE* file;
-	fopen_s(&file, texturePath.c_str(), "rb");
-	if (!file) {
-		Debug::oss << "Texture loading could not be completed: File could not be opened.";
+	bool textureLoaded = false;
+
+	ILuint imgID = 0;
+	ilGenImages(1, &imgID);
+	ilBindImage(imgID);
+	ILboolean success = ilLoadImage(texturePath.c_str());
+	if (success == IL_TRUE)
+	{
+		//Convert image to RGBA
+		success = ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+		if (success == IL_TRUE)
+		{
+			unsigned int* data = (unsigned int*) ilGetData();
+			unsigned int width = (unsigned int) ilGetInteger(IL_IMAGE_WIDTH), height = (unsigned int)ilGetInteger(IL_IMAGE_HEIGHT);
+			// TODO: Make texture from data
+		}
+		ilDeleteImages(1, &imgID);
+	}
+
+	if (!textureLoaded)
+	{
+		Debug::oss << "Unable to load texture from image: " << texturePath;
 		Debug::writeLn();
-		return;
 	}
-	if (fread(header, 1, 54, file) != 54) {
-		Debug::oss <<  "Not a valid BMP file";
-		Debug::writeLn();
-		return;
-	}
-
-	if (header[0] != 'B' || header[1] != 'M') {
-		printf("Not a correct BMP file\n");
-		return;
-	}
-	dataPos = *(int*)&(header[0x0A]);
-	imageSize = *(int*)&(header[0x22]);
-	width = *(int*)&(header[0x12]);
-	height = *(int*)&(header[0x16]);
-	if (imageSize == 0)    
-		imageSize = width * height * 3;
-	if (dataPos == 0)      
-		dataPos = 54;
-	data = new unsigned char[imageSize];
-	fread(data, 1, imageSize, file);
-	fclose(file);
-
-	glGenTextures(1, &mTexture);
-	glBindTexture(GL_TEXTURE_2D, mTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
 Vector3D Camera::lookVector()

@@ -13,7 +13,7 @@ using namespace ingenium3D;
 
 struct Game : Ingenium3D
 {
-	Shader* shader;
+	Shader* shader = nullptr;
 	Vector3D positions[10];
 	Mesh m;
 	void onCreate()
@@ -21,21 +21,32 @@ struct Game : Ingenium3D
 		engine3D = this;
 		engine = this;
 		createWindow("Ingenium", 1600, 900);
-		drwn->setClearColour(0x0f0f0f, 1.f);
+		drwn->setClearColour(0x4b4b4b, 1.f);
+
+		shader = new Shader("./shaders/3D.vert", "./shaders/def3D.frag");
+
+		drwn->peekGLErrors();
 
 		m.loadFromOBJ("D:\\cube.obj");
 		m.scale = { 1, 1, 1 };
 		m.rotationCenter = { -1, 0, 1 };
-		m.position = { 0, 0, 5 };
-		m.setTexture("D:\\Images\\71OpO-3gUfL.bmp");
-		for (int i = 0; i < m.tris.size(); i++) {
-			m.tris[i].t1 = { 1, 0, 0 };
-			m.tris[i].t2 = { 0, 1, 0 };
-			m.tris[i].t3 = { 0, 0, 1 };
+		m.position = { 0, 0, 5 };\
+		for (int i = 0; i < m.tris.size() / 2; i++) {
+			m.tris[i].v[0].t = { 0, 0 };
+			m.tris[i].v[1].t = { 0, 1 };
+			m.tris[i].v[2].t = { 1, 0 };
+
+			m.tris[i + 1].v[0].t = { 0, 1 };
+			m.tris[i + 1].v[1].t = { 1, 1 };
+			m.tris[i + 1].v[2].t = { 1, 0 };
 		}
+		drwn->peekGLErrors();
+		m.setTexture("D:\\Images\\71OpO-3gUfL.png");
+		drwn->peekGLErrors();
 		m.load();
 
 #if RENDERER == RENDERER_OPENGL
+		drwn->peekGLErrors();
 		glDisable(GL_CULL_FACE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
@@ -46,7 +57,6 @@ struct Game : Ingenium3D
 
 		drwn->peekGLErrors();
 
-		shader = new Shader("./shaders/3D.vert", "./shaders/def3D.frag");
 		shader->use();
 		drwn->peekGLErrors();
 

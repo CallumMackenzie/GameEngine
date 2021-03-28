@@ -9,6 +9,7 @@
 #include "Rotation.h"
 #include "OpenGL.h"
 #include "Log.h"
+#include "DevIL/devil_cpp_wrapper.h"
 
 struct Vector3D;
 struct Vector2D;
@@ -78,13 +79,13 @@ struct Vector2D
 
 struct Triangle
 {
+	struct Component {
+		Vector3D p;
+		Vector2D t;
+	};
+
 	// Staggered texture and vertex info for OpenGL
-	Vector3D p1;
-	Vector2D t1;
-	Vector3D p2;
-	Vector2D t2;
-	Vector3D p3;
-	Vector2D t3;
+	Component v[3];
 
 	static float clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& in_tri, Triangle& out_tri1, Triangle& out_tri2);
 };

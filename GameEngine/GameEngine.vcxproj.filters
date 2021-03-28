@@ -82,6 +82,9 @@
     <Filter Include="Packaged Dependencies\OpenGL">
       <UniqueIdentifier>{a4a410ff-ddba-42b9-a3a3-adc49d2d1949}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Packaged Dependencies\DevIL">
+      <UniqueIdentifier>{8ce7518c-e079-4ceb-af25-300ce5557067}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -155,6 +158,9 @@
     </ClCompile>
     <ClCompile Include="glad\glad.c">
       <Filter>Packaged Dependencies\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="DevIL\devil_cpp_wrapper.cpp">
+      <Filter>Packaged Dependencies\DevIL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -280,6 +286,21 @@
     </ClInclude>
     <ClInclude Include="RenderWindow.h">
       <Filter>Header Files\Ingenium General\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="DevIL\il.h">
+      <Filter>Packaged Dependencies\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="DevIL\ilu.h">
+      <Filter>Packaged Dependencies\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="DevIL\ilut.h">
+      <Filter>Packaged Dependencies\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="DevIL\ilut_config.h">
+      <Filter>Packaged Dependencies\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="DevIL\devil_cpp_wrapper.h">
+      <Filter>Packaged Dependencies\DevIL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
