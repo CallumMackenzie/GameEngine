@@ -81,12 +81,7 @@ Vector2D OpenGLWindow::worldScreenSpaceToScreenSpace(float wX, float wY)
 
 void OpenGLWindow::peekGLErrors()
 {
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-	{
-		Debug::oss << "OpenGL Error: " << intToHex(err) << "\n";
-	}
-	Debug::write();
+	utils3d::peekGLErrors();
 }
 
 void OpenGLWindow::setClearColour(long colour, float alpha)

@@ -426,11 +426,14 @@ void Mesh::load() {
 		glBindVertexArray(mVAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vector2D) + sizeof(Vector3D), NULL);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), NULL);
 		glEnableVertexAttribArray(0);
 
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector2D) + sizeof(Vector3D), (void*)(sizeof(Vector3D)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vector3D)));
 		glEnableVertexAttribArray(1);
+
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vector2D) + sizeof(Vector3D)));
+		glEnableVertexAttribArray(2);
 #endif
 	}
 	loaded = true;
@@ -439,15 +442,12 @@ void Mesh::setTexture(std::string texturePath)
 {
 	ilInit();
 	iluInit();
-	ilutInit();
-	ilutRenderer(ILUT_OPENGL);
 	ilClearColour(255, 255, 255, 000);
+
 	// char* path = new char[texturePath.length() + 1];
 	// strcpy_s(path, texturePath.length() + 1, texturePath.c_str());
 	// mTexture = ilutGLLoadImage(path);
 	// delete[] path;
-
-	bool textureLoaded = false;
 
 	ILuint imgID = 0;
 	ilGenImages(1, &imgID);
@@ -455,21 +455,31 @@ void Mesh::setTexture(std::string texturePath)
 	ILboolean success = ilLoadImage(texturePath.c_str());
 	if (success == IL_TRUE)
 	{
-		//Convert image to RGBA
-		success = ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+		success = ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 		if (success == IL_TRUE)
 		{
 			unsigned int* data = (unsigned int*) ilGetData();
 			unsigned int width = (unsigned int) ilGetInteger(IL_IMAGE_WIDTH), height = (unsigned int)ilGetInteger(IL_IMAGE_HEIGHT);
-			// TODO: Make texture from data
+			
+			glGenTextures(1, &mTexture);
+			glBindTexture(GL_TEXTURE_2D, mTexture);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			if (data) {
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+				glGenerateMipmap(GL_TEXTURE_2D);
+			}
+			else {
+				Debug::oss << "Image loaing failed: " << texturePath;
+				Debug::writeLn();
+			}
+			// glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 		}
 		ilDeleteImages(1, &imgID);
-	}
-
-	if (!textureLoaded)
-	{
-		Debug::oss << "Unable to load texture from image: " << texturePath;
-		Debug::writeLn();
 	}
 }
 

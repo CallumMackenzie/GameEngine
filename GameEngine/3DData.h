@@ -19,6 +19,24 @@ struct Mesh;
 struct Camera;
 struct Shader;
 
+namespace utils3d {
+	template< typename T >
+	static inline std::string intToHex(T i)
+	{
+		std::stringstream stream;
+		stream << "0x" << std::hex << i;
+		return stream.str();
+	}
+	inline void peekGLErrors() {
+		GLenum err;
+		while ((err = glGetError()) != GL_NO_ERROR)
+		{
+			Debug::oss << "OpenGL Error: " << intToHex(err) << "\n";
+		}
+		Debug::write();
+	};
+};
+
 struct VertexArray
 {
 	VertexArray(float* vertPositions, int vertPositionsCount, unsigned int step = 0, unsigned int drawMode = GL_STATIC_DRAW);
@@ -82,6 +100,7 @@ struct Triangle
 	struct Component {
 		Vector3D p;
 		Vector2D t;
+		Vector3D rgb;
 	};
 
 	// Staggered texture and vertex info for OpenGL

@@ -14,7 +14,6 @@ using namespace ingenium3D;
 struct Game : Ingenium3D
 {
 	Shader* shader = nullptr;
-	Vector3D positions[10];
 	Mesh m;
 	void onCreate()
 	{
@@ -30,19 +29,16 @@ struct Game : Ingenium3D
 		m.loadFromOBJ("D:\\cube.obj");
 		m.scale = { 1, 1, 1 };
 		m.rotationCenter = { -1, 0, 1 };
-		m.position = { 0, 0, 5 };\
-		for (int i = 0; i < m.tris.size() / 2; i++) {
-			m.tris[i].v[0].t = { 0, 0 };
+		m.position = { 0, 0, 5 };
+		for (int i = 0; i < m.tris.size(); i++) {
+			m.tris[i].v[0].t = { 1, 1 };
 			m.tris[i].v[1].t = { 0, 1 };
 			m.tris[i].v[2].t = { 1, 0 };
 
-			m.tris[i + 1].v[0].t = { 0, 1 };
-			m.tris[i + 1].v[1].t = { 1, 1 };
-			m.tris[i + 1].v[2].t = { 1, 0 };
+			for (int j = 0; j < 3; j++)
+				m.tris[i].v[j].rgb = { 0, 0, 0 };
 		}
-		drwn->peekGLErrors();
-		m.setTexture("D:\\Images\\71OpO-3gUfL.png");
-		drwn->peekGLErrors();
+		m.setTexture("D:\\Images\\Bark_Pine_baseColor.jpg");
 		m.load();
 
 #if RENDERER == RENDERER_OPENGL
@@ -60,9 +56,8 @@ struct Game : Ingenium3D
 		shader->use();
 		drwn->peekGLErrors();
 
-		camera.FOV = 80;
+		camera.FOV = 90;
 		shader->setUniformMatrix4x4("modelViewMatrix", makeTransProjMatrix(m));
-		shader->setUniform1I("hasTexture", true);
 		drwn->peekGLErrors();
 
 		//glUniform1i(glGetUniformLocation(shader, "textureSampler"), 0);

@@ -44,12 +44,4 @@ struct OpenGLWindow : RenderWindow
 	void clear();
 
 	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
-	template< typename T >
-	static inline std::string intToHex(T i)
-	{
-		std::stringstream stream;
-		stream << "0x" << std::hex << i;
-		return stream.str();
-	}
 };
