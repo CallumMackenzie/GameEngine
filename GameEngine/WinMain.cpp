@@ -64,7 +64,7 @@ struct Game : Ingenium3D
 		Debug::writeLn();
 		float speed = 0;
 		float cameraMoveSpeed = 0.002;
-		Vector3D foreward = camera.lookVector();
+		Vector3D forward = camera.lookVector();
 		Vector3D up = { 0, 1, 0 };
 		Vector3D move;
 		Vector3D rotate;
@@ -73,9 +73,9 @@ struct Game : Ingenium3D
 		if (in->getKeyState(83))
 			speed = -0.01;
 		if (in->getKeyState(68))
-			move = Vector3D::crossProduct(foreward, up).normalized() * 0.01;
+			move = Vector3D::crossProduct(forward, up).normalized() * 0.01;
 		if (in->getKeyState(65))
-			move = Vector3D::crossProduct(foreward, up).normalized() * -0.01;
+			move = Vector3D::crossProduct(forward, up).normalized() * -0.01;
 		if (in->getKeyState(81))
 			move.y = 0.01;
 		if (in->getKeyState(69))
@@ -97,7 +97,7 @@ struct Game : Ingenium3D
 		//	rotate.z = 0.005;
 
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime * 1000);
-		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime * 1000;
+		camera.position = camera.position + ((forward * speed) + move) * Time::deltaTime * 1000;
 
 		Vector3D rot = { 0.001, 0.000, 0.001 };
 		m.rotation = m.rotation + (rot * Time::deltaTime * 1000);
