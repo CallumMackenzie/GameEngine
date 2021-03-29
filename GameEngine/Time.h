@@ -10,7 +10,6 @@ public:
 	static bool nextFrameReady();
 	static bool nextFixedFrameReady();
 
-	static int timeSinceLastClock();
 	static void setFPS(float tFPS);
 	static void setFixedFPS(float tFFPS);
 

@@ -6,23 +6,19 @@
 clock_t Time::lastClock;
 clock_t Time::lastFixedClock;
 
-int Time::timeSinceLastClock()
-{
-	return clock() - lastClock;
-}
-
 void Time::init()
 {
 	lastClock = clock();
 	lastFixedClock = clock();
-	setFPS(targetFramesPerSecond);
-	setFixedFPS(targetFixedFramesPerSecond);
+	setFPS(targetFramesPerSecond / 1000);
+	setFixedFPS(targetFixedFramesPerSecond / 1000);
 }
 
 bool Time::nextFrameReady()
 {
-	if (((float)timeSinceLastClock() / CLOCKS_PER_SEC) >= targetDeltaTime) {
-		deltaTime = timeSinceLastClock();
+	float dt = ((float)(clock() - lastClock) / CLOCKS_PER_SEC);
+	if (dt >= targetDeltaTime) {
+		deltaTime = dt;
 		lastClock = clock();
 		return true;
 	}
@@ -31,8 +27,9 @@ bool Time::nextFrameReady()
 
 bool Time::nextFixedFrameReady()
 {
-	if (((float)(clock() - lastFixedClock) / CLOCKS_PER_SEC) >= targetFixedDeltaTime) {
-		fixedDeltaTime = clock() - lastFixedClock;
+	float fdt = ((float)(clock() - lastFixedClock) / CLOCKS_PER_SEC);
+	if (fdt >= targetFixedDeltaTime) {
+		fixedDeltaTime = fdt;
 		lastFixedClock = clock();
 		return true;
 	}
@@ -41,14 +38,14 @@ bool Time::nextFixedFrameReady()
 
 void Time::setFPS(float tFPS)
 {
-	targetFramesPerSecond = tFPS;
+	targetFramesPerSecond = tFPS * 1000;
 	targetDeltaTime = 1.f / tFPS;
 	targetDeltaTime = targetDeltaTime < minDeltaTime ? minDeltaTime : targetDeltaTime;
 }
 
 void Time::setFixedFPS(float tFFPS)
 {
-	targetFixedFramesPerSecond = tFFPS;
+	targetFixedFramesPerSecond = tFFPS * 1000;
 	targetFixedDeltaTime = 1.f / tFFPS;
 	targetFixedDeltaTime = targetDeltaTime < minDeltaTime ? minDeltaTime : targetDeltaTime;
 }

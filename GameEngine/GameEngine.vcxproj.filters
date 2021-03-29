@@ -83,7 +83,7 @@
       <UniqueIdentifier>{a4a410ff-ddba-42b9-a3a3-adc49d2d1949}</UniqueIdentifier>
     </Filter>
     <Filter Include="Packaged Dependencies\DevIL">
-      <UniqueIdentifier>{8ce7518c-e079-4ceb-af25-300ce5557067}</UniqueIdentifier>
+      <UniqueIdentifier>{e20e4a01-826e-4ee8-b672-2b300c3b7d91}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -287,6 +287,9 @@
     <ClInclude Include="RenderWindow.h">
       <Filter>Header Files\Ingenium General\Window</Filter>
     </ClInclude>
+    <ClInclude Include="DevIL\devil_cpp_wrapper.h">
+      <Filter>Packaged Dependencies\DevIL</Filter>
+    </ClInclude>
     <ClInclude Include="DevIL\il.h">
       <Filter>Packaged Dependencies\DevIL</Filter>
     </ClInclude>
@@ -299,9 +302,6 @@
     <ClInclude Include="DevIL\ilut_config.h">
       <Filter>Packaged Dependencies\DevIL</Filter>
     </ClInclude>
-    <ClInclude Include="DevIL\devil_cpp_wrapper.h">
-      <Filter>Packaged Dependencies\DevIL</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Entry.lua" />
@@ -309,6 +309,15 @@
   <ItemGroup>
     <Library Include="lualib\lua54.lib">
       <Filter>Packaged Dependencies\Lua</Filter>
+    </Library>
+    <Library Include="DevIL\DevIL.lib">
+      <Filter>Packaged Dependencies\DevIL</Filter>
+    </Library>
+    <Library Include="DevIL\ILU.lib">
+      <Filter>Packaged Dependencies\DevIL</Filter>
+    </Library>
+    <Library Include="DevIL\ILUT.lib">
+      <Filter>Packaged Dependencies\DevIL</Filter>
     </Library>
   </ItemGroup>
   <ItemGroup>

@@ -9,5 +9,5 @@ in vec4 colourRGB;
 
 void main () 
 {
-    color = texture(textureSampler, UV.xy).rgb + colourRGB.rgb;
+    color = texture(textureSampler, vec2(UV.x, 1 - UV.y)).rgb + colourRGB.rgb;
 }

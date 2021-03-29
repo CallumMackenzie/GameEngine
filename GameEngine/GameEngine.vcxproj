@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\Alexx\source\repos\GameEngine\GameEngine\GLFW;C:\Users\Alexx\source\repos\GameEngine\GameEngine\DevIL;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)GLFW;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\Alexx\source\repos\GameEngine\GameEngine\GLFW;C:\Users\Alexx\source\repos\GameEngine\GameEngine\DevIL;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)GLFW;$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -102,7 +102,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -146,7 +146,7 @@ xcopy /y /d  "$(ProjectDir)DLLs\*.dll" "$(OutDir)"</Command>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -254,6 +254,9 @@ xcopy /y /d  "$(ProjectDir)DLLs\*.dll" "$(OutDir)"</Command>
     <None Include="Entry.lua" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="DevIL\DevIL.lib" />
+    <Library Include="DevIL\ILU.lib" />
+    <Library Include="DevIL\ILUT.lib" />
     <Library Include="lualib\lua54.lib" />
   </ItemGroup>
   <ItemGroup>

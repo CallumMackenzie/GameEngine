@@ -10,9 +10,11 @@ out vec4 colourRGB;
 
 void main () {
     vec4 transformed = modelViewMatrix * position;
-    transformed /= transformed.w;
-    transformed.x *= -1.0;
-    gl_Position = transformed;
+    if (transformed.w > 0.01) {
+        transformed /= transformed.w;
+        transformed.x *= -1.0;
+        gl_Position = transformed;
+    }
 
     UV = vertexUV;
     colourRGB = vertexRGB;

@@ -21,10 +21,13 @@ struct OpenGLWindow : RenderWindow
 {
 	GLFWwindow* window = nullptr;
 	bool initSuccess = true;
+	bool isFullscreen = false;
 	unsigned int buffer;
 
 	Vector2D scale = { 1, 1 };
 	Vector2D translation;
+	void updateViewport();
+	void setFullScreen(bool fullscreen);
 
 	OpenGLWindow(int width, int height);
 	~OpenGLWindow();

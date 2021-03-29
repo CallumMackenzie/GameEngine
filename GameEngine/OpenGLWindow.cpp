@@ -1,5 +1,33 @@
 #include "OpenGLWindow.h"
 
+void OpenGLWindow::updateViewport()
+{
+	int width = 1, height = 1;
+	glfwGetFramebufferSize(window, &width, &height);
+	glViewport(0, 0, width, height);
+}
+
+void OpenGLWindow::setFullScreen(bool fullscreen)
+{
+	if (isFullscreen == fullscreen)
+		return;
+
+	int windowPosX = 0;
+	int windowPosY = 0;
+
+	if (fullscreen) {
+		glfwGetWindowPos(window, &windowPosX, &windowPosY);
+		glfwGetWindowSize(window, &windowPosX, &windowPosY);
+
+		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, 0);
+	}
+	else {
+		glfwSetWindowMonitor(window, nullptr, windowPosX, windowPosY, windowPosX, windowPosY, 0);
+	}
+	updateViewport();
+}
+
 OpenGLWindow::OpenGLWindow(int width, int height)
 {
 	glfwInit();

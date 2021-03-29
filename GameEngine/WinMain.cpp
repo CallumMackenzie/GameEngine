@@ -20,29 +20,22 @@ struct Game : Ingenium3D
 		engine3D = this;
 		engine = this;
 		createWindow("Ingenium", 1600, 900);
+		Time::setFPS(200);
 		drwn->setClearColour(0x4b4b4b, 1.f);
+		// drwn->setFullScreen(true);
 
 		shader = new Shader("./shaders/3D.vert", "./shaders/def3D.frag");
 
 		drwn->peekGLErrors();
 
-		m.loadFromOBJ("D:\\cube.obj");
+		m.loadFromOBJ("D:\\cubemapped.obj", true);
 		m.scale = { 1, 1, 1 };
-		m.rotationCenter = { -1, 0, 1 };
+		m.rotationCenter = { 0, 0, 0 };
 		m.position = { 0, 0, 5 };
-		for (int i = 0; i < m.tris.size(); i++) {
-			m.tris[i].v[0].t = { 1, 1 };
-			m.tris[i].v[1].t = { 0, 1 };
-			m.tris[i].v[2].t = { 1, 0 };
-
-			for (int j = 0; j < 3; j++)
-				m.tris[i].v[j].rgb = { 0, 0, 0 };
-		}
-		m.setTexture("D:\\Images\\Bark_Pine_baseColor.jpg");
+		m.setTexture("D:\\Cube Map.png");
 		m.load();
 
 #if RENDERER == RENDERER_OPENGL
-		drwn->peekGLErrors();
 		glDisable(GL_CULL_FACE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
@@ -51,12 +44,9 @@ struct Game : Ingenium3D
 		glDepthFunc(GL_LEQUAL);
 		glDepthRange(0.0f, 1.0f);
 
-		drwn->peekGLErrors();
-
 		shader->use();
-		drwn->peekGLErrors();
 
-		camera.FOV = 90;
+		camera.FOV = 60;
 		shader->setUniformMatrix4x4("modelViewMatrix", makeTransProjMatrix(m));
 		drwn->peekGLErrors();
 
@@ -67,20 +57,25 @@ struct Game : Ingenium3D
 	};
 	void onUpdate()
 	{
+		Input* in = Input::getInput();
+		if (in->getKeyState(32))
+			return;
+		Debug::oss << "FPS: " << 1.f / Time::deltaTime;
+		Debug::writeLn();
 		float speed = 0;
 		float cameraMoveSpeed = 0.002;
 		Vector3D foreward = camera.lookVector();
+		Vector3D up = { 0, 1, 0 };
 		Vector3D move;
 		Vector3D rotate;
-		Input* in = Input::getInput();
 		if (in->getKeyState(87))
 			speed = 0.01;
 		if (in->getKeyState(83))
 			speed = -0.01;
 		if (in->getKeyState(68))
-			move.x = 0.01;
+			move = Vector3D::crossProduct(foreward, up).normalized() * 0.01;
 		if (in->getKeyState(65))
-			move.x = -0.01;
+			move = Vector3D::crossProduct(foreward, up).normalized() * -0.01;
 		if (in->getKeyState(81))
 			move.y = 0.01;
 		if (in->getKeyState(69))
@@ -101,16 +96,16 @@ struct Game : Ingenium3D
 		//if (in->getKeyState(67))
 		//	rotate.z = 0.005;
 
-		camera.rotation = camera.rotation + (rotate * Time::deltaTime);
-		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime;
+		camera.rotation = camera.rotation + (rotate * Time::deltaTime * 1000);
+		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime * 1000;
 
-		Vector3D rot = { 0.001, 0.0015, 0.002 };
-		m.rotation = m.rotation + (rot * Time::deltaTime);
+		Vector3D rot = { 0.001, 0.000, 0.001 };
+		m.rotation = m.rotation + (rot * Time::deltaTime * 1000);
 
 		refreshProjectionMatrix();
 		drwn->beginRender();
 		drwn->clear();
-		shader->setUniformFloat("time", glfwGetTime());
+		shader->setUniformFloat("u_time", glfwGetTime());
 		shader->setUniformMatrix4x4("modelViewMatrix", makeTransProjMatrix(m));
 		drwn->peekGLErrors();
 		renderMeshSimple(m);

@@ -25,7 +25,6 @@
 #include "OpenGLWindow.h"
 #include "Input.h"
 #include "Time.h"
-#include "DevIL/devil_cpp_wrapper.h"
 
 // Callum Mackenzie
 

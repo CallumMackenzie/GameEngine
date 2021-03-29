@@ -19,7 +19,7 @@ Matrix4x4 Ingenium3D::makeTransProjMatrix(Mesh mesh)
 	Matrix4x4 matWorld = mesh.makeWorldMatrix();
 	Matrix4x4 matCamera = camera.makeCameraMatrix();
 	Matrix4x4 matView = matCamera.qInverse();
-	ret = matWorld * matView * projectionMatrix;
+	ret = (matWorld * matView) * projectionMatrix;
 	return ret;
 }
 void Ingenium3D::refreshProjectionMatrix()

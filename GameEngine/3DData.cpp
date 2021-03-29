@@ -432,7 +432,7 @@ void Mesh::load() {
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vector3D)));
 		glEnableVertexAttribArray(1);
 
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vector2D) + sizeof(Vector3D)));
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vector3D) + sizeof(Vector2D)));
 		glEnableVertexAttribArray(2);
 #endif
 	}
@@ -466,7 +466,7 @@ void Mesh::setTexture(std::string texturePath)
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			if (data) {
