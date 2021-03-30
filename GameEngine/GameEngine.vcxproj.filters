@@ -67,12 +67,6 @@
     <Filter Include="Source Files\Ingenium General\Logic">
       <UniqueIdentifier>{a2207299-645e-4346-b036-0a1cc92cef88}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Ingenium3D\Position">
-      <UniqueIdentifier>{2f78afd2-9120-4da5-ad55-7b92683fc3b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Ingenium3D\Position">
-      <UniqueIdentifier>{7fc67286-5287-478e-8707-63b81b554ade}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Ingenium General\Window">
       <UniqueIdentifier>{2e40d05f-b629-47b5-827f-55dd011947f4}</UniqueIdentifier>
     </Filter>
@@ -147,9 +141,6 @@
     <ClCompile Include="Vector.cpp">
       <Filter>Source Files\Ingenium General\Logic</Filter>
     </ClCompile>
-    <ClCompile Include="3DData.cpp">
-      <Filter>Source Files\Ingenium3D\Position</Filter>
-    </ClCompile>
     <ClCompile Include="Direct2DWindow.cpp">
       <Filter>Source Files\Ingenium General\Window</Filter>
     </ClCompile>
@@ -161,6 +152,12 @@
     </ClCompile>
     <ClCompile Include="DevIL\devil_cpp_wrapper.cpp">
       <Filter>Packaged Dependencies\DevIL</Filter>
+    </ClCompile>
+    <ClCompile Include="3DData.cpp">
+      <Filter>Source Files\Ingenium3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Lighting.cpp">
+      <Filter>Source Files\Ingenium3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -257,9 +254,6 @@
     <ClInclude Include="Ingenium.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="3DData.h">
-      <Filter>Header Files\Ingenium3D\Position</Filter>
-    </ClInclude>
     <ClInclude Include="OpenGL.h">
       <Filter>Header Files\Ingenium General\Window</Filter>
     </ClInclude>
@@ -301,6 +295,12 @@
     </ClInclude>
     <ClInclude Include="DevIL\ilut_config.h">
       <Filter>Packaged Dependencies\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="3DData.h">
+      <Filter>Header Files\Ingenium3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Lighting.h">
+      <Filter>Header Files\Ingenium3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

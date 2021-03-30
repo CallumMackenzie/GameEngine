@@ -15,6 +15,7 @@ struct Game : Ingenium3D
 {
 	Shader* shader = nullptr;
 	Mesh m;
+	Light l;
 	void onCreate()
 	{
 		engine3D = this;
@@ -25,15 +26,26 @@ struct Game : Ingenium3D
 		// drwn->setFullScreen(true);
 
 		shader = new Shader("./shaders/3D.vert", "./shaders/def3D.frag");
+		shader->use();
 
 		drwn->peekGLErrors();
 
-		m.loadFromOBJ("D:\\cubemapped.obj", true);
-		m.scale = { 1, 1, 1 };
+		m.loadFromOBJ("D:\\mandnormtex.obj", true, true);
+		m.scale = { 0.2, 0.2, 0.2 };
 		m.rotationCenter = { 0, 0, 0 };
 		m.position = { 0, 0, 5 };
-		m.setTexture("D:\\Cube Map.png");
+		//for (int j = 0; j < m.tris.size(); j++)
+		//	for (int i = 0; i < 3; i++)
+		//		m.tris[j].v[i].rgb = { 0.5, 0.5, 0.5, 1.0 };
+		// m.setTexture("D:\\Cube Map.png");
+		m.setTexture("D:\\Images\\Bark_Pine_baseColor.jpg");
 		m.load();
+
+		l.colour = { 1, 1, 1, 1 };
+		l.intensity = 0.1;
+		l.rotation = { 90, 180, 0 };
+
+		camera.FOV = 60;
 
 #if RENDERER == RENDERER_OPENGL
 		glDisable(GL_CULL_FACE);
@@ -43,16 +55,6 @@ struct Game : Ingenium3D
 		glDepthMask(GL_TRUE);
 		glDepthFunc(GL_LEQUAL);
 		glDepthRange(0.0f, 1.0f);
-
-		shader->use();
-
-		camera.FOV = 60;
-		shader->setUniformMatrix4x4("modelViewMatrix", makeTransProjMatrix(m));
-		drwn->peekGLErrors();
-
-		//glUniform1i(glGetUniformLocation(shader, "textureSampler"), 0);
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, m.mTexture);
 #endif
 	};
 	void onUpdate()
@@ -91,22 +93,22 @@ struct Game : Ingenium3D
 		if (in->getKeyState(40))
 			rotate.x = cameraMoveSpeed;
 
-		//if (in->getKeyState(88))
-		//	rotate.z = -0.005;
-		//if (in->getKeyState(67))
-		//	rotate.z = 0.005;
-
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime * 1000);
 		camera.position = camera.position + ((foreward * speed) + move) * Time::deltaTime * 1000;
 
-		Vector3D rot = { 0.001, 0.000, 0.001 };
+		Vector3D rot = { 0.00075, 0.0005, 0.00005 };
 		m.rotation = m.rotation + (rot * Time::deltaTime * 1000);
 
 		refreshProjectionMatrix();
 		drwn->beginRender();
 		drwn->clear();
 		shader->setUniformFloat("u_time", glfwGetTime());
-		shader->setUniformMatrix4x4("modelViewMatrix", makeTransProjMatrix(m));
+		shader->setUniformMatrix4x4("model", m.makeWorldMatrix());
+		shader->setUniformMatrix4x4("view", camera.makeCameraMatrix().qInverse());
+		shader->setUniformMatrix4x4("projection", projectionMatrix);
+		shader->setUniformMatrix4x4("invModel", m.makeWorldMatrix().qInverse());
+		l.sendToShader(shader);
+
 		drwn->peekGLErrors();
 		renderMeshSimple(m);
 		drwn->endRender();

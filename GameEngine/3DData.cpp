@@ -310,7 +310,7 @@ float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& i
 	}
 }
 
-bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
+bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture, bool hasNormals)
 {
 	using namespace std;
 	ifstream f(fileName);
@@ -318,6 +318,7 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 		return false;
 
 	vector<Vector3D> verts;
+	vector<Vector3D> normals;
 	vector<Vector2D> texs;
 
 	while (!f.eof()) {
@@ -333,13 +334,18 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 				s >> junk >> junk >> v.u >> v.v;
 				texs.push_back(v);
 			}
+			else if (line[1] == 'n') {
+				Vector3D normal;
+				s >> junk >> junk >> normal.x >> normal.y >> normal.z;
+				normals.push_back(normal);
+			}
 			else {
 				Vector3D v;
 				s >> junk >> v.x >> v.y >> v.z;
 				verts.push_back(v);
 			}
 		}
-		if (!hasTexture) {
+		if (!hasTexture && !hasNormals) {
 			if (line[0] == 'f') {
 				int face[3] = { 0 };
 				s >> junk >> face[0] >> face[1] >> face[2];
@@ -357,7 +363,15 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 			if (line[0] == 'f') {
 				s >> junk;
 
-				string tokens[6];
+				string* tokens;
+				int params = 2;
+				if (hasNormals) {
+					tokens = new string[9];
+					params = 3;
+				}
+				else {
+					tokens = new string[6];
+				}
 				int nTokenCount = -1;
 
 				while (!s.eof())
@@ -372,14 +386,16 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture)
 				tokens[nTokenCount].pop_back();
 
 				Triangle push;
-				push.v[0].p = verts[stoi(tokens[0]) - 1];
-				push.v[1].p = verts[stoi(tokens[2]) - 1];
-				push.v[2].p = verts[stoi(tokens[4]) - 1];
-				push.v[0].t = texs[stoi(tokens[1]) - 1];
-				push.v[1].t = texs[stoi(tokens[3]) - 1];
-				push.v[2].t = texs[stoi(tokens[5]) - 1];
+				for (int k = 0; k < 3; k++) 
+				{
+					push.v[k].p = verts[stoi(tokens[params * k]) - 1];
+					push.v[k].t = texs[stoi(tokens[1 + params * k]) - 1];
+					if (hasNormals)
+						push.v[k].n = normals[stoi(tokens[2 + params * k]) - 1];
+				}
 
 				tris.push_back(push);
+				delete[] tokens;
 			}
 		}
 	}
@@ -434,6 +450,9 @@ void Mesh::load() {
 
 		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vector3D) + sizeof(Vector2D)));
 		glEnableVertexAttribArray(2);
+
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vector3D) + sizeof(Vector2D) + sizeof(Vector3D)));
+		glEnableVertexAttribArray(3);
 #endif
 	}
 	loaded = true;
@@ -570,13 +589,29 @@ void Shader::use()
 {
 	glUseProgram(mShader);
 }
-void Shader::setUniform1I(const char* name, int value)
+void Shader::setUniformInt(const char* name, int value)
 {
 	glUniform1i(glGetUniformLocation(mShader, name), value);
+}
+void Shader::setUniformBool(const char* name, bool value)
+{
+	setUniformInt(name, value);
+}
+void Shader::setUniformFloat(const char* name, float value)
+{
+	glUniform1f(glGetUniformLocation(mShader, name), value);
 }
 void Shader::setUniform2F(const char* name, float v1, float v2)
 {
 	glUniform2f(glGetUniformLocation(mShader, name), v1, v2);
+}
+void Shader::setUniform3F(const char* name, float v1, float v2, float v3)
+{
+	glUniform3f(glGetUniformLocation(mShader, name), v1, v2, v3);
+}
+void Shader::setUniform4F(const char* name, float v1, float v2, float v3, float v4)
+{
+	glUniform4f(glGetUniformLocation(mShader, name), v1, v2, v3, v4);
 }
 void Shader::setUniformMatrix4x4(const char* name, Matrix4x4 mat)
 {
@@ -603,7 +638,15 @@ int Shader::compileShader(const std::string& src, unsigned int glType)
 
 	return id;
 }
-void Shader::setUniformFloat(const char* name, float value)
+void Shader::setUniformVec4(const char* name, Vector3D v4d)
 {
-	glUniform1f(glGetUniformLocation(mShader, name), value);
-}
+	setUniform4F(name, v4d.x, v4d.y, v4d.z, v4d.w);
+};
+void Shader::setUniformVec3(const char* name, Vector3D v3d) 
+{
+	setUniform3F(name, v3d.x, v3d.y, v3d.z);
+};
+void Shader::setUniformVec2(const char* name, Vector2D v2d) 
+{
+	setUniform2F(name, v2d.x, v2d.y);
+};

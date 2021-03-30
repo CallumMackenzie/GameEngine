@@ -8,6 +8,11 @@
 
 #define RENDERER RENDERER_OPENGL
 
+#define SHADER_LIGHTING_COLOUR "lightColour"
+#define SHADER_LIGHTING_INTENSITY "lightIntensity"
+#define SHADER_LIGHTING_POSITION "lightPosition"
+#define SHADER_LIGHTING_ROTATION "lightRotation"
+
 #define LUA_ENGINE_ENTRY "./Entry.lua"
 #define LUA_ENGINE_INIT "onCreate"
 #define LUA_ENGINE_UPDATE "onUpdate"

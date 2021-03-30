@@ -194,6 +194,7 @@ xcopy /y /d  "$(ProjectDir)DLLs\*.dll" "$(OutDir)"</Command>
     <ClCompile Include="Physics2D.cpp" />
     <ClCompile Include="Rotation.cpp" />
     <ClCompile Include="Sound.cpp" />
+    <ClCompile Include="Lighting.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="Vector.cpp" />
@@ -216,6 +217,7 @@ xcopy /y /d  "$(ProjectDir)DLLs\*.dll" "$(OutDir)"</Command>
     <ClInclude Include="GLFW\glfw3.h" />
     <ClInclude Include="GLFW\glfw3native.h" />
     <ClInclude Include="IngeniumConstants.h" />
+    <ClInclude Include="Lighting.h" />
     <ClInclude Include="OpenGL.h" />
     <ClInclude Include="Direct2DWindow.h" />
     <ClInclude Include="Ingenium.h" />

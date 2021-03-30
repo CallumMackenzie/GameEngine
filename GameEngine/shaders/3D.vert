@@ -1,15 +1,22 @@
 #version 330 core
 
-layout (location = 0) in vec4 position;
+layout (location = 0) in vec4 vertexPosition;
 layout (location = 1) in vec3 vertexUV;
 layout (location = 2) in vec4 vertexRGB;
-uniform mat4 modelViewMatrix;
+layout (location = 3) in vec4 vertexNormal;
+
+uniform mat4 projection;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 invModel;
 
 out vec3 UV;
-out vec4 colourRGB;
+out vec4 tint;
+out vec3 normal;
+out vec3 fragPos;
 
 void main () {
-    vec4 transformed = modelViewMatrix * position;
+    vec4 transformed = projection * view * model * vertexPosition;
     float w = transformed.w;
     if (transformed.w > 0.01) {
         transformed /= transformed.w;
@@ -18,5 +25,7 @@ void main () {
     }
 
     UV = vec3(vertexUV.x / w, vertexUV.y / w, 1.0 / w);
-    colourRGB = vertexRGB;
+    tint = vertexRGB.rgba;
+    normal =  mat3(transpose(invModel)) * vertexNormal.xyz;
+    fragPos = vec3(model * vertexPosition);
 }

@@ -98,9 +98,10 @@ struct Vector2D
 struct Triangle
 {
 	struct Component {
-		Vector3D p;
-		Vector2D t;
-		Vector3D rgb;
+		Vector3D p; // Point
+		Vector2D t; // Texture UV
+		Vector3D rgb; // Colour
+		Vector3D n; // Normal
 	};
 
 	// Staggered texture and vertex info for OpenGL
@@ -156,7 +157,7 @@ struct Mesh
 	void toVertexArray(VertexArray** ptr);
 	Matrix4x4 makeWorldMatrix();
 
-	bool loadFromOBJ(std::string fileName, bool hasTexture = false);
+	bool loadFromOBJ(std::string fileName, bool hasTexture = false, bool hasNormals = false);
 };
 
 struct Camera {
@@ -179,8 +180,18 @@ struct Shader {
 
 	Shader(std::string vertexShader, std::string fragmentShader);
 	void use();
-	void setUniformMatrix4x4(const char* name, Matrix4x4 mat);
-	void setUniform2F(const char* name, float v1, float v2);
-	void setUniform1I(const char* name, int value);
+
+	void setUniformInt(const char* name, int value);
+	void setUniformBool(const char* name, bool value);
 	void setUniformFloat(const char* name, float value);
+
+	void setUniform2F(const char* name, float v1, float v2);
+	void setUniform3F(const char* name, float v1, float v2, float v3);
+	void setUniform4F(const char* name, float v1, float v2, float v3, float v4);
+
+	void setUniformMatrix4x4(const char* name, Matrix4x4 mat);
+
+	void setUniformVec4(const char* name, Vector3D v4d);
+	void setUniformVec3(const char* name, Vector3D v3d);
+	void setUniformVec2(const char* name, Vector2D v2d);
 };

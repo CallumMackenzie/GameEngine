@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "Ingenium2D.h"
 #include "3DData.h"
+#include "Lighting.h"
 
 namespace ingenium3D
 {
