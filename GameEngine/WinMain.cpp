@@ -20,11 +20,14 @@ struct Game : Ingenium3D
 	Mesh lightObj;
 	Light* llst = new Light[1];
 	DirectionalLight dirLight;
+
+
 	void onCreate()
 	{
 		engine3D = this;
 		engine = this;
 		createWindow("Ingenium", 1600, 900);
+		glfwSetWindowPos(drwn->window, 100, 100);
 		Time::setFPS(200);
 		drwn->setClearColour(0x4b4b4b, 1.f);
 		// drwn->setFullScreen(true);
@@ -58,19 +61,16 @@ struct Game : Ingenium3D
 		lightObj.setTexture("D:\\Images\\Bark_Pine_normal.jpg", "D:\\Images\\Ground_Forest_002_normal.jpg");
 		lightObj.load();
 		lightObj.position = { 9, 3, 4 };
-		lightObj.scale = { 0.5, 0.5, 0.5 };
-		lightObj.material.shininess = 0;
+		lightObj.scale = { 1, 1, 1 };
+		lightObj.material.shininess = 0.3;
 
 		//llst[0].diffuse = { 0, 0, 0 };
-		//llst[0].ambient = { 0, 0, 0 };
-		//llst[0].specular = { 0, 0, 0 };
-		//llst[0].intensity = 1;
+		llst[0].ambient = { 0.6, 0.6, 0.6 };
+		llst[0].specular = { 0.3, 0.3, 0.3 };
 
 		dirLight.ambient = { 0.001, 0.001, 0.001 };
-		dirLight.diffuse = { 0.01, 0.01, 0.01 };
-		dirLight.specular = { 0.01, 0.01, 0.01 };
-		dirLight.intensity = 1;
-		dirLight.position = { 0, -1, 0 };
+		dirLight.diffuse = { 0.5, 0.5, 0.5 };
+		dirLight.position = { 0, -1, 0.5 };
 
 		camera.FOV = 60;
 		camera.clipNear = 0.1;
@@ -84,32 +84,34 @@ struct Game : Ingenium3D
 		glDepthMask(GL_TRUE);
 		glDepthFunc(GL_LEQUAL);
 		glDepthRange(0.0f, 1.0f);
+
+		glfwSetInputMode(drwn->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetCursorPosCallback(drwn->window, mouse_callback);
 	};
 	void onUpdate()
 	{
 		Input* in = Input::getInput();
-		if (in->getKeyState(32))
-			return;
 		//Debug::oss << "FPS: " << 1.f / Time::deltaTime;
 		//Debug::writeLn();
-		float speed = 0;
+		float speed = 3;
 		float cameraMoveSpeed = 0.002;
-		Vector3D forward = camera.lookVector();
+		Vector3D cLV = camera.lookVector();
+
+		Vector3D forward;
 		Vector3D up = { 0, 1, 0 };
-		Vector3D move;
 		Vector3D rotate;
 		if (in->getKeyState(87))
-			speed = 0.01;
+			forward = forward + cLV;
 		if (in->getKeyState(83))
-			speed = -0.01;
+			forward = forward + cLV * -1;
 		if (in->getKeyState(68))
-			move = Vector3D::crossProduct(forward, up).normalized() * 0.01;
+			forward = forward + Vector3D::crossProduct(cLV, up);
 		if (in->getKeyState(65))
-			move = Vector3D::crossProduct(forward, up).normalized() * -0.01;
-		if (in->getKeyState(81))
-			move.y = 0.01;
+			forward = forward + Vector3D::crossProduct(cLV, up) * -1;
+		if (in->getKeyState(81) || in->getKeyState(32))
+			forward.y = forward.y + 1;
 		if (in->getKeyState(69))
-			move.y = -0.01;
+			forward.y = forward.y - 1;
 
 		if (in->getKeyState(37))
 			rotate.y = -cameraMoveSpeed;
@@ -121,23 +123,19 @@ struct Game : Ingenium3D
 		if (in->getKeyState(40))
 			rotate.x = cameraMoveSpeed;
 
-		if (in->getKeyState(16)) {
-			move = move * 3;
-			speed *= 3;
-		}
+		if (in->getKeyState(16))
+			speed *= 5;
 
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime * 1000);
-		camera.position = camera.position + ((forward * speed) + move) * Time::deltaTime * 1000;
-
-		if (abs(camera.rotation.x) > 1.527163)
-			camera.rotation.x = 1.527163 * utils3d::sign(camera.rotation.x);
-		if (abs(camera.rotation.y) > 6.28319)
-			camera.rotation.y = 0;
+		camera.position = camera.position + forward.normalized() * speed * Time::deltaTime;
+		
+		cameraCorrection();
 
 		cube.rotation = cube.rotation + (Vector3D{ 0.5, 0.5, 0.5 } * Time::deltaTime);
 		lightObj.rotation = lightObj.rotation + (Vector3D{ 5, 0.7, 3 } * Time::deltaTime);
 
 		llst[0].position = camera.position + Vector3D{ 0, 1.9, 0 };
+		llst[0].specular = { 1, 0, 0 };
 
 		drwn->beginRender();
 		drwn->clear();
@@ -155,6 +153,30 @@ struct Game : Ingenium3D
 		memory::safe_delete(shader);
 		memory::safe_delete(llst);
 	}
+
+	void cameraCorrection() {
+		if (abs(camera.rotation.x) > 1.527163)
+			camera.rotation.x = 1.527163 * utils3d::sign(camera.rotation.x);
+		if (abs(camera.rotation.y) > 6.28319)
+			camera.rotation.y = 0;
+	}
+
+	static inline float lastX = 800, lastY = 450;
+	static inline const float sensitivity = 0.3f;
+
+	static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+	{
+		float xoffset = xpos - lastX;
+		float yoffset = lastY - ypos;
+		lastX = xpos;
+		lastY = ypos;
+
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
+		engine3D->camera.rotation.y += xoffset * Time::deltaTime;
+		engine3D->camera.rotation.x -= yoffset * Time::deltaTime;
+		((Game*) engine3D)->cameraCorrection();
+	};
 };
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
