@@ -40,7 +40,7 @@ bool Input::getKeyState(int key)
 #if defined(_WIN32) && RENDERER == RENDERER_2D_WINDOWS
     return GetAsyncKeyState(key);
 #else
-    return glfwGetKey(win, key);
+    return glfwGetKey(win, key) == GLFW_PRESS;
 #endif
 }
 

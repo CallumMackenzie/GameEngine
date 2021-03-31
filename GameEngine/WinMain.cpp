@@ -122,7 +122,7 @@ struct Game : Ingenium3D
 		if (in->getKeyState(40))
 			rotate.x = cameraMoveSpeed;
 
-		if (in->getKeyState(16))
+		if (in->getKeyState(340) || in->getKeyState(16))
 			speed *= 5;
 
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime * 1000);
