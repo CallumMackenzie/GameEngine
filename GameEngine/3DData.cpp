@@ -432,7 +432,7 @@ void Mesh::toVertexArray(VertexArray** ptr)
 }
 void Mesh::load() {
 	if (!loaded) {
-#if RENDERER == RENDERER_OPENGL
+#if RENDERER == RENDERER_3D
 		glGenBuffers(1, &mVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, mVBO);
 

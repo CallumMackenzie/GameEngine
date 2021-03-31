@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include "Memory.h"
 #include "ModWin.h"
 #include "Sprite.h"
@@ -86,3 +87,4 @@ void Sprite::setY(float y) {
 void Sprite::setX(float x) {
 	setXY(x, position.y);
 }
+#endif

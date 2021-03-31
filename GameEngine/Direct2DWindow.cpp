@@ -1,7 +1,7 @@
 
 #include "IngeniumConfig.h"
 
-#if RENDERER == RENDERER_DIRECT2D
+#if RENDERER == RENDERER_2D_WINDOWS
 #include "ModWin.h"
 #include "Memory.h"
 #include "WindowClass.h"

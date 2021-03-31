@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef _WIN32
 namespace ingenium2D {
 	struct Line : Renderable<ID2D1StrokeStyle> {
 		Line(Vector2 pos, Vector2 end_, ID2D1StrokeStyle* pStrokeStyle = (ID2D1StrokeStyle*)0);
@@ -10,3 +11,4 @@ namespace ingenium2D {
 		float lineSize = 1.f;
 	};
 };
+#endif

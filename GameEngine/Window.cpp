@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include "ModWin.h"
 #include "WindowClass.h"
 #include <d2d1.h>
@@ -227,3 +228,4 @@ Button::Button(HINSTANCE hInstance_, HWND parent, LPCWSTR text, int x_, int y_, 
 	parentWindow = parent;
 	type = "button";
 }
+#endif

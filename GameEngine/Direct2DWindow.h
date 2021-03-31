@@ -7,7 +7,7 @@
 
 // TODO : Make a linked list for the render queue
 
-#if RENDERER == RENDERER_DIRECT2D
+#if RENDERER == RENDERER_2D_WINDOWS
 namespace ingenium2D
 {
 	class Direct2DWindow : public RenderWindow

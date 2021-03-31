@@ -2,6 +2,7 @@
 
 // Callum Mackenzie
 
+#ifdef _WIN32
 class Window
 {
 public:
@@ -58,3 +59,4 @@ class Button : public Window
 public:
 	Button(HINSTANCE hInstance_, HWND parent, LPCWSTR text, int x_, int y_, int height_, int width_); // Creates a new button with the specified attributes
 };
+#endif

@@ -1,6 +1,8 @@
 #pragma once
 
+#ifdef _WIN32
 #include "ModWin.h"
+#endif
 #include "WindowClass.h"
 #include "Window.h"
 #include <time.h>
@@ -17,18 +19,4 @@ public:
 	static inline std::ostringstream oss;
 	static void write();
 	static void writeLn();
-
-	static void createDebugWindow(HINSTANCE hInstance); // Creates debug window
-	static void writeToWindow(); // Writes oss value to window
-	static void destroyDebugWindow(); // Destroys debug window and resources
-	static bool windowWriteReady(); // Returns whether enough time has passed to log next data
-
-private:
-	static inline WindowClass* guiDebugClass = nullptr;
-	static inline RootWindow* guiDebugWindow = nullptr;
-	static inline RECT* lpRect = nullptr;
-	static inline clock_t clk = clock();
-	static inline HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
-
-	static LRESULT CALLBACK DEBUG_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };

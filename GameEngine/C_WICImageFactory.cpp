@@ -1,4 +1,5 @@
 // Callum Mackenzie
+#ifdef _WIN32
 #include <wincodec.h>
 #include <wincodecsdk.h>
 
@@ -70,3 +71,4 @@ IWICImagingFactory *C_WICImagingFactory::WIC()
 {
     return GetWIC();
 }
+#endif

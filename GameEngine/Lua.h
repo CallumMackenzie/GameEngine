@@ -1,5 +1,6 @@
 #pragma once
 
+#if defined(_WIN32) && defined(SCRIPT_LUA)
 #include "ModWin.h"
 #include "Memory.h"
 #include <string>
@@ -13,9 +14,7 @@ extern "C"
 #include "lualib/include/lualib.h"
 }
 
-#ifdef _WIN32
 #pragma comment(lib, "lualib/lua54.lib")
-#endif
 
 namespace ingenium_lua {
 
@@ -111,3 +110,5 @@ namespace ingenium_lua {
 		};
 	};
 }
+
+#endif

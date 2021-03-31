@@ -1,6 +1,8 @@
 #pragma once
 
+#ifdef _WIN32
 #include "ModWin.h"
+#endif
 #include "Memory.h"
 #include "WindowClass.h"
 #include "Window.h"

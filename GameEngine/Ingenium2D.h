@@ -4,7 +4,9 @@
 #include <fstream>
 #include <sstream>
 #include "Memory.h"
+#ifdef _WIN32
 #include "ModWin.h"
+#endif
 #if defined(SCRIPT_LUA)
 #include "Lua.h"
 #endif
@@ -36,9 +38,11 @@ namespace ingenium2D
         static Ingenium2D* getEngine(); // Returns the engine singleton, or creates one if it doesn't exist yet
 
         virtual void stop(); // Stop the game engine, call deconstructors and perform closing operations.
-        virtual void start(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow);
+        virtual void start();
 
+#if defined(_WIN32) && RENDERER == RENDERER_2D_WINDOWS
         static LRESULT CALLBACK DEFAULT_WND_PROC(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam); // Modified wnd_proc that handles input
+#endif
         void createWindow(const char* name, int width, int height);
 
         virtual void onCreate();
@@ -52,17 +56,17 @@ namespace ingenium2D
         bool running = false; // Whether the engine is running or not
 
     protected:
-        virtual void init(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow); // Initializes the engine
+        virtual void init(); // Initializes the engine
 #ifdef SCRIPT_LUA
         virtual void loadToLua();
 #endif
 
     public:
-#if RENDERER == RENDERER_DIRECT2D
+#if RENDERER == RENDERER_2D_WINDOWS
         WindowClass* primeClass = nullptr;
         Direct2DWindow* drwn = nullptr;
 #endif
-#if RENDERER == RENDERER_OPENGL
+#if RENDERER == RENDERER_3D
         OpenGLWindow* drwn = nullptr;
 #endif
 

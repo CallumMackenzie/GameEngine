@@ -1,5 +1,5 @@
 // Callum Mackenzie
-
+#ifdef _WIN32
 #include "ModWin.h"
 #include "WindowClass.h"
 
@@ -45,3 +45,4 @@ void WindowClass::registerClass()
         registered = true;
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include "Vector2.h"
 #include "Renderable.h"
 #include "Shapes.h"
@@ -22,3 +23,4 @@ Line::~Line()
 		brush = NULL;
 	}
 }
+#endif

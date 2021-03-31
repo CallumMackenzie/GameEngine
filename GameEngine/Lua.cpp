@@ -1,4 +1,6 @@
+
 #include "Lua.h"
+#if defined(_WIN32) && defined(SCRIPT_LUA)
 namespace ingenium_lua
 {
 	lua_State* state = nullptr;
@@ -105,3 +107,4 @@ namespace ingenium_lua
 		return lr;
 	}
 }
+#endif

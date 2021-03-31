@@ -21,7 +21,6 @@ struct Game : Ingenium3D
 	Light* llst = new Light[1];
 	DirectionalLight dirLight;
 
-
 	void onCreate()
 	{
 		engine3D = this;
@@ -90,7 +89,7 @@ struct Game : Ingenium3D
 	};
 	void onUpdate()
 	{
-		Input* in = Input::getInput();
+		Input* in = Input::getInput(drwn->window);
 		//Debug::oss << "FPS: " << 1.f / Time::deltaTime;
 		//Debug::writeLn();
 		float speed = 3;
@@ -179,10 +178,20 @@ struct Game : Ingenium3D
 	};
 };
 
+//int main() {
+//	Game eg = Game();
+//	eg.start();
+//
+//#ifdef _DEBUG
+//	printAllocationInfo();
+//#endif
+//	return 0;
+//}
+
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
 	Game eg = Game();
-	eg.start(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+	eg.start();
 
 #ifdef _DEBUG
 	printAllocationInfo();

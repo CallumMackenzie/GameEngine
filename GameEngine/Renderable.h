@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef _WIN32
 #include <time.h>
 #include "GameObject.h"
 #include "Direct2D.h"
@@ -151,3 +152,4 @@ namespace ingenium2D {
 		// int renderIndex = 0;
 	};
 };
+#endif

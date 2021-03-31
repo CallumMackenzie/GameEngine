@@ -1,7 +1,7 @@
 #pragma once
 
 // Callum Mackenzie
-
+#ifdef _WIN32
 extern "C" {
     struct WindowClass
     {
@@ -17,3 +17,4 @@ extern "C" {
         bool registered = false; // Whether this class has been registered yet
     };
 }
+#endif

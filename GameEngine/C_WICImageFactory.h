@@ -2,6 +2,7 @@
 
 // Callum Mackenzie
 
+#ifdef _WIN32
 #include <wincodec.h>
 #include <wincodecsdk.h>
 
@@ -17,3 +18,4 @@ public:
     static IWICImagingFactory *GetWIC() noexcept;
     static bool IsWIC2() noexcept;
 };
+#endif
