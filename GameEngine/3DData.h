@@ -18,6 +18,7 @@ struct Matrix4x4;
 struct Mesh;
 struct Camera;
 struct Shader;
+struct Material;
 
 namespace utils3d {
 	template< typename T >
@@ -35,6 +36,10 @@ namespace utils3d {
 		}
 		Debug::write();
 	};
+	template <typename T> 
+	inline int sign(T val) {
+		return (T(0) < val) - (val < T(0));
+	}
 };
 
 struct VertexArray
@@ -135,6 +140,12 @@ struct Matrix4x4
 	friend Matrix4x4 operator *(const Matrix4x4& m1, const Matrix4x4& m2);
 };
 
+struct Material {
+	unsigned int diffuseTex = GL_NONE;
+	unsigned int specularTex = GL_NONE;
+	float shininess = 0.5f;
+};
+
 struct Mesh
 {
 	std::vector<Triangle> tris;
@@ -142,22 +153,24 @@ struct Mesh
 	Vector3D rotationCenter;
 	Vector3D position;
 	Vector3D scale = { 1, 1, 1 };
+	Material material;
 
 	bool loaded = false;
 
-#if RENDERER == RENDERER_OPENGL
-	unsigned int mVBO = GL_NONE;
-	unsigned int mVAO = GL_NONE;
-	unsigned int mTexture = GL_NONE;
-	unsigned int mTVBO = GL_NONE;
-#endif
+	unsigned int mVBO = GL_NONE; // vertex buffer object
+	unsigned int mVAO = GL_NONE; // vertex array object
+	unsigned int mTVBO = GL_NONE; // texture vertex buffer object
 
 	void load();
-	void setTexture(std::string texturePath);
+	void setTexture(std::string texturePath, std::string specularPath = "NONE");
 	void toVertexArray(VertexArray** ptr);
 	Matrix4x4 makeWorldMatrix();
+	void render(Shader* shader, Camera c, Matrix4x4* projectionMatrix);
 
 	bool loadFromOBJ(std::string fileName, bool hasTexture = false, bool hasNormals = false);
+
+private:
+	static inline bool ilInitialized = false;
 };
 
 struct Camera {
@@ -180,6 +193,7 @@ struct Shader {
 
 	Shader(std::string vertexShader, std::string fragmentShader);
 	void use();
+	int getShaderLoc(const char* name);
 
 	void setUniformInt(const char* name, int value);
 	void setUniformBool(const char* name, bool value);

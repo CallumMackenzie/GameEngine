@@ -17,15 +17,15 @@ out vec3 fragPos;
 
 void main () {
     vec4 transformed = projection * view * model * vertexPosition;
-    float w = transformed.w;
-    if (transformed.w > 0.01) {
+
+    if (transformed.w > 0) {
+        float w = transformed.w;
         transformed /= transformed.w;
         transformed.x *= -1.0;
         gl_Position = transformed;
+        UV = vec3(vertexUV.x / w, vertexUV.y / w, 1.0 / w);
+        tint = vertexRGB.rgba;
+        normal =  mat3(transpose(invModel)) * vertexNormal.xyz;
+        fragPos = vec3(model * vertexPosition);
     }
-
-    UV = vec3(vertexUV.x / w, vertexUV.y / w, 1.0 / w);
-    tint = vertexRGB.rgba;
-    normal =  mat3(transpose(invModel)) * vertexNormal.xyz;
-    fragPos = vec3(model * vertexPosition);
 }

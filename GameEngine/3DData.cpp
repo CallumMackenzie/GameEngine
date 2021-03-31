@@ -406,7 +406,7 @@ Matrix4x4 Mesh::makeWorldMatrix()
 	Matrix4x4 matRot = Matrix4x4::makeRotationAroundPoint(rotation.x, rotation.y, rotation.z, rotationCenter);
 	Matrix4x4 matTrans = Matrix4x4::makeTranslation(position.x, position.y, position.z);
 	Matrix4x4 matScale = Matrix4x4::makeScale(scale.x, scale.y, scale.z);
-	Matrix4x4 matWorld = matRot * matTrans * matScale;
+	Matrix4x4 matWorld = (matRot * matTrans) * matScale;
 	return matWorld;
 }
 void Mesh::toVertexArray(VertexArray** ptr)
@@ -457,48 +457,101 @@ void Mesh::load() {
 	}
 	loaded = true;
 }
-void Mesh::setTexture(std::string texturePath)
+void Mesh::setTexture(std::string texturePath, std::string specularPath)
 {
-	ilInit();
-	iluInit();
-	ilClearColour(255, 255, 255, 000);
+	if (!ilInitialized) {
+		ilInit();
+		iluInit();
+		ilClearColour(255, 255, 255, 000);
+		ilInitialized = true;
+	}
 
-	// char* path = new char[texturePath.length() + 1];
-	// strcpy_s(path, texturePath.length() + 1, texturePath.c_str());
-	// mTexture = ilutGLLoadImage(path);
-	// delete[] path;
-
-	ILuint imgID = 0;
-	ilGenImages(1, &imgID);
-	ilBindImage(imgID);
-	ILboolean success = ilLoadImage(texturePath.c_str());
-	if (success == IL_TRUE)
-	{
-		success = ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+	if (!texturePath._Equal("NONE")) {
+		ILuint imgID = 0;
+		ilGenImages(1, &imgID);
+		ilBindImage(imgID);
+		ILboolean success = ilLoadImage(texturePath.c_str());
 		if (success == IL_TRUE)
 		{
-			unsigned int* data = (unsigned int*) ilGetData();
-			unsigned int width = (unsigned int) ilGetInteger(IL_IMAGE_WIDTH), height = (unsigned int)ilGetInteger(IL_IMAGE_HEIGHT);
-			
-			glGenTextures(1, &mTexture);
-			glBindTexture(GL_TEXTURE_2D, mTexture);
+			success = ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+			if (success == IL_TRUE)
+			{
+				unsigned int* data = (unsigned int*)ilGetData();
+				unsigned int width = (unsigned int)ilGetInteger(IL_IMAGE_WIDTH), height = (unsigned int)ilGetInteger(IL_IMAGE_HEIGHT);
 
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glGenTextures(1, &material.diffuseTex);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, material.diffuseTex);
 
-			if (data) {
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-				glGenerateMipmap(GL_TEXTURE_2D);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+				if (data) {
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+					glGenerateMipmap(GL_TEXTURE_2D);
+				}
+				else {
+					Debug::oss << "Image loaing failed: " << texturePath;
+					Debug::writeLn();
+				}
 			}
-			else {
-				Debug::oss << "Image loaing failed: " << texturePath;
-				Debug::writeLn();
-			}
-			// glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+			ilDeleteImages(1, &imgID);
 		}
-		ilDeleteImages(1, &imgID);
+	}
+	if (!specularPath._Equal("NONE")) {
+		ILuint imgID2 = 0;
+		ilGenImages(1, &imgID2);
+		ilBindImage(imgID2);
+		ILboolean success = ilLoadImage(specularPath.c_str());
+		if (success == IL_TRUE)
+		{
+			success = ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+			if (success == IL_TRUE)
+			{
+				unsigned int* data = (unsigned int*)ilGetData();
+				unsigned int width = (unsigned int)ilGetInteger(IL_IMAGE_WIDTH), height = (unsigned int)ilGetInteger(IL_IMAGE_HEIGHT);
+
+				glGenTextures(1, &material.specularTex);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, material.specularTex);
+
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				if (data) {
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+					glGenerateMipmap(GL_TEXTURE_2D);
+				}
+				else {
+					Debug::oss << "Image loaing failed: " << specularPath;
+					Debug::writeLn();
+				}
+			}
+			ilDeleteImages(1, &imgID2);
+		}
+	}
+}
+void Mesh::render(Shader* shader, Camera c, Matrix4x4* projectionMatrix)
+{
+	if (loaded) {
+		shader->use();
+		shader->setUniformInt("material.diffuse", 0);
+		shader->setUniformInt("material.specular", 1);
+		glBindVertexArray(mVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, material.diffuseTex);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, material.specularTex);
+		shader->setUniformFloat("u_time", glfwGetTime());
+		shader->setUniformMatrix4x4("model", makeWorldMatrix());
+		shader->setUniformMatrix4x4("view", c.makeCameraMatrix().qInverse());
+		shader->setUniformMatrix4x4("projection", *projectionMatrix);
+		shader->setUniformMatrix4x4("invModel", makeWorldMatrix().qInverse());
+		shader->setUniformFloat("material.shininess", material.shininess);
+		glDrawArrays(GL_TRIANGLES, 0, tris.size() * 3);
 	}
 }
 
@@ -591,7 +644,7 @@ void Shader::use()
 }
 void Shader::setUniformInt(const char* name, int value)
 {
-	glUniform1i(glGetUniformLocation(mShader, name), value);
+	glUniform1i(getShaderLoc(name), value);
 }
 void Shader::setUniformBool(const char* name, bool value)
 {
@@ -599,23 +652,27 @@ void Shader::setUniformBool(const char* name, bool value)
 }
 void Shader::setUniformFloat(const char* name, float value)
 {
-	glUniform1f(glGetUniformLocation(mShader, name), value);
+	glUniform1f(getShaderLoc(name), value);
 }
 void Shader::setUniform2F(const char* name, float v1, float v2)
 {
-	glUniform2f(glGetUniformLocation(mShader, name), v1, v2);
+	glUniform2f(getShaderLoc(name), v1, v2);
 }
 void Shader::setUniform3F(const char* name, float v1, float v2, float v3)
 {
-	glUniform3f(glGetUniformLocation(mShader, name), v1, v2, v3);
+	glUniform3f(getShaderLoc(name), v1, v2, v3);
 }
 void Shader::setUniform4F(const char* name, float v1, float v2, float v3, float v4)
 {
-	glUniform4f(glGetUniformLocation(mShader, name), v1, v2, v3, v4);
+	glUniform4f(getShaderLoc(name), v1, v2, v3, v4);
 }
 void Shader::setUniformMatrix4x4(const char* name, Matrix4x4 mat)
 {
-	glUniformMatrix4fv(glGetUniformLocation(mShader, name), 1, false, &mat.m[0][0]);
+	glUniformMatrix4fv(getShaderLoc(name), 1, false, &mat.m[0][0]);
+}
+int Shader::getShaderLoc(const char* name)
+{
+	return glGetUniformLocation(mShader, name);
 }
 int Shader::compileShader(const std::string& src, unsigned int glType)
 {

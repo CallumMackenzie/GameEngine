@@ -8,10 +8,9 @@
 
 #define RENDERER RENDERER_OPENGL
 
-#define SHADER_LIGHTING_COLOUR "lightColour"
-#define SHADER_LIGHTING_INTENSITY "lightIntensity"
-#define SHADER_LIGHTING_POSITION "lightPosition"
-#define SHADER_LIGHTING_ROTATION "lightRotation"
+#define SHADER_LIGHTS_STRUCT_NAME "Lights"
+#define SHADER_LIGHTS_AMBIENT FRAG_SHADER_LIGHTS_STRUCT_NAME ".ambientIntensity"
+#define SHADER_LIGHTS_NUMBER "numLights"
 
 #define LUA_ENGINE_ENTRY "./Entry.lua"
 #define LUA_ENGINE_INIT "onCreate"
