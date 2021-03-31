@@ -18,7 +18,7 @@ struct Game : Ingenium3D
 	Mesh m;
 	Mesh cube;
 	Mesh lightObj;
-	Light* llst = new Light[1];
+	Light* llst = new Light[2];
 	DirectionalLight dirLight;
 
 	void onCreate()
@@ -63,12 +63,17 @@ struct Game : Ingenium3D
 		lightObj.scale = { 1, 1, 1 };
 		lightObj.material.shininess = 0.3;
 
-		//llst[0].diffuse = { 0, 0, 0 };
-		llst[0].ambient = { 0.6, 0.6, 0.6 };
-		llst[0].specular = { 0.3, 0.3, 0.3 };
+		llst[0].diffuse = { 1, 1, 1 };
+		llst[0].ambient = { 0.2, 0.2, 0.2 };
+		llst[0].specular = { 0.1, 0.1, 0.1 };
+
+		llst[1].diffuse = { 1, 0, 1 };
+		llst[1].specular = { 0.2, 0, 0.2 };
+		llst[1].ambient = { 0.2, 0, 0.2 };
 
 		dirLight.ambient = { 0.001, 0.001, 0.001 };
-		dirLight.diffuse = { 0.5, 0.5, 0.5 };
+		dirLight.diffuse = { 0.01, 0.01, 0.01 };
+		dirLight.specular = { 0.01, 0.01, 0.01 };
 		dirLight.position = { 0, -1, 0.5 };
 
 		camera.FOV = 60;
@@ -112,15 +117,16 @@ struct Game : Ingenium3D
 		if (in->getKeyState(69))
 			forward.y = forward.y - 1;
 
-		if (in->getKeyState(37))
-			rotate.y = -cameraMoveSpeed;
-		if (in->getKeyState(39))
-			rotate.y = cameraMoveSpeed;
+		float cSpeed = 4;
+		if (in->getKeyState(37) || in->getKeyState(GLFW_KEY_LEFT))
+			cube.position.x += cSpeed * Time::deltaTime;
+		if (in->getKeyState(39) || in->getKeyState(GLFW_KEY_RIGHT))
+			cube.position.x -= cSpeed * Time::deltaTime;
 
-		if (in->getKeyState(38))
-			rotate.x = -cameraMoveSpeed;
-		if (in->getKeyState(40))
-			rotate.x = cameraMoveSpeed;
+		if (in->getKeyState(38) || in->getKeyState(GLFW_KEY_UP))
+			cube.position.z += cSpeed * Time::deltaTime;
+		if (in->getKeyState(40) || in->getKeyState(GLFW_KEY_DOWN))
+			cube.position.z -= cSpeed * Time::deltaTime;
 
 		if (in->getKeyState(340) || in->getKeyState(16))
 			speed *= 5;
@@ -132,13 +138,13 @@ struct Game : Ingenium3D
 
 		cube.rotation = cube.rotation + (Vector3D{ 0.5, 0.5, 0.5 } * Time::deltaTime);
 		lightObj.rotation = lightObj.rotation + (Vector3D{ 5, 0.7, 3 } * Time::deltaTime);
+		llst[1].position = cube.position;
 
 		llst[0].position = camera.position + Vector3D{ 0, 1.9, 0 };
-		llst[0].specular = { 1, 0, 0 };
 
 		drwn->beginRender();
 		drwn->clear();
-		Light::sendLightsToShader(shader, llst, 1);
+		Light::sendLightsToShader(shader, llst, 2);
 		dirLight.sendToShader(shader);
 
 		m.render(shader, camera, &projectionMatrix);
