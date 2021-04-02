@@ -40,13 +40,13 @@ void Time::setFPS(float tFPS)
 {
 	targetFramesPerSecond = tFPS * 1000;
 	targetDeltaTime = 1.f / tFPS;
-	targetDeltaTime = targetDeltaTime < minDeltaTime ? minDeltaTime : targetDeltaTime;
+	targetDeltaTime = targetDeltaTime;
 }
 
 void Time::setFixedFPS(float tFFPS)
 {
 	targetFixedFramesPerSecond = tFFPS * 1000;
 	targetFixedDeltaTime = 1.f / tFFPS;
-	targetFixedDeltaTime = targetDeltaTime < minDeltaTime ? minDeltaTime : targetDeltaTime;
+	targetFixedDeltaTime = targetDeltaTime;
 }
 

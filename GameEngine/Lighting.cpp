@@ -9,9 +9,9 @@ void Light::sendLightsToShader(Shader* shader, Light* lightList, int nLights)
         shader->setUniformVec3(("pointLights[" + number + "].ambient").c_str(), lightList[i].ambient);
         shader->setUniformVec3(("pointLights[" + number + "].diffuse").c_str(), lightList[i].diffuse * lightList[i].intensity);
         shader->setUniformVec3(("pointLights[" + number + "].specular").c_str(), lightList[i].specular);
-        shader->setUniformFloat(("pointLights[" + number + "].constant").c_str(), 1.0f);
-        shader->setUniformFloat(("pointLights[" + number + "].linear").c_str(), 0.09f);
-        shader->setUniformFloat(("pointLights[" + number + "].quadratic").c_str(), 0.032f);
+        shader->setUniformFloat(("pointLights[" + number + "].constant").c_str(), lightList[i].constant);
+        shader->setUniformFloat(("pointLights[" + number + "].linear").c_str(), lightList[i].linear);
+        shader->setUniformFloat(("pointLights[" + number + "].quadratic").c_str(), lightList[i].quadratic);
     }
 }
 

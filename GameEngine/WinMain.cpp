@@ -38,18 +38,18 @@ struct Game : Ingenium3D
 
 		skyBox.loadFromOBJ("D:\\planenormtex.obj", true, true);
 		skyBox.scale = { 10, 1, 10 };
-		skyBox.setTexture("D:\Images\\tex.jpg");
+		skyBox.setTexture("D:\\Images\\tex.jpg");
 		skyBox.material.shininess = 1;
 		skyBox.load();
-		skyBox.position = { -3, 0, 0 };
+		skyBox.position = { -4, 0, 0 };
 
 		m.loadFromOBJ("D:\\mandnormtex.obj", true, true);
 		m.scale = { 0.2, 0.2, 0.2 };
-		m.position = { 0, 0, 5 };
-		m.material.shininess = 0.5;
-		m.setTexture("D:\\Images\\CrackSoil.jpg", "D:\\Images\\CrackSoilGrayScale.jpg");
+		m.position = { 0, 1, 5 };
+		m.material.shininess = 1;
+		m.setTexture("D:\\Images\\Bark_Pine_normal.jpg", "NONE");
 		m.load();
-		
+
 		cube.loadFromOBJ("D:\\cubenormaltex.obj", true, true);
 		cube.setTexture("D:\\Images\\tex.jpg", "D:\\Images\\Ground_Forest_002_roughness.jpg");
 		cube.load();
@@ -59,32 +59,33 @@ struct Game : Ingenium3D
 
 		lightObj.loadFromOBJ("D:\\spheretexnorm.obj", true, true);
 		// lightObj.setTexture("D:\\Images\\Bark_Pine_normal.jpg", "D:\\Images\\Ground_Forest_002_normal.jpg");
-		lightObj.setTexture("NONE", "D:\\Images\\Ground_Forest_002_normal.jpg");
+		lightObj.setTexture("D:\\Images\\Bark_Pine_roughness.jpg", "D:\\Images\\Bark_Pine_height.png");
 		lightObj.load();
 		lightObj.position = { 9, 3, 4 };
 		lightObj.scale = { 1, 1, 1 };
 		lightObj.material.shininess = 1;
 
 		llst[0].diffuse = { 1, 1, 1 };
-		llst[0].ambient = { 0.2, 0.2, 0.2 };
+		llst[0].ambient = { 0.3, 0.3, 0.3 };
 		llst[0].specular = { 0.6, 0.6, 0.6 };
 
-		llst[1].diffuse = { 0.6, 0.6, 0.6 };
-		llst[1].specular = { 0.8, 0.8, 0.8 };
+		llst[1].diffuse = { 0.3, 0.2, 0.4 };
+		llst[1].specular = { 0.6, 0.2, 0.8 };
 		llst[1].ambient = { 0.01, 0.01, 0.01 };
 
 		dirLight.ambient = { 0.001, 0.001, 0.001 };
-		dirLight.diffuse = { 0.01, 0.01, 0.01 };
-		dirLight.specular = { 0.01, 0.01, 0.01 };
-		dirLight.position = { 0, -1, 0.5 };
+		dirLight.diffuse = { 0.3, 0.3, 0.3 };
+		dirLight.specular = { 0.2, 0.2, 0.2 };
+		dirLight.position = { 0.2, -1, 0.2 };
 
 		camera.FOV = 60;
 		camera.clipNear = 0.2;
 		camera.clipFar = 500;
 		refreshProjectionMatrix();
 
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
+		// glEnable(GL_CULL_FACE);
+		// glCullFace(GL_BACK);
+		glDisable(GL_CULL_FACE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
@@ -100,8 +101,8 @@ struct Game : Ingenium3D
 	void onUpdate()
 	{
 		Input* in = Input::getInput(drwn->window);
-		//Debug::oss << "FPS: " << 1.f / Time::deltaTime;
-		//Debug::writeLn();
+		Debug::oss << "FPS: " << 1.f / Time::deltaTime;
+		Debug::writeLn();
 		float speed = 3;
 		float cameraMoveSpeed = 0.002;
 		Vector3D cLV = camera.lookVector();
@@ -138,12 +139,12 @@ struct Game : Ingenium3D
 
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime * 1000);
 		camera.position = camera.position + forward.normalized() * speed * Time::deltaTime;
-		
+
 		cameraCorrection();
 
-		cube.rotation = cube.rotation + (Vector3D{ 0.5, 0.5, 0.5 } * Time::deltaTime);
-		lightObj.rotation = lightObj.rotation + (Vector3D{ 5, 0.7, 3 } * Time::deltaTime);
-		llst[1].position = cube.position;
+		cube.rotation = cube.rotation + (Vector3D{ 0.5, 0.5, 0.5 } *Time::deltaTime);
+		lightObj.rotation = lightObj.rotation + (Vector3D{ 5, 0.7, 3 } *Time::deltaTime);
+		llst[1].position = cube.position + Vector3D{ 0, 1, 0 };
 
 		llst[0].position = camera.position + Vector3D{ 0, 1.9, 0 };
 
@@ -158,7 +159,22 @@ struct Game : Ingenium3D
 		skyBox.render(shader, camera, &projectionMatrix);
 
 		drwn->endRender();
+
+		float xoffset = mouseX - lastX;
+		float yoffset = lastY - mouseY;
+		lastX = mouseX;
+		lastY = mouseY;
+
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
+		engine3D->camera.rotation.y += xoffset * Time::deltaTime;
+		engine3D->camera.rotation.x -= yoffset * Time::deltaTime;
+		((Game*)engine3D)->cameraCorrection();
 	}
+
+	static inline float mouseX = 0, mouseY = 0;
+	static inline float lastX = 800, lastY = 450;
+	static inline const float sensitivity = 0.2f;
 	void onClose() {
 		memory::safe_delete(shader);
 		memory::safe_delete(llst);
@@ -171,21 +187,10 @@ struct Game : Ingenium3D
 			camera.rotation.y = 0;
 	}
 
-	static inline float lastX = 800, lastY = 450;
-	static inline const float sensitivity = 0.3f;
-
 	static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	{
-		float xoffset = xpos - lastX;
-		float yoffset = lastY - ypos;
-		lastX = xpos;
-		lastY = ypos;
-
-		xoffset *= sensitivity;
-		yoffset *= sensitivity;
-		engine3D->camera.rotation.y += xoffset * Time::deltaTime;
-		engine3D->camera.rotation.x -= yoffset * Time::deltaTime;
-		((Game*) engine3D)->cameraCorrection();
+		mouseX = xpos;
+		mouseY = ypos;
 	};
 };
 
