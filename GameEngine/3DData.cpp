@@ -547,6 +547,7 @@ void Mesh::render(Shader* shader, Camera c, Matrix4x4* projectionMatrix)
 		glBindTexture(GL_TEXTURE_2D, material.specularTex);
 		shader->setUniformFloat("u_time", glfwGetTime());
 		shader->setUniformMatrix4x4("model", makeWorldMatrix());
+		shader->setUniformVec3("viewPos", c.position);
 		shader->setUniformMatrix4x4("view", c.makeCameraMatrix().qInverse());
 		shader->setUniformMatrix4x4("projection", *projectionMatrix);
 		shader->setUniformMatrix4x4("invModel", makeWorldMatrix().qInverse());

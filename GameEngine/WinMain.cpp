@@ -57,15 +57,16 @@ struct Game : Ingenium3D
 		cube.scale = { 0.5, 0.5, 0.5 };
 
 		lightObj.loadFromOBJ("D:\\spheretexnorm.obj", true, true);
-		lightObj.setTexture("D:\\Images\\Bark_Pine_normal.jpg", "D:\\Images\\Ground_Forest_002_normal.jpg");
+		// lightObj.setTexture("D:\\Images\\Bark_Pine_normal.jpg", "D:\\Images\\Ground_Forest_002_normal.jpg");
+		lightObj.setTexture("NONE", "D:\\Images\\Ground_Forest_002_normal.jpg");
 		lightObj.load();
 		lightObj.position = { 9, 3, 4 };
 		lightObj.scale = { 1, 1, 1 };
-		lightObj.material.shininess = 0.3;
+		lightObj.material.shininess = 1;
 
 		llst[0].diffuse = { 1, 1, 1 };
 		llst[0].ambient = { 0.2, 0.2, 0.2 };
-		llst[0].specular = { 0.1, 0.1, 0.1 };
+		llst[0].specular = { 0.6, 0.6, 0.6 };
 
 		llst[1].diffuse = { 1, 0, 1 };
 		llst[1].specular = { 0.2, 0, 0.2 };
