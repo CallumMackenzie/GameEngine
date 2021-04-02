@@ -406,7 +406,7 @@ Matrix4x4 Mesh::makeWorldMatrix()
 	Matrix4x4 matRot = Matrix4x4::makeRotationAroundPoint(rotation.x, rotation.y, rotation.z, rotationCenter);
 	Matrix4x4 matTrans = Matrix4x4::makeTranslation(position.x, position.y, position.z);
 	Matrix4x4 matScale = Matrix4x4::makeScale(scale.x, scale.y, scale.z);
-	Matrix4x4 matWorld = (matRot * matTrans) * matScale;
+	Matrix4x4 matWorld = (matScale * matRot * matTrans);
 	return matWorld;
 }
 void Mesh::toVertexArray(VertexArray** ptr)
@@ -611,7 +611,7 @@ void VertexArray::draw()
 	glDrawArrays(GL_TRIANGLES, 0, mVertexCount);
 }
 
-Shader::Shader(std::string vertexShader, std::string fragmentShader)
+Shader::Shader(std::string vertexShader, std::string fragmentShader, std::string geometryShader)
 {
 	unsigned int program = glCreateProgram();
 	unsigned int vs = compileShader(getFileAsString(vertexShader), GL_VERTEX_SHADER);
@@ -619,6 +619,10 @@ Shader::Shader(std::string vertexShader, std::string fragmentShader)
 
 	glAttachShader(program, vs);
 	glAttachShader(program, fs);
+	if (geometryShader != "none") {
+		unsigned int gs = compileShader(getFileAsString(geometryShader), GL_GEOMETRY_SHADER);
+		glAttachShader(program, gs);
+	}
 	glLinkProgram(program);
 	glValidateProgram(program);
 

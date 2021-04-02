@@ -191,7 +191,7 @@ struct Shader {
 
 	unsigned int mShader;
 
-	Shader(std::string vertexShader, std::string fragmentShader);
+	Shader(std::string vertexShader, std::string fragmentShader, std::string geometryShader = "none");
 	void use();
 	int getShaderLoc(const char* name);
 

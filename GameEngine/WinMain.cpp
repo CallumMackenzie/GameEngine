@@ -36,11 +36,12 @@ struct Game : Ingenium3D
 
 		drwn->peekGLErrors();
 
-		skyBox.loadFromOBJ("D:\\cubenormaltex.obj", true, true);
-		skyBox.scale = { 10, 10, 10 };
-		skyBox.setTexture("D:\\Images\\image.jpg");
+		skyBox.loadFromOBJ("D:\\planenormtex.obj", true, true);
+		skyBox.scale = { 10, 1, 10 };
+		skyBox.setTexture("D:\Images\\tex.jpg");
+		skyBox.material.shininess = 1;
 		skyBox.load();
-		skyBox.position = Vector3D{ -5, 0, 0 };
+		skyBox.position = { -3, 0, 0 };
 
 		m.loadFromOBJ("D:\\mandnormtex.obj", true, true);
 		m.scale = { 0.2, 0.2, 0.2 };
@@ -68,9 +69,9 @@ struct Game : Ingenium3D
 		llst[0].ambient = { 0.2, 0.2, 0.2 };
 		llst[0].specular = { 0.6, 0.6, 0.6 };
 
-		llst[1].diffuse = { 1, 0, 1 };
-		llst[1].specular = { 0.2, 0, 0.2 };
-		llst[1].ambient = { 0.2, 0, 0.2 };
+		llst[1].diffuse = { 0.6, 0.6, 0.6 };
+		llst[1].specular = { 0.8, 0.8, 0.8 };
+		llst[1].ambient = { 0.01, 0.01, 0.01 };
 
 		dirLight.ambient = { 0.001, 0.001, 0.001 };
 		dirLight.diffuse = { 0.01, 0.01, 0.01 };
@@ -78,17 +79,20 @@ struct Game : Ingenium3D
 		dirLight.position = { 0, -1, 0.5 };
 
 		camera.FOV = 60;
-		camera.clipNear = 0.1;
-		camera.clipFar = 100;
+		camera.clipNear = 0.2;
+		camera.clipFar = 500;
 		refreshProjectionMatrix();
 
-		glDisable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 		glDepthFunc(GL_LEQUAL);
 		glDepthRange(0.0f, 1.0f);
+		glfwWindowHint(GLFW_SAMPLES, 4);
+		glEnable(GL_MULTISAMPLE);
 
 		glfwSetInputMode(drwn->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetCursorPosCallback(drwn->window, mouse_callback);
@@ -125,9 +129,9 @@ struct Game : Ingenium3D
 			cube.position.x -= cSpeed * Time::deltaTime;
 
 		if (in->getKeyState(38) || in->getKeyState(GLFW_KEY_UP))
-			cube.position.z += cSpeed * Time::deltaTime;
+			cube.position.y += cSpeed * Time::deltaTime;
 		if (in->getKeyState(40) || in->getKeyState(GLFW_KEY_DOWN))
-			cube.position.z -= cSpeed * Time::deltaTime;
+			cube.position.y -= cSpeed * Time::deltaTime;
 
 		if (in->getKeyState(340) || in->getKeyState(16))
 			speed *= 5;
