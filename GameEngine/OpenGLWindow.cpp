@@ -99,11 +99,11 @@ void OpenGLWindow::drawTriangle(float point1X, float point1Y, float point2X, flo
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-Vector2D OpenGLWindow::worldScreenSpaceToScreenSpace(float wX, float wY)
+Vec2 OpenGLWindow::worldScreenSpaceToScreenSpace(float wX, float wY)
 {
 	float xScaled = (wX + translation.x) * scale.x;
 	float yScaled = (wY + translation.y) * scale.y;
-	Vector2D normalSpace = { xScaled / (aspectRatio[0] * 100.0f), yScaled / (aspectRatio[1] * 100.0f) };
+	Vec2 normalSpace = { xScaled / (aspectRatio[0] * 100.0f), yScaled / (aspectRatio[1] * 100.0f) };
 	return { (normalSpace.x) * 2.0f - 1.0f, (normalSpace.y) * 2.0f - 1.0f };
 }
 

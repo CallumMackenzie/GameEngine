@@ -14,11 +14,7 @@ using namespace ingenium3D;
 struct Game : Ingenium3D
 {
 	Shader* shader = nullptr;
-	Mesh skyBox;
-	Mesh m;
-	Mesh cube;
-	Mesh lightObj;
-	Light* llst = new Light[2];
+	std::vector<Mesh> m;
 	DirectionalLight dirLight;
 
 	void onCreate()
@@ -31,51 +27,48 @@ struct Game : Ingenium3D
 		drwn->setClearColour(0x4b4b4b, 1.f);
 		// drwn->setFullScreen(true);
 
-		shader = new Shader("./shaders/3D.vert", "./shaders/def3D.frag");
+		shader = new Shader("./shaders/vert3d.vert", "./shaders/phong.frag");
 		shader->use();
 
 		drwn->peekGLErrors();
 
-		skyBox.loadFromOBJ("D:\\planenormtex.obj", true, true);
-		skyBox.scale = { 10, 1, 10 };
-		skyBox.setTexture("D:\\Images\\tex.jpg");
-		skyBox.material.shininess = 1;
-		skyBox.load();
-		skyBox.position = { -4, 0, 0 };
+		auto objPath = "./resource/uvsmoothnt.obj";
 
-		m.loadFromOBJ("D:\\mandnormtex.obj", true, true);
-		m.scale = { 0.2, 0.2, 0.2 };
-		m.position = { 0, 1, 5 };
-		m.material.shininess = 1;
-		m.setTexture("D:\\Images\\Bark_Pine_normal.jpg", "NONE");
-		m.load();
+		m.push_back(Mesh{ -1.5, 0, 3 });
+		m[0].material.shininess = 0.4;
+		m[0].make(objPath, "./resource/sbrick/b.jpg", "NONE", "./resource/sbrick/n.jpg");
 
-		cube.loadFromOBJ("D:\\cubenormaltex.obj", true, true);
-		cube.setTexture("D:\\Images\\tex.jpg", "D:\\Images\\Ground_Forest_002_roughness.jpg");
-		cube.load();
-		cube.material.shininess = 0.5;
-		cube.position = { 1, 10, 0 };
-		cube.scale = { 0.5, 0.5, 0.5 };
+		m.push_back(Mesh{ 1.5, 0, 3 });
+		m[1].material.shininess = 0.1;
+		m[1].make(objPath, "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg");
 
-		lightObj.loadFromOBJ("D:\\spheretexnorm.obj", true, true);
-		// lightObj.setTexture("D:\\Images\\Bark_Pine_normal.jpg", "D:\\Images\\Ground_Forest_002_normal.jpg");
-		lightObj.setTexture("D:\\Images\\Bark_Pine_roughness.jpg", "D:\\Images\\Bark_Pine_height.png");
-		lightObj.load();
-		lightObj.position = { 9, 3, 4 };
-		lightObj.scale = { 1, 1, 1 };
-		lightObj.material.shininess = 1;
+		m.push_back(Mesh{ -4.5, 0, 3 });
+		m[2].material.shininess = 0.2;
+		m[2].make(objPath, "./resource/paper/b.jpg", "NONE", "./resource/paper/n.jpg");
 
-		llst[0].diffuse = { 1, 1, 1 };
-		llst[0].ambient = { 0.3, 0.3, 0.3 };
-		llst[0].specular = { 0.6, 0.6, 0.6 };
+		m.push_back(Mesh{ 4.5, 0, 3 });
+		m[3].material.shininess = 50;
+		m[3].make(objPath, "./resource/scrmetal/b.jpg", "./resource/scrmetal/s.jpg", "./resource/scrmetal/n.jpg");
 
-		llst[1].diffuse = { 0.3, 0.2, 0.4 };
-		llst[1].specular = { 0.6, 0.2, 0.8 };
-		llst[1].ambient = { 0.01, 0.01, 0.01 };
+		m.push_back(Mesh{ -1.5, 3, 3 });
+		m[4].material.shininess = 1;
+		m[4].make(objPath, "./resource/gate/b.jpg", "./resource/gate/s.jpg", "./resource/gate/n.jpg");
+
+		m.push_back(Mesh{ 1.5, 3, 3 });
+		m[5].material.shininess = 0.6;
+		m[5].make(objPath, "./resource/mtrim/b.jpg", "./resource/mtrim/s.jpg", "./resource/mtrim/n.jpg");
+
+		m.push_back(Mesh{ 4.5, 3, 3 });
+		m[6].material.shininess = 10;
+		m[6].make(objPath, "./resource/woodp/b.jpg", "NONE", "./resource/woodp/n.jpg");
+
+		m.push_back(Mesh{ -4.5, 3, 3 });
+		m[7].material.shininess = 0.4;
+		m[7].make(objPath, "./resource/mplate/b.jpg", "./resource/mplate/s.jpg", "./resource/mplate/n.jpg");
 
 		dirLight.ambient = { 0.001, 0.001, 0.001 };
-		dirLight.diffuse = { 0.3, 0.3, 0.3 };
-		dirLight.specular = { 0.2, 0.2, 0.2 };
+		dirLight.diffuse = { 0.5, 0.5, 0.5 };
+		dirLight.specular = { 0.4, 0.4, 0.4 };
 		dirLight.position = { 0.2, -1, 0.2 };
 
 		camera.FOV = 60;
@@ -105,34 +98,23 @@ struct Game : Ingenium3D
 		Debug::writeLn();
 		float speed = 3;
 		float cameraMoveSpeed = 0.002;
-		Vector3D cLV = camera.lookVector();
+		Vec3 cLV = camera.lookVector();
 
-		Vector3D forward;
-		Vector3D up = { 0, 1, 0 };
-		Vector3D rotate;
+		Vec3 forward;
+		Vec3 up = { 0, 1, 0 };
+		Vec3 rotate;
 		if (in->getKeyState(87))
 			forward = forward + cLV;
 		if (in->getKeyState(83))
 			forward = forward + cLV * -1;
 		if (in->getKeyState(68))
-			forward = forward + Vector3D::crossProduct(cLV, up);
+			forward = forward + Vec3::crossProduct(cLV, up);
 		if (in->getKeyState(65))
-			forward = forward + Vector3D::crossProduct(cLV, up) * -1;
+			forward = forward + Vec3::crossProduct(cLV, up) * -1;
 		if (in->getKeyState(81) || in->getKeyState(32))
 			forward.y = forward.y + 1;
 		if (in->getKeyState(69))
 			forward.y = forward.y - 1;
-
-		float cSpeed = 4;
-		if (in->getKeyState(37) || in->getKeyState(GLFW_KEY_LEFT))
-			cube.position.x += cSpeed * Time::deltaTime;
-		if (in->getKeyState(39) || in->getKeyState(GLFW_KEY_RIGHT))
-			cube.position.x -= cSpeed * Time::deltaTime;
-
-		if (in->getKeyState(38) || in->getKeyState(GLFW_KEY_UP))
-			cube.position.y += cSpeed * Time::deltaTime;
-		if (in->getKeyState(40) || in->getKeyState(GLFW_KEY_DOWN))
-			cube.position.y -= cSpeed * Time::deltaTime;
 
 		if (in->getKeyState(340) || in->getKeyState(16))
 			speed *= 5;
@@ -140,24 +122,15 @@ struct Game : Ingenium3D
 		camera.rotation = camera.rotation + (rotate * Time::deltaTime * 1000);
 		camera.position = camera.position + forward.normalized() * speed * Time::deltaTime;
 
+		for (int i = 0; i < m.size(); i++)
+			m[i].rotation = m[i].rotation + Vec3{1, 1, 1} * Time::deltaTime;
+
 		cameraCorrection();
-
-		cube.rotation = cube.rotation + (Vector3D{ 0.5, 0.5, 0.5 } *Time::deltaTime);
-		lightObj.rotation = lightObj.rotation + (Vector3D{ 5, 0.7, 3 } *Time::deltaTime);
-		llst[1].position = cube.position + Vector3D{ 0, 1, 0 };
-
-		llst[0].position = camera.position + Vector3D{ 0, 1.9, 0 };
 
 		drwn->beginRender();
 		drwn->clear();
-		Light::sendLightsToShader(shader, llst, 2);
 		dirLight.sendToShader(shader);
-
-		m.render(shader, camera, &projectionMatrix);
-		cube.render(shader, camera, &projectionMatrix);
-		lightObj.render(shader, camera, &projectionMatrix);
-		skyBox.render(shader, camera, &projectionMatrix);
-
+		Mesh::renderAll(shader, camera, &projectionMatrix, m);
 		drwn->endRender();
 
 		float xoffset = mouseX - lastX;
@@ -177,7 +150,6 @@ struct Game : Ingenium3D
 	static inline const float sensitivity = 0.2f;
 	void onClose() {
 		memory::safe_delete(shader);
-		memory::safe_delete(llst);
 	}
 
 	void cameraCorrection() {

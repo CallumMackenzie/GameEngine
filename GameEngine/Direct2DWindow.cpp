@@ -90,7 +90,7 @@ RootWindow* Direct2DWindow::getWindow()
 {
 	return window;
 }
-Vector2D ingenium2D::Direct2DWindow::worldScreenSpaceToScreenSpace(float wX, float wY)
+Vec2 ingenium2D::Direct2DWindow::worldScreenSpaceToScreenSpace(float wX, float wY)
 {
 	return { (wX + offset.x) * zoom.width, (wY + offset.y) * zoom.height };
 }

@@ -1,79 +1,90 @@
 #include "3DData.h"
 
-Vector3D operator*(const Vector3D& i, const Matrix4x4& m)
+Vec3 operator*(const Vec3& i, const Mat4& m)
 {
-	Vector3D v;
+	Vec3 v;
 	v.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + i.w * m.m[3][0];
 	v.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + i.w * m.m[3][1];
 	v.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + i.w * m.m[3][2];
 	v.w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + i.w * m.m[3][3];
 	return v;
 }
-Vector3D operator*(const Matrix4x4& mat, const Vector3D& vec)
+Vec3 operator*(const Mat4& mat, const Vec3& vec)
 {
 	return vec * mat;
 }
-Vector3D operator*(const Vector3D& m1, const float k)
+Vec3 operator*(const Vec3& m1, const float k)
 {
 	return { m1.x * k, m1.y * k, m1.z * k };
 }
-Vector3D operator/(const Vector3D& m1, const float k)
+Vec3 operator/(const Vec3& m1, const float k)
 {
 	return { m1.x / k, m1.y / k, m1.z / k };
 }
-Vector3D operator*(const Vector3D& v1, const Vector3D& v2)
+Vec3 operator*(const Vec3& v1, const Vec3& v2)
 {
 	return { v1.x * v2.x, v1.y + v2.y, v1.z * v2.z, v1.w * v2.w };
 }
-Vector3D operator/(const Vector3D& v1, const Vector3D& v2)
+Vec3 operator/(const Vec3& v1, const Vec3& v2)
 {
 	return { v1.x / v2.x, v1.y + v2.y, v1.z / v2.z, v1.w / v2.w };
 }
-Vector3D operator+(const Vector3D& m1, const Vector3D& m2)
+Vec3 operator+(const Vec3& m1, const Vec3& m2)
 {
 	return { m1.x + m2.x, m1.y + m2.y, m1.z + m2.z };
 }
-Vector3D operator-(const Vector3D& m1, const Vector3D& m2)
+Vec3 operator-(const Vec3& m1, const Vec3& m2)
 {
 	return { m1.x - m2.x, m1.y - m2.y, m1.z - m2.z };
 }
-Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2)
+Mat4 operator*(const Mat4& m1, const Mat4& m2)
 {
-	Matrix4x4 matrix;
+	Mat4 matrix;
 	for (int c = 0; c < 4; c++)
 		for (int r = 0; r < 4; r++)
 			matrix.m[r][c] = m1.m[r][0] * m2.m[0][c] + m1.m[r][1] * m2.m[1][c] + m1.m[r][2] * m2.m[2][c] + m1.m[r][3] * m2.m[3][c];
 	return matrix;
 }
-
-Vector3D Vector3D::planeIntersect(Vector3D& plane_p, Vector3D& plane_n, Vector3D& lineStart, Vector3D& lineEnd, float& t)
+Vec2 operator -(const Vec2& v1, const Vec2& v2) {
+	return { v1.x - v2.x, v1.y - v2.y };
+};
+Vec2 operator +(const Vec2& v1, const Vec2& v2) {
+	return { v1.x + v2.x, v1.y + v2.y };
+};
+Vec2 operator *(const Vec2& v1, const Vec2& v2) {
+	return { v1.x * v2.x, v1.y * v2.y };
+};
+Vec2 operator /(const Vec2& v1, const Vec2& v2) {
+	return { v1.x / v2.x, v1.y / v2.y };
+};
+Vec3 Vec3::planeIntersect(Vec3& plane_p, Vec3& plane_n, Vec3& lineStart, Vec3& lineEnd, float& t)
 {
 	plane_n = plane_n.normalized();
-	float plane_d = -Vector3D::dotProduct(plane_n, plane_p);
-	float ad = Vector3D::dotProduct(lineStart, plane_n);
-	float bd = Vector3D::dotProduct(lineEnd, plane_n);
+	float plane_d = -Vec3::dotProduct(plane_n, plane_p);
+	float ad = Vec3::dotProduct(lineStart, plane_n);
+	float bd = Vec3::dotProduct(lineEnd, plane_n);
 	t = (-plane_d - ad) / (bd - ad);
-	Vector3D lineStartToEnd = lineEnd - lineStart;
-	Vector3D lineToIntersect = lineStartToEnd * t;
+	Vec3 lineStartToEnd = lineEnd - lineStart;
+	Vec3 lineToIntersect = lineStartToEnd * t;
 	return lineStart + lineToIntersect;
 }
-float Vector3D::dotProduct(Vector3D& v1, Vector3D& v2)
+float Vec3::dotProduct(Vec3& v1, Vec3& v2)
 {
 	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
-Vector3D Vector3D::crossProduct(Vector3D& v1, Vector3D& v2)
+Vec3 Vec3::crossProduct(Vec3& v1, Vec3& v2)
 {
-	Vector3D v;
+	Vec3 v;
 	v.x = v1.y * v2.z - v1.z * v2.y;
 	v.y = v1.z * v2.x - v1.x * v2.z;
 	v.z = v1.x * v2.y - v1.y * v2.x;
 	return v;
 }
-float Vector3D::length()
+float Vec3::length()
 {
 	return Vector::qSqrt(dotProduct(*this, *this), 1);
 }
-float* Vector3D::toFloatArray()
+float* Vec3::toFloatArray()
 {
 	float* arr = new float[4];
 	arr[0] = x;
@@ -82,31 +93,30 @@ float* Vector3D::toFloatArray()
 	arr[3] = w;
 	return arr;
 }
-void Vector3D::normalize()
+void Vec3::normalize()
 {
 	float l = length();
 	x /= l;
 	y /= l;
 	z /= l;
 }
-Vector3D Vector3D::normalized()
+Vec3 Vec3::normalized()
 {
 	float l = length();
 	return { x / l, y / l, z / l };
 }
-
-Matrix4x4 Matrix4x4::makeIdentity()
+Mat4 Mat4::makeIdentity()
 {
-	Matrix4x4 matrix;
+	Mat4 matrix;
 	matrix.m[0][0] = 1.0f;
 	matrix.m[1][1] = 1.0f;
 	matrix.m[2][2] = 1.0f;
 	matrix.m[3][3] = 1.0f;
 	return matrix;
 }
-Matrix4x4 Matrix4x4::makeRotationX(float xAngleRadians)
+Mat4 Mat4::makeRotationX(float xAngleRadians)
 {
-	Matrix4x4 matrix;
+	Mat4 matrix;
 	matrix.m[0][0] = 1.0f;
 	matrix.m[1][1] = cosf(xAngleRadians);
 	matrix.m[1][2] = sinf(xAngleRadians);
@@ -115,9 +125,9 @@ Matrix4x4 Matrix4x4::makeRotationX(float xAngleRadians)
 	matrix.m[3][3] = 1.0f;
 	return matrix;
 }
-Matrix4x4 Matrix4x4::makeRotationY(float yAngleRadians)
+Mat4 Mat4::makeRotationY(float yAngleRadians)
 {
-	Matrix4x4 matrix;
+	Mat4 matrix;
 	matrix.m[0][0] = cosf(yAngleRadians);
 	matrix.m[0][2] = sinf(yAngleRadians);
 	matrix.m[2][0] = -sinf(yAngleRadians);
@@ -126,9 +136,9 @@ Matrix4x4 Matrix4x4::makeRotationY(float yAngleRadians)
 	matrix.m[3][3] = 1.0f;
 	return matrix;
 }
-Matrix4x4 Matrix4x4::makeRotationZ(float zAngleRadians)
+Mat4 Mat4::makeRotationZ(float zAngleRadians)
 {
-	Matrix4x4 matrix;
+	Mat4 matrix;
 	matrix.m[0][0] = cosf(zAngleRadians);
 	matrix.m[0][1] = sinf(zAngleRadians);
 	matrix.m[1][0] = -sinf(zAngleRadians);
@@ -137,9 +147,9 @@ Matrix4x4 Matrix4x4::makeRotationZ(float zAngleRadians)
 	matrix.m[3][3] = 1.0f;
 	return matrix;
 }
-Matrix4x4 Matrix4x4::makeTranslation(float x, float y, float z)
+Mat4 Mat4::makeTranslation(float x, float y, float z)
 {
-	Matrix4x4 matrix;
+	Mat4 matrix;
 	matrix.m[0][0] = 1.0f;
 	matrix.m[1][1] = 1.0f;
 	matrix.m[2][2] = 1.0f;
@@ -149,10 +159,10 @@ Matrix4x4 Matrix4x4::makeTranslation(float x, float y, float z)
 	matrix.m[3][2] = z;
 	return matrix;
 }
-Matrix4x4 Matrix4x4::makeProjectionMatrix(float fovDegrees, float aspectRatio, float near_, float far_)
+Mat4 Mat4::makeProjectionMatrix(float fovDegrees, float aspectRatio, float near_, float far_)
 {
 	float fovRad = 1.0f / tanf(Rotation::toRadians(fovDegrees * 0.5f));
-	Matrix4x4 matrix;
+	Mat4 matrix;
 	matrix.m[0][0] = aspectRatio * fovRad;
 	matrix.m[1][1] = fovRad;
 	matrix.m[2][2] = far_ / (far_ - near_);
@@ -161,36 +171,36 @@ Matrix4x4 Matrix4x4::makeProjectionMatrix(float fovDegrees, float aspectRatio, f
 	matrix.m[3][3] = 0.0f;
 	return matrix;
 }
-Matrix4x4 Matrix4x4::makePointedAt(Vector3D& pos, Vector3D& target, Vector3D& up)
+Mat4 Mat4::makePointedAt(Vec3& pos, Vec3& target, Vec3& up)
 {
-	Vector3D newForward = target - pos;
+	Vec3 newForward = target - pos;
 	newForward = newForward.normalized();
 
-	Vector3D a = newForward * Vector3D::dotProduct(up, newForward);
-	Vector3D newUp = up - a;
+	Vec3 a = newForward * Vec3::dotProduct(up, newForward);
+	Vec3 newUp = up - a;
 	newUp = newUp.normalized();
 
-	Vector3D newRight = Vector3D::crossProduct(newUp, newForward);
+	Vec3 newRight = Vec3::crossProduct(newUp, newForward);
 
-	Matrix4x4 matrix;
+	Mat4 matrix;
 	matrix.m[0][0] = newRight.x;	matrix.m[0][1] = newRight.y;	matrix.m[0][2] = newRight.z;	matrix.m[0][3] = 0.0f;
 	matrix.m[1][0] = newUp.x;		matrix.m[1][1] = newUp.y;		matrix.m[1][2] = newUp.z;		matrix.m[1][3] = 0.0f;
 	matrix.m[2][0] = newForward.x;	matrix.m[2][1] = newForward.y;	matrix.m[2][2] = newForward.z;	matrix.m[2][3] = 0.0f;
 	matrix.m[3][0] = pos.x;			matrix.m[3][1] = pos.y;			matrix.m[3][2] = pos.z;			matrix.m[3][3] = 1.0f;
 	return matrix;
 }
-Matrix4x4 Matrix4x4::makeScale(float x, float y, float z)
+Mat4 Mat4::makeScale(float x, float y, float z)
 {
-	Matrix4x4 matrix = makeIdentity();
+	Mat4 matrix = makeIdentity();
 	matrix.m[0][0] = x;
 	matrix.m[1][1] = y;
 	matrix.m[2][2] = z;
 	return matrix;
 }
-Matrix4x4 Matrix4x4::qInverse()
+Mat4 Mat4::qInverse()
 {
 
-	Matrix4x4 matrix;
+	Mat4 matrix;
 	matrix.m[0][0] = m[0][0]; matrix.m[0][1] = m[1][0]; matrix.m[0][2] = m[2][0]; matrix.m[0][3] = 0.0f;
 	matrix.m[1][0] = m[0][1]; matrix.m[1][1] = m[1][1]; matrix.m[1][2] = m[2][1]; matrix.m[1][3] = 0.0f;
 	matrix.m[2][0] = m[0][2]; matrix.m[2][1] = m[1][2]; matrix.m[2][2] = m[2][2]; matrix.m[2][3] = 0.0f;
@@ -200,7 +210,7 @@ Matrix4x4 Matrix4x4::qInverse()
 	matrix.m[3][3] = 1.0f;
 	return matrix;
 }
-void Matrix4x4::flatten(float* arr)
+void Mat4::flatten(float* arr)
 {
 	arr = new float[16];
 	int k = 0;
@@ -210,116 +220,32 @@ void Matrix4x4::flatten(float* arr)
 			k++;
 		}
 }
-Matrix4x4 Matrix4x4::makeRotationAroundPoint(float xRad, float yRad, float zRad, Vector3D rotPoint)
+Mat4 Mat4::makeRotationAroundPoint(float xRad, float yRad, float zRad, Vec3 rotPoint)
 {
-	Matrix4x4 mat = (
-		makeTranslation(rotPoint.x, rotPoint.y, rotPoint.z) * 
-		makeRotationX(xRad) * makeRotationY(yRad) * makeRotationZ(zRad)) * 
+	Mat4 mat = (
+		makeTranslation(rotPoint.x, rotPoint.y, rotPoint.z) *
+		makeRotationX(xRad) * makeRotationY(yRad) * makeRotationZ(zRad)) *
 		makeTranslation(-rotPoint.x, -rotPoint.y, -rotPoint.z);
 	return mat;
 }
-
-float Triangle::clipAgainstPlane(Vector3D plane_p, Vector3D plane_n, Triangle& in_tri, Triangle& out_tri1, Triangle& out_tri2)
+bool Mesh::loadFromOBJ(std::string fileName)
 {
-	plane_n.normalize();
+	bool hasTexture = false;
+	bool hasNormals = false;
+	std::string f1 = Shader::getFileAsString(fileName);
+	if (f1.find("vt") != std::string::npos)
+		hasTexture = true;
+	if (f1.find("vn") != std::string::npos)
+		hasNormals = true;
 
-	auto dist = [&](Vector3D& p)
-	{
-		Vector3D n = p.normalized();
-		return (plane_n.x * p.x + plane_n.y * p.y + plane_n.z * p.z - Vector3D::dotProduct(plane_n, plane_p));
-	};
-
-	Vector3D* inside_points[3];  int nInsidePointCount = 0;
-	Vector3D* outside_points[3]; int nOutsidePointCount = 0;
-	Vector2D* inside_tex[3]; int nInsideTexCount = 0;
-	Vector2D* outside_tex[3]; int nOutsideTexCount = 0;
-
-	float d0 = dist(in_tri.v[0].p);
-	float d1 = dist(in_tri.v[1].p);
-	float d2 = dist(in_tri.v[2].p);
-
-	if (d0 >= 0) { inside_points[nInsidePointCount++] = &in_tri.v[0].p; inside_tex[nInsideTexCount++] = &in_tri.v[0].t; }
-	else {
-		outside_points[nOutsidePointCount++] = &in_tri.v[0].p; outside_tex[nOutsideTexCount++] = &in_tri.v[0].t;
-	}
-	if (d1 >= 0) {
-		inside_points[nInsidePointCount++] = &in_tri.v[1].p; inside_tex[nInsideTexCount++] = &in_tri.v[1].t;
-	}
-	else {
-		outside_points[nOutsidePointCount++] = &in_tri.v[1].p;  outside_tex[nOutsideTexCount++] = &in_tri.v[1].t;
-	}
-	if (d2 >= 0) {
-		inside_points[nInsidePointCount++] = &in_tri.v[2].p; inside_tex[nInsideTexCount++] = &in_tri.v[2].t;
-	}
-	else {
-		outside_points[nOutsidePointCount++] = &in_tri.v[2].p;  outside_tex[nOutsideTexCount++] = &in_tri.v[2].t;
-	}
-
-	if (nInsidePointCount == 0)
-		return 0;
-
-	if (nInsidePointCount == 3)
-	{
-		out_tri1 = in_tri;
-		return 1;
-	}
-
-	if (nInsidePointCount == 1 && nOutsidePointCount == 2)
-	{
-
-		out_tri1.v[0].p = *inside_points[0];
-		out_tri1.v[0].t = *inside_tex[0];
-
-		float t;
-		out_tri1.v[1].p = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[0], t);
-		out_tri1.v[1].t.u = t * (outside_tex[0]->u - inside_tex[0]->u) + inside_tex[0]->u;
-		out_tri1.v[1].t.v = t * (outside_tex[0]->v - inside_tex[0]->v) + inside_tex[0]->v;
-		out_tri1.v[1].t.w = t * (outside_tex[0]->w - inside_tex[0]->w) + inside_tex[0]->w;
-
-		out_tri1.v[2].p = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[1], t);
-		out_tri1.v[2].t.u = t * (outside_tex[1]->u - inside_tex[0]->u) + inside_tex[0]->u;
-		out_tri1.v[2].t.v = t * (outside_tex[1]->v - inside_tex[0]->v) + inside_tex[0]->v;
-		out_tri1.v[2].t.w = t * (outside_tex[1]->w - inside_tex[0]->w) + inside_tex[0]->w;
-
-		return 1;
-	}
-
-	if (nInsidePointCount == 2 && nOutsidePointCount == 1)
-	{
-
-		out_tri1.v[0].p = *inside_points[0];
-		out_tri1.v[1].p = *inside_points[1];
-		out_tri1.v[0].t = *inside_tex[0];
-		out_tri1.v[1].t = *inside_tex[1];
-
-		float t;
-		out_tri1.v[2].p = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[0], *outside_points[0], t);
-		out_tri1.v[2].t.u = t * (outside_tex[0]->u - inside_tex[0]->u) + inside_tex[0]->u;
-		out_tri1.v[2].t.v = t * (outside_tex[0]->v - inside_tex[0]->v) + inside_tex[0]->v;
-		out_tri1.v[2].t.w = t * (outside_tex[0]->w - inside_tex[0]->w) + inside_tex[0]->w;
-
-		out_tri2.v[0].p = *inside_points[1];
-		out_tri2.v[0].t = *inside_tex[1];
-		out_tri2.v[1].p = out_tri1.v[2].p;
-		out_tri2.v[1].t = out_tri1.v[2].t;
-		out_tri2.v[2].p = Vector3D::planeIntersect(plane_p, plane_n, *inside_points[1], *outside_points[0], t);
-		out_tri2.v[2].t.u = t * (outside_tex[0]->u - inside_tex[1]->u) + inside_tex[1]->u;
-		out_tri2.v[2].t.v = t * (outside_tex[0]->v - inside_tex[1]->v) + inside_tex[1]->v;
-		out_tri2.v[2].t.w = t * (outside_tex[0]->w - inside_tex[1]->w) + inside_tex[1]->w;
-		return 2; // Return two newly formed triangles which form a quad
-	}
-}
-
-bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture, bool hasNormals)
-{
 	using namespace std;
 	ifstream f(fileName);
 	if (!f.is_open())
 		return false;
 
-	vector<Vector3D> verts;
-	vector<Vector3D> normals;
-	vector<Vector2D> texs;
+	vector<Vec3> verts;
+	vector<Vec3> normals;
+	vector<Vec2> texs;
 
 	while (!f.eof()) {
 		char line[MAX_OBJ_LINE_CHARS];
@@ -330,17 +256,17 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture, bool hasNormals)
 		s << line;
 		if (line[0] == 'v') {
 			if (line[1] == 't') {
-				Vector2D v;
+				Vec2 v;
 				s >> junk >> junk >> v.u >> v.v;
 				texs.push_back(v);
 			}
 			else if (line[1] == 'n') {
-				Vector3D normal;
+				Vec3 normal;
 				s >> junk >> junk >> normal.x >> normal.y >> normal.z;
 				normals.push_back(normal);
 			}
 			else {
-				Vector3D v;
+				Vec3 v;
 				s >> junk >> v.x >> v.y >> v.z;
 				verts.push_back(v);
 			}
@@ -386,7 +312,7 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture, bool hasNormals)
 				tokens[nTokenCount].pop_back();
 
 				Triangle push;
-				for (int k = 0; k < 3; k++) 
+				for (int k = 0; k < 3; k++)
 				{
 					push.v[k].p = verts[stoi(tokens[params * k]) - 1];
 					push.v[k].t = texs[stoi(tokens[1 + params * k]) - 1];
@@ -394,6 +320,8 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture, bool hasNormals)
 						push.v[k].n = normals[stoi(tokens[2 + params * k]) - 1];
 				}
 
+				Vec3 tangent = calcTangent(push);
+				for (int i = 0; i < 3; i++) push.v[i].tan = tangent;
 				tris.push_back(push);
 				delete[] tokens;
 			}
@@ -401,12 +329,12 @@ bool Mesh::loadFromOBJ(std::string fileName, bool hasTexture, bool hasNormals)
 	}
 	return true;
 }
-Matrix4x4 Mesh::makeWorldMatrix()
+Mat4 Mesh::makeWorldMatrix()
 {
-	Matrix4x4 matRot = Matrix4x4::makeRotationAroundPoint(rotation.x, rotation.y, rotation.z, rotationCenter);
-	Matrix4x4 matTrans = Matrix4x4::makeTranslation(position.x, position.y, position.z);
-	Matrix4x4 matScale = Matrix4x4::makeScale(scale.x, scale.y, scale.z);
-	Matrix4x4 matWorld = (matScale * matRot * matTrans);
+	Mat4 matRot = Mat4::makeRotationAroundPoint(rotation.x, rotation.y, rotation.z, rotationCenter);
+	Mat4 matTrans = Mat4::makeTranslation(position.x, position.y, position.z);
+	Mat4 matScale = Mat4::makeScale(scale.x, scale.y, scale.z);
+	Mat4 matWorld = (matScale * matRot * matTrans);
 	return matWorld;
 }
 void Mesh::toVertexArray(VertexArray** ptr)
@@ -445,138 +373,164 @@ void Mesh::load() {
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), NULL);
 		glEnableVertexAttribArray(0);
 
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vector3D)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vec3)));
 		glEnableVertexAttribArray(1);
 
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vector3D) + sizeof(Vector2D)));
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vec3) + sizeof(Vec2)));
 		glEnableVertexAttribArray(2);
 
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vector3D) + sizeof(Vector2D) + sizeof(Vector3D)));
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vec3) + sizeof(Vec2) + sizeof(Vec3)));
 		glEnableVertexAttribArray(3);
+
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vec3) + sizeof(Vec2) + sizeof(Vec3) + sizeof(Vec3)));
+		glEnableVertexAttribArray(4);
 #endif
 	}
 	loaded = true;
 }
-void Mesh::setTexture(std::string texturePath, std::string specularPath)
+unsigned int Mesh::loadTexture(std::string path, unsigned int texSlot, unsigned int sWrap, unsigned int tWrap, unsigned int minFilter, unsigned int magFilter)
 {
+	unsigned int tex = GL_NONE;
+	auto mode = GL_RGBA;
+	auto ilMode = IL_RGBA;
+	glGenTextures(1, &tex);
+	glActiveTexture(texSlot);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sWrap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tWrap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+
+	float px[] = { 0.f, 0.f, 0.f, 1.f };
+
+	glTexImage2D(GL_TEXTURE_2D, 0, mode, 0, 0, 0, mode, GL_UNSIGNED_BYTE, px);
 	if (!ilInitialized) {
 		ilInit();
 		iluInit();
 		ilClearColour(255, 255, 255, 000);
 		ilInitialized = true;
 	}
-
-	if (!texturePath._Equal("NONE")) {
+	if (path != "NONE") {
 		ILuint imgID = 0;
 		ilGenImages(1, &imgID);
 		ilBindImage(imgID);
-		ILboolean success = ilLoadImage(texturePath.c_str());
+		ILboolean success = ilLoadImage(path.c_str());
 		if (success == IL_TRUE)
 		{
-			success = ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-			if (success == IL_TRUE)
-			{
+			success = ilConvertImage(ilMode, IL_UNSIGNED_BYTE);
+			if (success == IL_TRUE) {
 				unsigned int* data = (unsigned int*)ilGetData();
 				unsigned int width = (unsigned int)ilGetInteger(IL_IMAGE_WIDTH), height = (unsigned int)ilGetInteger(IL_IMAGE_HEIGHT);
 
-				glGenTextures(1, &material.diffuseTex);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, material.diffuseTex);
-
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 				if (data) {
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+					glTexImage2D(GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, data);
 					glGenerateMipmap(GL_TEXTURE_2D);
 				}
 				else {
-					Debug::oss << "Image loaing failed: " << texturePath;
+					Debug::oss << "Image loaing failed: " << path;
 					Debug::writeLn();
 				}
 			}
-			ilDeleteImages(1, &imgID);
 		}
 	}
-	if (!specularPath._Equal("NONE")) {
-		ILuint imgID2 = 0;
-		ilGenImages(1, &imgID2);
-		ilBindImage(imgID2);
-		ILboolean success = ilLoadImage(specularPath.c_str());
-		if (success == IL_TRUE)
-		{
-			success = ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-			if (success == IL_TRUE)
-			{
-				unsigned int* data = (unsigned int*)ilGetData();
-				unsigned int width = (unsigned int)ilGetInteger(IL_IMAGE_WIDTH), height = (unsigned int)ilGetInteger(IL_IMAGE_HEIGHT);
-
-				glGenTextures(1, &material.specularTex);
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, material.specularTex);
-
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				if (data) {
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-					glGenerateMipmap(GL_TEXTURE_2D);
-				}
-				else {
-					Debug::oss << "Image loaing failed: " << specularPath;
-					Debug::writeLn();
-				}
-			}
-			ilDeleteImages(1, &imgID2);
-		}
-	}
+	return tex;
 }
-void Mesh::render(Shader* shader, Camera c, Matrix4x4* projectionMatrix)
+void Mesh::setTexture(std::string texturePath, std::string specularPath, std::string normalPath)
+{
+	material.diffuseTex = Mesh::loadTexture(texturePath, GL_TEXTURE0);
+	material.specularTex = Mesh::loadTexture(specularPath, GL_TEXTURE1);
+}
+void Mesh::make(std::string obj, std::string texturePath, std::string specularPath, std::string normalPath)
+{
+	loadFromOBJ(obj);
+	setTexture(texturePath, specularPath, normalPath);
+	load();
+}
+Vec3 Mesh::calcTangent(Triangle tri)
+{
+	Vec3 edge1 = tri.v[1].p - tri.v[0].p;
+	Vec3 edge2 = tri.v[2].p - tri.v[0].p;
+	Vec2 dUV1 = tri.v[1].t - tri.v[0].t;
+	Vec2 dUV2 = tri.v[2].t - tri.v[0].t;
+
+	float f = 1.0f / (dUV1.x * dUV2.y - dUV2.x * dUV1.y);
+
+	Vec3 tan;
+	tan.x = f * (dUV2.y * edge1.x - dUV1.y * edge2.x);
+	tan.y = f * (dUV2.y * edge1.y - dUV1.y * edge2.y);
+	tan.z = f * (dUV2.y * edge1.z - dUV1.y * edge2.z);
+
+	return tan;
+}
+void Mesh::render(Shader* shader, Camera c, Mat4* projectionMatrix)
 {
 	if (loaded) {
 		shader->use();
 		shader->setUniformInt("material.diffuse", 0);
 		shader->setUniformInt("material.specular", 1);
+		shader->setUniformInt("material.normal", 2);
 		glBindVertexArray(mVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, material.diffuseTex);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, material.specularTex);
 		shader->setUniformFloat("u_time", glfwGetTime());
-		shader->setUniformMatrix4x4("model", makeWorldMatrix());
+		shader->setUniformMat4("model", makeWorldMatrix());
 		shader->setUniformVec3("viewPos", c.position);
-		shader->setUniformMatrix4x4("view", c.makeCameraMatrix().qInverse());
-		shader->setUniformMatrix4x4("projection", *projectionMatrix);
-		shader->setUniformMatrix4x4("invModel", makeWorldMatrix().qInverse());
+		shader->setUniformMat4("view", c.makeCameraMatrix().qInverse());
+		shader->setUniformMat4("projection", *projectionMatrix);
+		shader->setUniformMat4("invModel", makeWorldMatrix().qInverse());
 		shader->setUniformFloat("material.shininess", material.shininess);
 		glDrawArrays(GL_TRIANGLES, 0, tris.size() * 3);
 	}
 }
+void Mesh::renderAll(Shader* shader, Camera c, Mat4* projectionMatrix, std::vector<Mesh> m) {
+	int sz = m.size();
+	shader->setUniformInt("material.diffuse", 0);
+	shader->setUniformInt("material.specular", 1);
+	shader->setUniformInt("material.normal", 2);
+	shader->setUniformFloat("u_time", glfwGetTime());
+	shader->setUniformMat4("projection", *projectionMatrix);
+	shader->setUniformMat4("view", c.makeCameraMatrix().qInverse());
+	shader->setUniformVec3("viewPos", c.position);
 
-Vector3D Camera::lookVector()
+	for (int i = 0; i < sz; i++) {
+		if (m[i].loaded) {
+			glBindVertexArray(m[i].mVAO);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, m[i].material.diffuseTex);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, m[i].material.specularTex);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, m[i].material.normalTex);
+
+			shader->setUniformMat4("model", m[i].makeWorldMatrix());
+			shader->setUniformMat4("invModel", m[i].makeWorldMatrix().qInverse());
+			shader->setUniformFloat("material.shininess", m[i].material.shininess);
+			glDrawArrays(GL_TRIANGLES, 0, m[i].tris.size() * 3);
+		}
+	}
+};
+Vec3 Camera::lookVector()
 {
-	Vector3D target = { 0, 0, 1 };
-	Vector3D up = { 0, 1, 0 };
-	Matrix4x4 mRotation = Matrix4x4::makeRotationX(rotation.x) * Matrix4x4::makeRotationY(rotation.y) * Matrix4x4::makeRotationZ(rotation.z);
+	Vec3 target = { 0, 0, 1 };
+	Vec3 up = { 0, 1, 0 };
+	Mat4 mRotation = Mat4::makeRotationX(rotation.x) * Mat4::makeRotationY(rotation.y) * Mat4::makeRotationZ(rotation.z);
 	target = (target * mRotation);
 	return target;
 }
-Matrix4x4 Camera::makeCameraMatrix()
+Mat4 Camera::makeCameraMatrix()
 {
-	Vector3D vUp = { 0, 1, 0 };
-	Vector3D vTarget = { 0, 0, 1 };
-	Matrix4x4 matCameraRotY = Matrix4x4::makeRotationY(rotation.y);
-	Matrix4x4 matCameraRotX = Matrix4x4::makeRotationX(rotation.x);
-	Matrix4x4 matCameraRotZ = Matrix4x4::makeRotationZ(rotation.z);
-	Vector3D camRot = vTarget * (matCameraRotX * matCameraRotY * matCameraRotZ);
+	Vec3 vUp = { 0, 1, 0 };
+	Vec3 vTarget = { 0, 0, 1 };
+	Mat4 matCameraRotY = Mat4::makeRotationY(rotation.y);
+	Mat4 matCameraRotX = Mat4::makeRotationX(rotation.x);
+	Mat4 matCameraRotZ = Mat4::makeRotationZ(rotation.z);
+	Vec3 camRot = vTarget * (matCameraRotX * matCameraRotY * matCameraRotZ);
 	vTarget = position + camRot;
-	Matrix4x4 matCamera = Matrix4x4::makePointedAt(position, vTarget, vUp);
+	Mat4 matCamera = Mat4::makePointedAt(position, vTarget, vUp);
 	return matCamera;
 }
-
 VertexArray::~VertexArray()
 {
 	if (mVBO != GL_NONE)
@@ -610,7 +564,6 @@ void VertexArray::draw()
 	glBindVertexArray(mVAO);
 	glDrawArrays(GL_TRIANGLES, 0, mVertexCount);
 }
-
 Shader::Shader(std::string vertexShader, std::string fragmentShader, std::string geometryShader)
 {
 	unsigned int program = glCreateProgram();
@@ -619,7 +572,7 @@ Shader::Shader(std::string vertexShader, std::string fragmentShader, std::string
 
 	glAttachShader(program, vs);
 	glAttachShader(program, fs);
-	if (geometryShader != "none") {
+	if (geometryShader != "NONE") {
 		unsigned int gs = compileShader(getFileAsString(geometryShader), GL_GEOMETRY_SHADER);
 		glAttachShader(program, gs);
 	}
@@ -671,7 +624,7 @@ void Shader::setUniform4F(const char* name, float v1, float v2, float v3, float 
 {
 	glUniform4f(getShaderLoc(name), v1, v2, v3, v4);
 }
-void Shader::setUniformMatrix4x4(const char* name, Matrix4x4 mat)
+void Shader::setUniformMat4(const char* name, Mat4 mat)
 {
 	glUniformMatrix4fv(getShaderLoc(name), 1, false, &mat.m[0][0]);
 }
@@ -700,15 +653,15 @@ int Shader::compileShader(const std::string& src, unsigned int glType)
 
 	return id;
 }
-void Shader::setUniformVec4(const char* name, Vector3D v4d)
+void Shader::setUniformVec4(const char* name, Vec3 v4d)
 {
 	setUniform4F(name, v4d.x, v4d.y, v4d.z, v4d.w);
 };
-void Shader::setUniformVec3(const char* name, Vector3D v3d) 
+void Shader::setUniformVec3(const char* name, Vec3 v3d)
 {
 	setUniform3F(name, v3d.x, v3d.y, v3d.z);
 };
-void Shader::setUniformVec2(const char* name, Vector2D v2d) 
+void Shader::setUniformVec2(const char* name, Vec2 v2d)
 {
 	setUniform2F(name, v2d.x, v2d.y);
 };

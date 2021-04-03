@@ -17,7 +17,7 @@ namespace ingenium3D
 		static Ingenium3D* getEngine();
 		virtual void init();
 
-		Matrix4x4 makeTransProjMatrix(Mesh m);
+		Mat4 makeTransProjMatrix(Mesh m);
 
 		void refreshProjectionMatrix();
 		void setFOV(float fovDegrees);
@@ -26,7 +26,7 @@ namespace ingenium3D
 		static ID2D1PathGeometry* pGTriangle;
 
 		float *depthBuffer = nullptr;
-		Matrix4x4 projectionMatrix;
+		Mat4 projectionMatrix;
 		Camera camera;
 	};
 }

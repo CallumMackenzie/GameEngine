@@ -79,6 +79,9 @@
     <Filter Include="Packaged Dependencies\DevIL">
       <UniqueIdentifier>{e20e4a01-826e-4ee8-b672-2b300c3b7d91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaderrs">
+      <UniqueIdentifier>{8e87f2c5-d719-4c69-9fa0-440d24588958}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -305,6 +308,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Entry.lua" />
+    <None Include="shaders\blinnphong.frag">
+      <Filter>Shaderrs</Filter>
+    </None>
+    <None Include="shaders\blinnphongpf.frag">
+      <Filter>Shaderrs</Filter>
+    </None>
+    <None Include="shaders\phong.frag">
+      <Filter>Shaderrs</Filter>
+    </None>
+    <None Include="shaders\phongpf.frag">
+      <Filter>Shaderrs</Filter>
+    </None>
+    <None Include="shaders\vert3d.vert">
+      <Filter>Shaderrs</Filter>
+    </None>
+    <None Include="shaders\vert3dpf.vert">
+      <Filter>Shaderrs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Library Include="lualib\lua54.lib">

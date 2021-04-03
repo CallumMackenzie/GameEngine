@@ -254,6 +254,12 @@ xcopy /y /d  "$(ProjectDir)DLLs\*.dll" "$(OutDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="Entry.lua" />
+    <None Include="shaders\blinnphong.frag" />
+    <None Include="shaders\blinnphongpf.frag" />
+    <None Include="shaders\phong.frag" />
+    <None Include="shaders\phongpf.frag" />
+    <None Include="shaders\vert3d.vert" />
+    <None Include="shaders\vert3dpf.vert" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="DevIL\DevIL.lib" />

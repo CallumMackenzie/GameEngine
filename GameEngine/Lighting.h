@@ -10,10 +10,10 @@ struct DirectionalLight;
 struct Light
 {
 	float intensity = 1;
-	Vector3D ambient = { 0.1, 0.1, 0.1 };
-	Vector3D diffuse =  { 0.5, 0.5, 0.5 };
-	Vector3D specular = { 0.3, 0.3, 0.3 };
-	Vector3D position;
+	Vec3 ambient = { 0.1, 0.1, 0.1 };
+	Vec3 diffuse =  { 0.5, 0.5, 0.5 };
+	Vec3 specular = { 0.3, 0.3, 0.3 };
+	Vec3 position;
 	float constant = 1.0f;
 	float linear = 0.09f;
 	float quadratic = 0.032f;

@@ -39,7 +39,7 @@ namespace ingenium2D
 		float getMouseY();
 		Vector2 getMousePos();
 
-		Vector2D worldScreenSpaceToScreenSpace(float wX, float wY);
+		Vec2 worldScreenSpaceToScreenSpace(float wX, float wY);
 
 		float screenWidth();
 		float screenHeight();

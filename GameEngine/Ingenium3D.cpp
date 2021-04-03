@@ -8,18 +8,18 @@ void ingenium3D::Ingenium3D::init()
 	onCreate();
 	refreshProjectionMatrix();
 }
-Matrix4x4 Ingenium3D::makeTransProjMatrix(Mesh mesh)
+Mat4 Ingenium3D::makeTransProjMatrix(Mesh mesh)
 {
-	Matrix4x4 ret;
-	Matrix4x4 matWorld = mesh.makeWorldMatrix();
-	Matrix4x4 matCamera = camera.makeCameraMatrix();
-	Matrix4x4 matView = matCamera.qInverse();
+	Mat4 ret;
+	Mat4 matWorld = mesh.makeWorldMatrix();
+	Mat4 matCamera = camera.makeCameraMatrix();
+	Mat4 matView = matCamera.qInverse();
 	ret = (matWorld * matView) * projectionMatrix;
 	return ret;
 }
 void Ingenium3D::refreshProjectionMatrix()
 {
-	projectionMatrix = Matrix4x4::makeProjectionMatrix(camera.FOV, drwn->aspectRatio[1] / drwn->aspectRatio[0], camera.clipNear, camera.clipFar);
+	projectionMatrix = Mat4::makeProjectionMatrix(camera.FOV, drwn->aspectRatio[1] / drwn->aspectRatio[0], camera.clipNear, camera.clipFar);
 }
 void Ingenium3D::setFOV(float fov)
 {

@@ -26,8 +26,8 @@ struct OpenGLWindow : RenderWindow
 	bool isFullscreen = false;
 	unsigned int buffer;
 
-	Vector2D scale = { 1, 1 };
-	Vector2D translation;
+	Vec2 scale = { 1, 1 };
+	Vec2 translation;
 	void updateViewport();
 	void setFullScreen(bool fullscreen);
 
@@ -42,7 +42,7 @@ struct OpenGLWindow : RenderWindow
 
 	void drawTriangle(float point1X, float point1Y, float point2X, float point2Y, float point3X, float point3Y);
 
-	Vector2D worldScreenSpaceToScreenSpace(float wX, float wY);
+	Vec2 worldScreenSpaceToScreenSpace(float wX, float wY);
 	void peekGLErrors();
 
 	void setClearColour(long colour, float alpha);
