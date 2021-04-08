@@ -305,6 +305,9 @@
     <ClInclude Include="Lighting.h">
       <Filter>Header Files\Ingenium3D</Filter>
     </ClInclude>
+    <ClInclude Include="Cache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Entry.lua" />

@@ -9,6 +9,7 @@
 #include "Rotation.h"
 #include "OpenGL.h"
 #include "Log.h"
+#include "Cache.h"
 #include "DevIL/devil_cpp_wrapper.h"
 
 struct Vec3;
@@ -39,6 +40,18 @@ namespace utils3d {
 	template <typename T>
 	inline int sign(T val) {
 		return (T(0) < val) - (val < T(0));
+	}
+	inline float fastReciprocal(float x) {
+		union {
+			float flt[2];
+			std::uint_least32_t ull[2];
+		} u;
+		u.flt[0] = x; 
+		u.ull[1] = 0;
+		u.ull[0] = (0xbe6eb3beU - u.ull[0]) >> 1;
+		u.flt[1] = 0;
+		u.flt[0] *= u.flt[0];
+		return u.flt[0];
 	}
 };
 
@@ -152,12 +165,17 @@ struct Material {
 
 struct Mesh
 {
+	static inline Cache<std::string, int> textureReferenceCache = Cache<std::string, int>();
+	static inline Cache<std::string, unsigned int*> geometryReferenceCache = Cache<std::string, unsigned int*>();
+	static inline Cache<std::string, std::vector<Triangle>> geometryValueCache = Cache<std::string, std::vector<Triangle>>();
+
 	Vec3 position;
 	Vec3 rotation;
 	Vec3 scale = { 1, 1, 1 };
 	Vec3 rotationCenter;
 	Material material;
 	std::vector<Triangle> tris;
+	unsigned int numTris = 0;
 
 	static unsigned int loadTexture(std::string path, unsigned int texSlot, unsigned int sWrap = GL_REPEAT, unsigned int tWrap = GL_REPEAT, unsigned int minFilter = GL_LINEAR_MIPMAP_LINEAR,
 		unsigned int magFilter = GL_LINEAR);

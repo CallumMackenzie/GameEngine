@@ -28,7 +28,5 @@ void main () {
     tint = vertexRGB.rgba;
     normal =  mat3(transpose(invModel)) * vertexNormal.xyz;
     fragPos = vec3(model * vertexPosition);
-    if (hasNormalTexture) {
-        Tangent0 = (model * vec4(vertexTangent, 0.0)).xyz;   
-    }
+    Tangent0 = (model * vec4(vertexTangent, 0.0)).xyz;   
 }

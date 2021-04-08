@@ -19,6 +19,9 @@ struct Game : Ingenium3D
 
 	void onCreate()
 	{
+		Mesh::textureReferenceCache.use = true;
+		// Mesh::geometryReferenceCache.use = true;
+		Mesh::geometryValueCache.use = true;
 		engine3D = this;
 		engine = this;
 		createWindow("Ingenium", 1600, 900);
@@ -32,39 +35,46 @@ struct Game : Ingenium3D
 
 		drwn->peekGLErrors();
 
-		auto objPath = "./resource/uvsmoothnt.obj";
+		auto objPath = "./resource/cubent.obj";
 
-		m.push_back(Mesh{ -1.5, 0, 3 });
-		m[0].material.shininess = 0.4;
-		m[0].make(objPath, "./resource/sbrick/b.jpg", "NONE", "./resource/sbrick/n.jpg");
+		for (int i = 0; i < 10; i++) {
+			m.push_back(Mesh{ (float) i * 2.f, 0, 0 });
+			m[i].material.shininess = 2;
+			m[i].scale = Vec3{0.2, 0.2, 0.2};
+			m[i].make(objPath, "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg");
+		}
 
-		m.push_back(Mesh{ 1.5, 0, 3 });
-		m[1].material.shininess = 0.1;
-		m[1].make(objPath, "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg");
+		//m.push_back(Mesh{ -1.5, 0, 3 });
+		//m[0].material.shininess = 0.4;
+		//m[0].make(objPath, "./resource/sbrick/b.jpg", "NONE", "./resource/sbrick/n.jpg");
 
-		m.push_back(Mesh{ -4.5, 0, 3 });
-		m[2].material.shininess = 0.2;
-		m[2].make(objPath, "./resource/paper/b.jpg", "NONE", "./resource/paper/n.jpg");
+		//m.push_back(Mesh{ 1.5, 0, 3 });
+		//m[1].material.shininess = 0.1;
+		//m[1].make(objPath, "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg");
 
-		m.push_back(Mesh{ 4.5, 0, 3 });
-		m[3].material.shininess = 50;
-		m[3].make(objPath, "./resource/scrmetal/b.jpg", "./resource/scrmetal/s.jpg", "./resource/scrmetal/n.jpg");
+		//m.push_back(Mesh{ -4.5, 0, 3 });
+		//m[2].material.shininess = 0.2;
+		//m[2].make(objPath, "./resource/paper/b.jpg", "NONE", "./resource/paper/n.jpg");
 
-		m.push_back(Mesh{ -1.5, 3, 3 });
-		m[4].material.shininess = 1;
-		m[4].make(objPath, "./resource/gate/b.jpg", "./resource/gate/s.jpg", "./resource/gate/n.jpg");
+		//m.push_back(Mesh{ 4.5, 0, 3 });
+		//m[3].material.shininess = 50;
+		//m[3].make(objPath, "./resource/scrmetal/b.jpg", "./resource/scrmetal/s.jpg", "./resource/scrmetal/n.jpg");
 
-		m.push_back(Mesh{ 1.5, 3, 3 });
-		m[5].material.shininess = 0.6;
-		m[5].make(objPath, "./resource/mtrim/b.jpg", "./resource/mtrim/s.jpg", "./resource/mtrim/n.jpg");
+		//m.push_back(Mesh{ -1.5, 3, 3 });
+		//m[4].material.shininess = 1;
+		//m[4].make(objPath, "./resource/gate/b.jpg", "./resource/gate/s.jpg", "./resource/gate/n.jpg");
 
-		m.push_back(Mesh{ 4.5, 3, 3 });
-		m[6].material.shininess = 10;
-		m[6].make(objPath, "./resource/woodp/b.jpg", "NONE", "./resource/woodp/n.jpg");
+		//m.push_back(Mesh{ 1.5, 3, 3 });
+		//m[5].material.shininess = 0.6;
+		//m[5].make(objPath, "./resource/mtrim/b.jpg", "./resource/mtrim/s.jpg", "./resource/mtrim/n.jpg");
 
-		m.push_back(Mesh{ -4.5, 3, 3 });
-		m[7].material.shininess = 0.4;
-		m[7].make(objPath, "./resource/mplate/b.jpg", "./resource/mplate/s.jpg", "./resource/mplate/n.jpg");
+		//m.push_back(Mesh{ 4.5, 3, 3 });
+		//m[6].material.shininess = 10;
+		//m[6].make(objPath, "./resource/woodp/b.jpg", "NONE", "./resource/woodp/n.jpg");
+
+		//m.push_back(Mesh{ -4.5, 3, 3 });
+		//m[7].material.shininess = 0.4;
+		//m[7].make(objPath, "./resource/mplate/b.jpg", "./resource/mplate/s.jpg", "./resource/mplate/n.jpg");
 
 		dirLight.ambient = { 0.001, 0.001, 0.001 };
 		dirLight.diffuse = { 0.5, 0.5, 0.5 };
@@ -94,8 +104,8 @@ struct Game : Ingenium3D
 	void onUpdate()
 	{
 		Input* in = Input::getInput(drwn->window);
-		Debug::oss << "FPS: " << 1.f / Time::deltaTime;
-		Debug::writeLn();
+		//Debug::oss << "FPS: " << 1.f / Time::deltaTime;
+		//Debug::writeLn();
 		float speed = 3;
 		float cameraMoveSpeed = 0.002;
 		Vec3 cLV = camera.lookVector();

@@ -18,4 +18,4 @@
 #define LUA_ENGINE_FIXED_UPDATE "onFixedUpdate"
 #define LUA_ENGINE_CLOSE "onClose"
 
-#define MAX_OBJ_LINE_CHARS 256
+#define MAX_OBJ_LINE_CHARS 128

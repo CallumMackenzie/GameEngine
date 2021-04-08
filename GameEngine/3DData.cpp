@@ -230,13 +230,32 @@ Mat4 Mat4::makeRotationAroundPoint(float xRad, float yRad, float zRad, Vec3 rotP
 }
 bool Mesh::loadFromOBJ(std::string fileName)
 {
+	bool debugLoadTime = true;
+	auto startLoad = clock();
+	if (geometryValueCache.use)
+		if (geometryValueCache.containsKey(fileName)) {
+			tris = geometryValueCache.cache[fileName];
+			numTris = tris.size();
+			if (debugLoadTime) {
+				Debug::oss << "Geometry value cache hit (" << fileName << "): " << (((float)(clock() - startLoad) / (float)CLOCKS_PER_SEC) * 1000.f) << "ms";
+				Debug::writeLn();
+			}
+			return true;
+		}
+	if (geometryReferenceCache.use)
+		if (geometryReferenceCache.containsKey(fileName)) {
+			mVBO = geometryReferenceCache.cache[fileName][0];
+			mVAO = geometryReferenceCache.cache[fileName][1];
+			numTris = geometryReferenceCache.cache[fileName][2];
+			if (debugLoadTime) {
+				Debug::oss << "Geometry reference cache hit (" << fileName << "): " << (((float)(clock() - startLoad) / (float)CLOCKS_PER_SEC) * 1000.f) << "ms";
+				Debug::writeLn();
+			}
+			loaded = true;
+			return true;
+		}
 	bool hasTexture = false;
 	bool hasNormals = false;
-	std::string f1 = Shader::getFileAsString(fileName);
-	if (f1.find("vt") != std::string::npos)
-		hasTexture = true;
-	if (f1.find("vn") != std::string::npos)
-		hasNormals = true;
 
 	using namespace std;
 	ifstream f(fileName);
@@ -256,11 +275,13 @@ bool Mesh::loadFromOBJ(std::string fileName)
 		s << line;
 		if (line[0] == 'v') {
 			if (line[1] == 't') {
+				hasTexture = true;
 				Vec2 v;
 				s >> junk >> junk >> v.u >> v.v;
 				texs.push_back(v);
 			}
 			else if (line[1] == 'n') {
+				hasNormals = true;
 				Vec3 normal;
 				s >> junk >> junk >> normal.x >> normal.y >> normal.z;
 				normals.push_back(normal);
@@ -275,13 +296,9 @@ bool Mesh::loadFromOBJ(std::string fileName)
 			if (line[0] == 'f') {
 				int face[3] = { 0 };
 				s >> junk >> face[0] >> face[1] >> face[2];
-				int v1 = face[0] - 1;
-				int v2 = face[1] - 1;
-				int v3 = face[2] - 1;
 				Triangle fTri;
-				fTri.v[0].p = verts[v1 < 0 ? 0 : v1];
-				fTri.v[1].p = verts[v2 < 0 ? 0 : v2];
-				fTri.v[2].p = verts[v3 < 0 ? 0 : v3];
+				for (int j = 0; j < 3; j++)
+					fTri.v[j].p = verts[face[j] - 1];
 				tris.push_back(fTri);
 			}
 		}
@@ -327,6 +344,14 @@ bool Mesh::loadFromOBJ(std::string fileName)
 			}
 		}
 	}
+	numTris = tris.size();
+	if (debugLoadTime) {
+		Debug::oss << "No cache hits (" << fileName << "): " << (((float)(clock() - startLoad) / (float)CLOCKS_PER_SEC) * 1000.f) << "ms";
+		Debug::writeLn();
+	}
+	if (geometryValueCache.use)
+		if (!geometryValueCache.containsKey(fileName))
+			geometryValueCache.add(fileName, tris);
 	return true;
 }
 Mat4 Mesh::makeWorldMatrix()
@@ -360,7 +385,6 @@ void Mesh::toVertexArray(VertexArray** ptr)
 }
 void Mesh::load() {
 	if (!loaded) {
-#if RENDERER == RENDERER_3D
 		glGenBuffers(1, &mVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, mVBO);
 
@@ -384,12 +408,22 @@ void Mesh::load() {
 
 		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Triangle::Component), (void*)(sizeof(Vec3) + sizeof(Vec2) + sizeof(Vec3) + sizeof(Vec3)));
 		glEnableVertexAttribArray(4);
-#endif
 	}
 	loaded = true;
 }
 unsigned int Mesh::loadTexture(std::string path, unsigned int texSlot, unsigned int sWrap, unsigned int tWrap, unsigned int minFilter, unsigned int magFilter)
 {
+	bool debugCache = false;
+	auto startLoad = clock();
+	if (textureReferenceCache.use)
+		if (textureReferenceCache.containsKey(path)) {
+			if (debugCache) {
+				Debug::oss << "Texture reference cache hit (" << path << "): " << (((float)(clock() - startLoad) / (float)CLOCKS_PER_SEC) * 1000.f) << "ms";
+				Debug::writeLn();
+			}
+			return textureReferenceCache.cache[path];
+		}
+
 	unsigned int tex = GL_NONE;
 	auto mode = GL_RGBA;
 	auto ilMode = IL_RGBA;
@@ -425,6 +459,10 @@ unsigned int Mesh::loadTexture(std::string path, unsigned int texSlot, unsigned 
 				if (data) {
 					glTexImage2D(GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, data);
 					glGenerateMipmap(GL_TEXTURE_2D);
+
+					if (textureReferenceCache.use)
+						if (!textureReferenceCache.containsKey(path))
+							textureReferenceCache.add(path, tex);
 				}
 				else {
 					Debug::oss << "Image loaing failed: " << path;
@@ -433,18 +471,27 @@ unsigned int Mesh::loadTexture(std::string path, unsigned int texSlot, unsigned 
 			}
 		}
 	}
+	if (debugCache) {
+		Debug::oss << "No cache hits (" << path << "): " << (((float)(clock() - startLoad) / (float)CLOCKS_PER_SEC) * 1000.f) << "ms";
+		Debug::writeLn();
+	}
 	return tex;
 }
 void Mesh::setTexture(std::string texturePath, std::string specularPath, std::string normalPath)
 {
 	material.diffuseTex = Mesh::loadTexture(texturePath, GL_TEXTURE0);
 	material.specularTex = Mesh::loadTexture(specularPath, GL_TEXTURE1);
+	material.normalTex = Mesh::loadTexture(normalPath, GL_TEXTURE2);
 }
 void Mesh::make(std::string obj, std::string texturePath, std::string specularPath, std::string normalPath)
 {
 	loadFromOBJ(obj);
 	setTexture(texturePath, specularPath, normalPath);
 	load();
+	if (geometryReferenceCache.use)
+		if (!geometryReferenceCache.containsKey(obj)) {
+			geometryReferenceCache.add(obj, new unsigned int[] { mVBO, mVAO, numTris });
+		}
 }
 Vec3 Mesh::calcTangent(Triangle tri)
 {
@@ -453,7 +500,7 @@ Vec3 Mesh::calcTangent(Triangle tri)
 	Vec2 dUV1 = tri.v[1].t - tri.v[0].t;
 	Vec2 dUV2 = tri.v[2].t - tri.v[0].t;
 
-	float f = 1.0f / (dUV1.x * dUV2.y - dUV2.x * dUV1.y);
+	float f = utils3d::fastReciprocal(dUV1.x * dUV2.y - dUV2.x * dUV1.y);
 
 	Vec3 tan;
 	tan.x = f * (dUV2.y * edge1.x - dUV1.y * edge2.x);
@@ -474,6 +521,8 @@ void Mesh::render(Shader* shader, Camera c, Mat4* projectionMatrix)
 		glBindTexture(GL_TEXTURE_2D, material.diffuseTex);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, material.specularTex);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, material.normalTex);
 		shader->setUniformFloat("u_time", glfwGetTime());
 		shader->setUniformMat4("model", makeWorldMatrix());
 		shader->setUniformVec3("viewPos", c.position);
@@ -481,7 +530,7 @@ void Mesh::render(Shader* shader, Camera c, Mat4* projectionMatrix)
 		shader->setUniformMat4("projection", *projectionMatrix);
 		shader->setUniformMat4("invModel", makeWorldMatrix().qInverse());
 		shader->setUniformFloat("material.shininess", material.shininess);
-		glDrawArrays(GL_TRIANGLES, 0, tris.size() * 3);
+		glDrawArrays(GL_TRIANGLES, 0, numTris * 3);
 	}
 }
 void Mesh::renderAll(Shader* shader, Camera c, Mat4* projectionMatrix, std::vector<Mesh> m) {
@@ -507,7 +556,7 @@ void Mesh::renderAll(Shader* shader, Camera c, Mat4* projectionMatrix, std::vect
 			shader->setUniformMat4("model", m[i].makeWorldMatrix());
 			shader->setUniformMat4("invModel", m[i].makeWorldMatrix().qInverse());
 			shader->setUniformFloat("material.shininess", m[i].material.shininess);
-			glDrawArrays(GL_TRIANGLES, 0, m[i].tris.size() * 3);
+			glDrawArrays(GL_TRIANGLES, 0, m[i].numTris * 3);
 		}
 	}
 };
@@ -586,15 +635,19 @@ Shader::Shader(std::string vertexShader, std::string fragmentShader, std::string
 }
 std::string Shader::getFileAsString(std::string path)
 {
-	std::ifstream f;
-	std::stringstream ss;
-	std::string ln;
-	f.open(path);
-	while (!f.eof()) {
-		getline(f, ln);
-		ss << ln << "\n";
-	}
-	return ss.str();
+	//std::ifstream f;
+	//std::stringstream ss;
+	//std::string ln;
+	//f.open(path);
+	//while (!f.eof()) {
+	//	getline(f, ln);
+	//	ss << ln << "\n";
+	//}
+	//return ss.str();
+	std::ifstream t(path);
+	std::stringstream buffer;
+	buffer << t.rdbuf();
+	return buffer.str();
 }
 void Shader::use()
 {

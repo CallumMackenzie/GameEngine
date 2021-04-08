@@ -130,6 +130,10 @@ xcopy /y /d  "$(ProjectDir)DLLs\*.dll" "$(OutDir)"</Command>
       <AdditionalDependencies>glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>echo Moving DLLs to output directory
+xcopy /y /d  "$(ProjectDir)DLLs\*.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -174,6 +178,10 @@ xcopy /y /d  "$(ProjectDir)DLLs\*.dll" "$(OutDir)"</Command>
       <AdditionalDependencies>glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>echo Moving DLLs to output directory
+xcopy /y /d  "$(ProjectDir)DLLs\*.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="3DData.cpp" />
@@ -205,6 +213,7 @@ xcopy /y /d  "$(ProjectDir)DLLs\*.dll" "$(OutDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3DData.h" />
+    <ClInclude Include="Cache.h" />
     <ClInclude Include="C_WICImageFactory.h" />
     <ClInclude Include="DevIL\devil_cpp_wrapper.h" />
     <ClInclude Include="DevIL\il.h" />
