@@ -232,7 +232,7 @@ bool Mesh::loadFromOBJ(std::string fileName)
 {
 	bool debugLoadTime = true;
 	auto startLoad = clock();
-	if (geometryValueCache.use)
+	if (geometryValueCache.use && useGeometryValueCache)
 		if (geometryValueCache.containsKey(fileName)) {
 			tris = geometryValueCache.cache[fileName];
 			numTris = tris.size();
@@ -242,7 +242,7 @@ bool Mesh::loadFromOBJ(std::string fileName)
 			}
 			return true;
 		}
-	if (geometryReferenceCache.use)
+	if (geometryReferenceCache.use && useGeometryReferenceCache)
 		if (geometryReferenceCache.containsKey(fileName)) {
 			mVBO = geometryReferenceCache.cache[fileName][0];
 			mVAO = geometryReferenceCache.cache[fileName][1];
@@ -349,7 +349,7 @@ bool Mesh::loadFromOBJ(std::string fileName)
 		Debug::oss << "No cache hits (" << fileName << "): " << (((float)(clock() - startLoad) / (float)CLOCKS_PER_SEC) * 1000.f) << "ms";
 		Debug::writeLn();
 	}
-	if (geometryValueCache.use)
+	if (geometryValueCache.use && useGeometryValueCache)
 		if (!geometryValueCache.containsKey(fileName))
 			geometryValueCache.add(fileName, tris);
 	return true;
@@ -411,11 +411,11 @@ void Mesh::load() {
 	}
 	loaded = true;
 }
-unsigned int Mesh::loadTexture(std::string path, unsigned int texSlot, unsigned int sWrap, unsigned int tWrap, unsigned int minFilter, unsigned int magFilter)
+unsigned int Mesh::loadTexture(std::string path, unsigned int texSlot, bool useRefCache, unsigned int sWrap, unsigned int tWrap, unsigned int minFilter, unsigned int magFilter)
 {
 	bool debugCache = false;
 	auto startLoad = clock();
-	if (textureReferenceCache.use)
+	if (textureReferenceCache.use && useRefCache)
 		if (textureReferenceCache.containsKey(path)) {
 			if (debugCache) {
 				Debug::oss << "Texture reference cache hit (" << path << "): " << (((float)(clock() - startLoad) / (float)CLOCKS_PER_SEC) * 1000.f) << "ms";
@@ -479,16 +479,16 @@ unsigned int Mesh::loadTexture(std::string path, unsigned int texSlot, unsigned 
 }
 void Mesh::setTexture(std::string texturePath, std::string specularPath, std::string normalPath)
 {
-	material.diffuseTex = Mesh::loadTexture(texturePath, GL_TEXTURE0);
-	material.specularTex = Mesh::loadTexture(specularPath, GL_TEXTURE1);
-	material.normalTex = Mesh::loadTexture(normalPath, GL_TEXTURE2);
+	material.diffuseTex = Mesh::loadTexture(texturePath, GL_TEXTURE0, useTextureReferenceCache);
+	material.specularTex = Mesh::loadTexture(specularPath, GL_TEXTURE1, useTextureReferenceCache);
+	material.normalTex = Mesh::loadTexture(normalPath, GL_TEXTURE2, useTextureReferenceCache);
 }
 void Mesh::make(std::string obj, std::string texturePath, std::string specularPath, std::string normalPath)
 {
 	loadFromOBJ(obj);
 	setTexture(texturePath, specularPath, normalPath);
 	load();
-	if (geometryReferenceCache.use)
+	if (geometryReferenceCache.use && useGeometryReferenceCache)
 		if (!geometryReferenceCache.containsKey(obj)) {
 			geometryReferenceCache.add(obj, new unsigned int[] { mVBO, mVAO, numTris });
 		}

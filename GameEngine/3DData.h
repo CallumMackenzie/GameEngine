@@ -176,8 +176,11 @@ struct Mesh
 	Material material;
 	std::vector<Triangle> tris;
 	unsigned int numTris = 0;
+	bool useTextureReferenceCache = true;
+	bool useGeometryReferenceCache = true;
+	bool useGeometryValueCache = true;
 
-	static unsigned int loadTexture(std::string path, unsigned int texSlot, unsigned int sWrap = GL_REPEAT, unsigned int tWrap = GL_REPEAT, unsigned int minFilter = GL_LINEAR_MIPMAP_LINEAR,
+	static unsigned int loadTexture(std::string path, unsigned int texSlot, bool useRefCache, unsigned int sWrap = GL_REPEAT, unsigned int tWrap = GL_REPEAT, unsigned int minFilter = GL_LINEAR_MIPMAP_LINEAR,
 		unsigned int magFilter = GL_LINEAR);
 	static void renderAll(Shader* shader, Camera c, Mat4* projectionMatrix, std::vector<Mesh> m);
 

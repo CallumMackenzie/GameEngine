@@ -19,8 +19,17 @@ struct Game : Ingenium3D
 
 	void onCreate()
 	{
+		// Load times of 50 uv spheres with 3 textures:
+		// No caching:					4642 ms
+		// Just texture ref caching:	1174 ms
+		// Just geometry ref caching:	3608 ms
+		// Just geometry val caching:	3599 ms
+		// Geometry ref & texture ref:	117  ms
+		// Geometry val & texture ref:	112  ms
+		// All caching enabled:			113  ms
+
 		Mesh::textureReferenceCache.use = true;
-		// Mesh::geometryReferenceCache.use = true;
+		Mesh::geometryReferenceCache.use = true;
 		Mesh::geometryValueCache.use = true;
 		engine3D = this;
 		engine = this;
@@ -35,14 +44,17 @@ struct Game : Ingenium3D
 
 		drwn->peekGLErrors();
 
-		auto objPath = "./resource/cubent.obj";
+		auto objPath = "./resource/uvsmoothnt.obj";
 
-		for (int i = 0; i < 10; i++) {
-			m.push_back(Mesh{ (float) i * 2.f, 0, 0 });
-			m[i].material.shininess = 2;
-			m[i].scale = Vec3{0.2, 0.2, 0.2};
+		auto startClock = clock();
+		for (int i = 0; i < 1000; i++) {
+			m.push_back(Mesh{ (float)i * 2.f, 0, 0 });
+			m[i].material.shininess = 0.3;
+			m[i].useGeometryValueCache = false;
 			m[i].make(objPath, "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg");
 		}
+		Debug::oss << "Full load time: " << (((float)(clock() - startClock) / (float)CLOCKS_PER_SEC) * 1000.f) << "ms";
+		Debug::writeLn();
 
 		//m.push_back(Mesh{ -1.5, 0, 3 });
 		//m[0].material.shininess = 0.4;
@@ -133,7 +145,7 @@ struct Game : Ingenium3D
 		camera.position = camera.position + forward.normalized() * speed * Time::deltaTime;
 
 		for (int i = 0; i < m.size(); i++)
-			m[i].rotation = m[i].rotation + Vec3{1, 1, 1} * Time::deltaTime;
+			m[i].rotation = m[i].rotation + Vec3{ 1, 1, 1 } *Time::deltaTime;
 
 		cameraCorrection();
 
